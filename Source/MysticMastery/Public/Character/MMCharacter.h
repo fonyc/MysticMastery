@@ -6,23 +6,28 @@
 #include "MMCharacterBase.h"
 #include "MMCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class MYSTICMASTERY_API AMMCharacter : public AMMCharacterBase
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AMMCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category="Camera")
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
+	UPROPERTY(EditAnywhere, Category="Camera")
+	TObjectPtr<UCameraComponent> Camera;
+
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

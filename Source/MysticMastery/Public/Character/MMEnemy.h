@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Character/MMCharacterBase.h"
+#include "Interaction/EnemyInterface.h"
 #include "MMEnemy.generated.h"
 
 UCLASS()
-class MYSTICMASTERY_API AMMEnemy : public AMMCharacterBase
+class MYSTICMASTERY_API AMMEnemy : public AMMCharacterBase, public IEnemyInterface
 {
 	GENERATED_BODY()
 
@@ -15,6 +16,8 @@ public:
 	// Sets default values for this character's properties
 	AMMEnemy();
 
+	void HighlightActor() override;
+	void UnHighlightActor() override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

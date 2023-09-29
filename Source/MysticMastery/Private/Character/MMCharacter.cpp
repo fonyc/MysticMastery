@@ -35,7 +35,6 @@ AMMCharacter::AMMCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArmComponent);
-	
 	Camera->bUsePawnControlRotation = false;
 }
 

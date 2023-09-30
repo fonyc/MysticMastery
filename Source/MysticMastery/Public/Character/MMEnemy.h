@@ -16,8 +16,8 @@ public:
 	// Sets default values for this character's properties
 	AMMEnemy();
 
-	void HighlightActor() override;
-	void UnHighlightActor() override;
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

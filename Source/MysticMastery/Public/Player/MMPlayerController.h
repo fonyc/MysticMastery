@@ -9,6 +9,7 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class IEnemyInterface;
 
 /**
  * 
@@ -20,7 +21,7 @@ class MYSTICMASTERY_API AMMPlayerController : public APlayerController
 
 public:
 	AMMPlayerController();
-
+	virtual void Tick(float DeltaSeconds) override;
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -33,4 +34,9 @@ private:
 	TObjectPtr<UInputAction> MoveAction;
 
 	void Move(const FInputActionValue& InputActionValue);
+
+	//Tracing stuff under mouse
+	void CursorTrace();
+	IEnemyInterface* LastActorUnderCursor;
+	IEnemyInterface* CurrentActorUnderCursor;
 };

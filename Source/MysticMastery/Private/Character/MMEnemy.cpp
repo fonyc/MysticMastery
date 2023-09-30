@@ -3,6 +3,8 @@
 
 #include "MysticMastery/Public/Character/MMEnemy.h"
 
+#include "MysticMastery/MysticMastery.h"
+
 AMMEnemy::AMMEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -10,11 +12,17 @@ AMMEnemy::AMMEnemy()
 
 void AMMEnemy::HighlightActor()
 {
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_STENCIL);
+	
+	Weapon->SetRenderCustomDepth(true);
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_STENCIL);
 }
 
 void AMMEnemy::UnHighlightActor()
 {
-	
+	GetMesh()->SetRenderCustomDepth(false);
+	Weapon->SetRenderCustomDepth(false);
 }
 
 void AMMEnemy::BeginPlay()

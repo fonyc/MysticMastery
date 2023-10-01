@@ -3,12 +3,20 @@
 
 #include "MysticMastery/Public/Character/MMEnemy.h"
 
+#include "AbilitySystem/MMAbilitySystemComponent.h"
+#include "AbilitySystem/MMAttributeSet.h"
 #include "MysticMastery/MysticMastery.h"
 
 AMMEnemy::AMMEnemy()
 {
 	//In order to make enemies be able to be highlighted, set its collision response to visibility to block
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+
+	//GAS
+	AbilitySystemComponent = CreateDefaultSubobject<UMMAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+
+	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 }
 
 void AMMEnemy::HighlightActor()

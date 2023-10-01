@@ -16,6 +16,11 @@ AMMCharacterBase::AMMCharacterBase()
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

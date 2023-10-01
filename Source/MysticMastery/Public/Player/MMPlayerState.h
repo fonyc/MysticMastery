@@ -3,16 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
 #include "MMPlayerState.generated.h"
+
+class UAbilitySystemComponent;
+class UAttributeSet;
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMASTERY_API AMMPlayerState : public APlayerState
+class MYSTICMASTERY_API AMMPlayerState : public APlayerState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 public:
 	AMMPlayerState();
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+protected:
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UAttributeSet> AttributeSet;
 };

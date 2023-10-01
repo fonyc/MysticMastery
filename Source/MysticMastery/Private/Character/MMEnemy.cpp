@@ -15,6 +15,7 @@ AMMEnemy::AMMEnemy()
 	//GAS
 	AbilitySystemComponent = CreateDefaultSubobject<UMMAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 }

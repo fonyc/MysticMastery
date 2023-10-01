@@ -14,6 +14,7 @@ AMMPlayerState::AMMPlayerState()
 	//GAS
 	AbilitySystemComponent = CreateDefaultSubobject<UMMAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 }

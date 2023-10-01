@@ -7,7 +7,8 @@
 
 AMMEnemy::AMMEnemy()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	//In order to make enemies be able to be highlighted, set its collision response to visibility to block
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 }
 
 void AMMEnemy::HighlightActor()

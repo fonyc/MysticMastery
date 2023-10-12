@@ -18,8 +18,6 @@ public:
 	AMMCharacter();
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditAnywhere, Category="Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
@@ -27,7 +25,8 @@ protected:
 	TObjectPtr<UCameraComponent> Camera;
 
 public:
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+private:
+	void InitializeAbilityActorInfo();
 };

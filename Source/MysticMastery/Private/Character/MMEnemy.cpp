@@ -38,6 +38,7 @@ void AMMEnemy::UnHighlightActor()
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	AbilitySystemComponent->InitAbilityActorInfo(this,this);
 }
 
 void AMMEnemy::Tick(float DeltaTime)

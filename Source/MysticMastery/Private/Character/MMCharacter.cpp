@@ -60,8 +60,9 @@ void AMMCharacter::InitializeAbilityActorInfo()
 {
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
-	GetAbilitySystemComponent()->InitAbilityActorInfo(MMPlayerState, this);
 
 	AbilitySystemComponent = MMPlayerState->GetAbilitySystemComponent();
 	AttributeSet = MMPlayerState->GetAttributeSet();
+	
+	GetAbilitySystemComponent()->InitAbilityActorInfo(MMPlayerState, this);
 }

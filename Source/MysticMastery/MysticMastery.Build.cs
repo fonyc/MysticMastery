@@ -15,10 +15,11 @@ public class MysticMastery : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-			"GameplayAbilities"
+			"GameplayAbilities",
+			"UMG" 
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags","GameplayTasks" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags","GameplayTasks"});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

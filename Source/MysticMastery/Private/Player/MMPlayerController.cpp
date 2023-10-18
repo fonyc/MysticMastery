@@ -22,11 +22,10 @@ void AMMPlayerController::BeginPlay()
 	Super::BeginPlay();
 	check(Context);
 
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-		GetLocalPlayer());
-	check(Subsystem);
-
-	Subsystem->AddMappingContext(Context, 0);
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(Context, 0);
+	}
 
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
@@ -49,14 +48,14 @@ void AMMPlayerController::SetupInputComponent()
 void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
-	
+
 	//Based in our controller, FW direction is the (0,Controller.Yaw,0) value  
 	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if(APawn* ControlledPawn = GetPawn<APawn>())
+	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
@@ -66,22 +65,22 @@ void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 void AMMPlayerController::CursorTrace()
 {
 	FHitResult CursorHit;
-	GetHitResultUnderCursor(ECC_Visibility,false,CursorHit);
-	if(!CursorHit.bBlockingHit) return;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
 
 	LastActorUnderCursor = CurrentActorUnderCursor;
 	CurrentActorUnderCursor = Cast<IEnemyInterface>(CursorHit.GetActor());
-	
-	if(LastActorUnderCursor == nullptr && CurrentActorUnderCursor != nullptr)
+
+	if (LastActorUnderCursor == nullptr && CurrentActorUnderCursor != nullptr)
 	{
 		CurrentActorUnderCursor->HighlightActor();
 	}
-	else if(LastActorUnderCursor != nullptr && CurrentActorUnderCursor != nullptr)
+	else if (LastActorUnderCursor != nullptr && CurrentActorUnderCursor != nullptr)
 	{
 		LastActorUnderCursor->UnHighlightActor();
 		CurrentActorUnderCursor->HighlightActor();
 	}
-	else if(LastActorUnderCursor != nullptr && CurrentActorUnderCursor == nullptr)
+	else if (LastActorUnderCursor != nullptr && CurrentActorUnderCursor == nullptr)
 	{
 		LastActorUnderCursor->UnHighlightActor();
 	}

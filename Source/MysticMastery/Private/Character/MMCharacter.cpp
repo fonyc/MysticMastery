@@ -7,7 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/MMPlayerController.h"
 #include "Player/MMPlayerState.h"
+#include "UI/HUD/MMHUD.h"
 
 
 // Sets default values
@@ -65,4 +67,16 @@ void AMMCharacter::InitializeAbilityActorInfo()
 	AttributeSet = MMPlayerState->GetAttributeSet();
 	
 	GetAbilitySystemComponent()->InitAbilityActorInfo(MMPlayerState, this);
+
+	//This is a perfect spot to fill the HUD data, cause we have all 4 variables needed (PS,PC,ASC,AC) and also
+	//access to the HUD. 
+	//Only in the server all PC are valid --> checking the PC cannot stop the execution (local player1 will stop its
+	//execution when checking Player2's PC cause they dont have it)--> So we just check if it's valid
+	if(AMMPlayerController* MMPlayerController = Cast<AMMPlayerController>(GetController()))
+	{
+		if(AMMHUD* MMHUD = Cast<AMMHUD>(MMPlayerController->GetHUD()))
+		{
+			MMHUD->InitOverlay(MMPlayerController,MMPlayerState,AbilitySystemComponent,AttributeSet);
+		}
+	}
 }

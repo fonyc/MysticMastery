@@ -44,7 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WidgetControllerParams);
 	virtual void BroadcastInitialValues();
+	virtual void BindCallbacksToDependencies();
 protected:
+	
 	/** 
 	* DEPENDENCIES:
 	* These pointers are the places the widget may need to require data from or subscribe to some events

@@ -11,6 +11,6 @@ void UMMWidgetController::SetWidgetControllerParams(const FWidgetControllerParam
 	AttributeSet = WidgetControllerParams.AttributeSet;
 }
 
-void UMMWidgetController::BroadcastInitialValues()
-{
-}
+void UMMWidgetController::BroadcastInitialValues() {}
+
+void UMMWidgetController::BindCallbacksToDependencies() {}

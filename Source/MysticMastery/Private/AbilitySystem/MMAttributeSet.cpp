@@ -4,7 +4,7 @@
 
 UMMAttributeSet::UMMAttributeSet()
 {
-	InitHealth(100.f);
+	InitHealth(50.f);
 	InitMaxHealth(100.0f);
 	InitMana(100.0f);
 	InitMaxMana(100.0f);

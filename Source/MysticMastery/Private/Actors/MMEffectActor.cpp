@@ -29,6 +29,7 @@ UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,const FHit
 		const UMMAttributeSet* AttributeSet = Cast<UMMAttributeSet>(AbilitySystemInterface->GetAbilitySystemComponent()->GetAttributeSet(UMMAttributeSet::StaticClass()));
 		UMMAttributeSet* MutableAttributeSet = const_cast<UMMAttributeSet*>(AttributeSet);
 		MutableAttributeSet->SetHealth(AttributeSet->GetHealth() + 25.f);
+		MutableAttributeSet->SetMana(AttributeSet->GetMana() + 25.f);
 		Destroy();
 	}
 	

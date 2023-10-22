@@ -43,7 +43,7 @@ class MYSTICMASTERY_API UMMWidgetController : public UObject
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WidgetControllerParams);
-
+	virtual void BroadcastInitialValues();
 protected:
 	/** 
 	* DEPENDENCIES:

@@ -10,3 +10,7 @@ void UMMWidgetController::SetWidgetControllerParams(const FWidgetControllerParam
 	AbilitySystemComponent = WidgetControllerParams.AbilitySystemComponent;
 	AttributeSet = WidgetControllerParams.AttributeSet;
 }
+
+void UMMWidgetController::BroadcastInitialValues()
+{
+}

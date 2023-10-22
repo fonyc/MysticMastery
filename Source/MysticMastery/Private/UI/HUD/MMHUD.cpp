@@ -6,6 +6,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "UI/Widgets/MMUserWidget.h"
 
+//This method works kind of a singleton. If no OverlayWidget create it, if it does, just get it
 UOverlayWidgetController* AMMHUD::GetOverlayWidgetController(const FWidgetControllerParams& WidgetControllerParams)
 {
 	if (OverlayWidgetController == nullptr)
@@ -29,6 +30,8 @@ void AMMHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(WidgetController);
+	//Once widget controller has a valid attribute set, let's Broadcast its initial values to the UI
+	WidgetController->BroadcastInitialValues();
 
 	UserWidget->AddToViewport();
 }

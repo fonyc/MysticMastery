@@ -6,5 +6,5 @@
 void UMMUserWidget::SetWidgetController(UObject* InWidgetController)
 {
 	WidgetController = InWidgetController;
-	WidgetControllerSet();
+	OnWidgetControllerSet();
 }

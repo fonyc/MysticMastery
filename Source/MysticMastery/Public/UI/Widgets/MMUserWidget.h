@@ -29,5 +29,5 @@ protected:
 	* Called immediately after setting the Widget Controller. Responsible for setting Widget data.  
 	*/
 	UFUNCTION(BlueprintImplementableEvent)
-	void WidgetControllerSet();
+	void OnWidgetControllerSet();
 };

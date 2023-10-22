@@ -37,6 +37,6 @@ private:
 
 	//Tracing stuff under mouse
 	void CursorTrace();
-	IEnemyInterface* LastActorUnderCursor;
-	IEnemyInterface* CurrentActorUnderCursor;
+	TObjectPtr<IEnemyInterface> LastActorUnderCursor;
+	TObjectPtr<IEnemyInterface> CurrentActorUnderCursor;
 };

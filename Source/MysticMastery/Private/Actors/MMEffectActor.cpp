@@ -81,23 +81,22 @@ void AMMEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-		if(!IsValid(TargetActor)) return;
+		if (!IsValid(TargetActor)) return;
 
 		TArray<FActiveGameplayEffectHandle> HandlesToRemove;
-		
-		for(auto HandlePair : ActiveEffectHandles)
+
+		for (auto HandlePair : ActiveEffectHandles)
 		{
-			if(TargetASC == HandlePair.Value)
+			if (TargetASC == HandlePair.Value)
 			{
-				TargetASC->RemoveActiveGameplayEffect(HandlePair.Key);
+				TargetASC->RemoveActiveGameplayEffect(HandlePair.Key, 1);
 				HandlesToRemove.Add(HandlePair.Key);
 			}
 		}
-		
-		for(auto& Handle: HandlesToRemove)
+
+		for (auto& Handle : HandlesToRemove)
 		{
 			ActiveEffectHandles.FindAndRemoveChecked(Handle);
 		}
 	}
-
 }

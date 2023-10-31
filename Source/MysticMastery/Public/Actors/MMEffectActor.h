@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Applied Effects | General")
 	bool bDestroyAfterEffectRemoval;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Applied Effects | General")
+	float ActorLevel = 1.f;
+
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles;
 
 #pragma region APPLIED EFFECTS

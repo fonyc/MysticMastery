@@ -1,5 +1,4 @@
 #include "AbilitySystem/MMAttributeSet.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
@@ -102,7 +101,7 @@ void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
 		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
 		Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
-		//UAbilitySystemComponent* TargetASC = Data.Target.AbilityActorInfo->AbilitySystemComponent.Get();
 		Props.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetAvatarActor);
+		//Props.TargetASC = Data.Target.AbilityActorInfo->AbilitySystemComponent.Get();
 	}
 }

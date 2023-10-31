@@ -22,11 +22,10 @@ struct FEffectProperties
 {
 	GENERATED_BODY()
 
-	FEffectProperties();
+	FEffectProperties(){};
 
 	FGameplayEffectContextHandle EffectContextHandle;
-
-#pragma region SOURCE VARIABLES
+	
 	UPROPERTY()
 	AActor* SourceAvatarActor = nullptr;
 
@@ -38,9 +37,7 @@ struct FEffectProperties
 
 	UPROPERTY()
 	ACharacter* SourceCharacter = nullptr;
-#pragma endregion
-
-#pragma region TARGET VARIABLES
+	
 	UPROPERTY()
 	AActor* TargetAvatarActor = nullptr;
 
@@ -52,7 +49,7 @@ struct FEffectProperties
 
 	UPROPERTY()
 	ACharacter* TargetCharacter = nullptr;
-#pragma endregion
+
 };
 
 UCLASS()

@@ -4,6 +4,7 @@
 #include "Character/MMCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -60,16 +61,21 @@ void AMMCharacter::OnRep_PlayerState()
 
 void AMMCharacter::InitializeAbilityActorInfo()
 {
+	Super::InitializeAbilityActorInfo();
+	
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
+
+	MMPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(MMPlayerState, this);
+	
+	//Warn the delegate we just set the ability actor info
+	Cast<UMMAbilitySystemComponent>(MMPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 
 	AbilitySystemComponent = MMPlayerState->GetAbilitySystemComponent();
 	AttributeSet = MMPlayerState->GetAttributeSet();
 	
-	GetAbilitySystemComponent()->InitAbilityActorInfo(MMPlayerState, this);
 
-	//This is a perfect spot to fill the HUD data, cause we have all 4 variables needed (PS,PC,ASC,AC) and also
-	//access to the HUD. 
+	//This is a perfect spot to fill the HUD data, cause we have all 4 variables needed (PS,PC,ASC,AC) and also access to the HUD. 
 	//Only in the server all PC are valid --> checking the PC cannot stop the execution (local player1 will stop its
 	//execution when checking Player2's PC cause they dont have it)--> So we just check if it's valid
 	if(AMMPlayerController* MMPlayerController = Cast<AMMPlayerController>(GetController()))

@@ -25,3 +25,7 @@ void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void AMMCharacterBase::InitializeAbilityActorInfo()
+{
+}

@@ -38,7 +38,16 @@ void AMMEnemy::UnHighlightActor()
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeAbilityActorInfo();
+}
+
+void AMMEnemy::InitializeAbilityActorInfo()
+{
+	Super::InitializeAbilityActorInfo();
 	AbilitySystemComponent->InitAbilityActorInfo(this,this);
+
+	//Warn the delegate we just set the ability actor info
+	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }
 
 void AMMEnemy::Tick(float DeltaTime)

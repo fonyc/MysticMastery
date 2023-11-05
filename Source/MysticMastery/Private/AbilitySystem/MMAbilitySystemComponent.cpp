@@ -4,12 +4,15 @@
 
 void UMMAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this,&UMMAbilitySystemComponent::EffectApplied);
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UMMAbilitySystemComponent::EffectApplied);
 }
 
 //Whenever we apply a GE, this method will be called
 void UMMAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
-                                              const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
+                                              const FGameplayEffectSpec& EffectSpec,
+                                              FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
 {
-	GEngine->AddOnScreenDebugMessage(1,8.0f,FColor::Blue,FString("Effect Applied!"));
+	FGameplayTagContainer TagContainer;
+	EffectSpec.GetAllAssetTags(TagContainer);
+	EffectAssetTags.Broadcast(TagContainer);
 }

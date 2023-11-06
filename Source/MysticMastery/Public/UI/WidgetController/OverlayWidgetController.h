@@ -48,6 +48,8 @@ class MYSTICMASTERY_API UOverlayWidgetController : public UMMWidgetController
 
 public:
 	virtual void BroadcastInitialValues() override;
+	
+	//Called once the Widget Controller is created (called for the 1st time) in the MMHUD GetOverlayWidgetController
 	virtual void BindCallbacksToDependencies() override;
 
 	//Delegates

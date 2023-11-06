@@ -17,8 +17,10 @@ class MYSTICMASTERY_API UMMAbilitySystemComponent : public UAbilitySystemCompone
 	GENERATED_BODY()
 
 public:
+	//Function called whenever a GE has its Ability Actor info Set
 	void AbilityActorInfoSet();
 
+	//Delegate called to broadcast the tags that affects a GE
 	FEffectAssetTags EffectAssetTags;
 
 protected:

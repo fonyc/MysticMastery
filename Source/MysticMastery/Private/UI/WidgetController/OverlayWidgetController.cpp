@@ -15,7 +15,6 @@ void UOverlayWidgetController::BroadcastInitialValues()
 	OnMaxManaChanged.Broadcast(MMAttributeSet->GetMaxMana());
 }
 
-//Function called once the Widget Controller is created (called for the 1st time) in the MMHUD GetOverlayWidgetController
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);
@@ -38,6 +37,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetMaxManaAttribute()).AddLambda(
 	[this](const FOnAttributeChangeData& Data){OnMaxManaChanged.Broadcast(Data.NewValue);});
 
+	//Messages
 	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
 		[this](const FGameplayTagContainer& AssetTags)
 		{

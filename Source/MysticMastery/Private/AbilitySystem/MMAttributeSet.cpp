@@ -41,6 +41,11 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth())); 
+	if (Data.EvaluatedData.Attribute  == GetMaxHealthAttribute()) SetMaxHealth(FMath::Clamp(GetMaxHealth(), 0.f, GetMaxHealth()));
+	if (Data.EvaluatedData.Attribute  == GetManaAttribute()) SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	if (Data.EvaluatedData.Attribute  == GetMaxManaAttribute()) SetMaxMana(FMath::Clamp(GetMaxMana(), 0.f, GetMaxMana()));
 }
 
 void UMMAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const

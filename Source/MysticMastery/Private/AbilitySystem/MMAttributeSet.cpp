@@ -17,6 +17,11 @@ void UMMAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//Register Attributes for replication
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Strength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Resilience, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Vigor, COND_None, REPNOTIFY_Always);
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Mana, COND_None, REPNOTIFY_Always);
@@ -27,7 +32,8 @@ void UMMAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void UMMAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
-	
+
+	//Pre-Clamp attributes 
 	if (Attribute == GetHealthAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	if (Attribute == GetMaxHealthAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	if (Attribute == GetManaAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
@@ -42,11 +48,14 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
+	//Clamp attributes 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth())); 
 	if (Data.EvaluatedData.Attribute  == GetMaxHealthAttribute()) SetMaxHealth(FMath::Clamp(GetMaxHealth(), 0.f, GetMaxHealth()));
 	if (Data.EvaluatedData.Attribute  == GetManaAttribute()) SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	if (Data.EvaluatedData.Attribute  == GetMaxManaAttribute()) SetMaxMana(FMath::Clamp(GetMaxMana(), 0.f, GetMaxMana()));
 }
+
+#pragma region ONREP METHODS
 
 void UMMAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
@@ -67,6 +76,28 @@ void UMMAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) co
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, MaxMana, OldMaxMana);
 }
+
+void UMMAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Strength, OldStrength);
+}
+
+void UMMAttributeSet::OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Intelligence, OldIntelligence);
+}
+
+void UMMAttributeSet::OnRep_Resilience(const FGameplayAttributeData& OldResilience) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Resilience, OldResilience);
+}
+
+void UMMAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Vigor, OldVigor);
+}
+
+#pragma endregion
 
 //Fill the FEffectProperties struct with useful data
 void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const

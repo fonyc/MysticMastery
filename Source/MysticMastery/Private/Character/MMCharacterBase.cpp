@@ -2,7 +2,7 @@
 
 
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
-
+#include "AbilitySystemComponent.h"
 
 // Sets default values
 AMMCharacterBase::AMMCharacterBase()
@@ -24,6 +24,14 @@ UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AMMCharacterBase::InitializePrimaryAttributes() const 
+{
+	check(IsValid(GetAbilitySystemComponent()) && DefaultPrimaryAttributes)
+	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultPrimaryAttributes, 1.0f, ContextHandle); 
+	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
 }
 
 void AMMCharacterBase::InitializeAbilityActorInfo()

@@ -85,4 +85,7 @@ void AMMCharacter::InitializeAbilityActorInfo()
 			MMHUD->InitOverlay(MMPlayerController,MMPlayerState,AbilitySystemComponent,AttributeSet);
 		}
 	}
+
+	//Give initial values to the attributes. We do it just on the Server since its marked to be replicated
+	InitializePrimaryAttributes();
 }

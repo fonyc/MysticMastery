@@ -22,6 +22,7 @@ class MYSTICMASTERY_API AMMPlayerController : public APlayerController
 public:
 	AMMPlayerController();
 	virtual void Tick(float DeltaSeconds) override;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -37,6 +38,6 @@ private:
 
 	//Tracing stuff under mouse
 	void CursorTrace();
-	TObjectPtr<IEnemyInterface> LastActorUnderCursor;
-	TObjectPtr<IEnemyInterface> CurrentActorUnderCursor;
+	IEnemyInterface* LastActorUnderCursor;
+	IEnemyInterface* CurrentActorUnderCursor;
 };

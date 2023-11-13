@@ -44,6 +44,13 @@ AMMCharacter::AMMCharacter()
 	Camera->bUsePawnControlRotation = false;
 }
 
+int32 AMMCharacter::GetPlayerLevel() const 
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->GetPlayerLevel();
+}
+
 void AMMCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

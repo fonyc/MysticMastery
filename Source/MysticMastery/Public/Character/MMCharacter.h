@@ -17,6 +17,12 @@ class MYSTICMASTERY_API AMMCharacter : public AMMCharacterBase
 public:
 	AMMCharacter();
 
+#pragma region COMBAT INTERFACE
+
+	virtual int32 GetPlayerLevel() const override;
+
+#pragma endregion
+
 protected:
 	UPROPERTY(EditAnywhere, Category="Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
@@ -27,6 +33,7 @@ protected:
 public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+
 private:
 	virtual void InitializeAbilityActorInfo() override;
 };

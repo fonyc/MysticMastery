@@ -11,7 +11,7 @@ AMMCharacterBase::AMMCharacterBase()
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
-	
+
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -26,12 +26,18 @@ void AMMCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AMMCharacterBase::InitializePrimaryAttributes() const 
+void AMMCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const 
 {
-	check(IsValid(GetAbilitySystemComponent()) && DefaultPrimaryAttributes)
+	check(IsValid(GetAbilitySystemComponent()) && GameplayEffectClass)
 	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultPrimaryAttributes, 1.0f, ContextHandle); 
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
+}
+
+void AMMCharacterBase::InitializeDefaultAttributes() const 
+{
+	ApplyEffectToSelf(DefaultPrimaryAttributes, 1);
+	ApplyEffectToSelf(DefaultSecondaryAttributes, 1);
 }
 
 void AMMCharacterBase::InitializeAbilityActorInfo()

@@ -6,10 +6,8 @@
 
 UMMAttributeSet::UMMAttributeSet()
 {
-	InitHealth(50.f);
-	InitMaxHealth(100.0f);
-	InitMana(50.0f);
-	InitMaxMana(100.0f);
+	// InitHealth(100.f);
+	// InitMana(50.f);
 }
 
 void UMMAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -17,15 +15,26 @@ void UMMAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//Register Attributes for replication
+
+	//Primary
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Resilience, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Vigor, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Health, COND_None, REPNOTIFY_Always);
+	//Secondary
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, ArmorPenetration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, CriticalHitChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, BlockChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, CriticalHitResistance, COND_None, REPNOTIFY_Always);
+	
+	//Vital
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 }
 
 //Function kicks in before changing any attribute
@@ -35,24 +44,20 @@ void UMMAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 
 	//Pre-Clamp attributes 
 	if (Attribute == GetHealthAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
-	if (Attribute == GetMaxHealthAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	if (Attribute == GetManaAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
-	if (Attribute == GetMaxManaAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 }
 
 //Function kicks in after the GE has been executed
 void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
-	
+
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
 	//Clamp attributes 
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth())); 
-	if (Data.EvaluatedData.Attribute  == GetMaxHealthAttribute()) SetMaxHealth(FMath::Clamp(GetMaxHealth(), 0.f, GetMaxHealth()));
-	if (Data.EvaluatedData.Attribute  == GetManaAttribute()) SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
-	if (Data.EvaluatedData.Attribute  == GetMaxManaAttribute()) SetMaxMana(FMath::Clamp(GetMaxMana(), 0.f, GetMaxMana()));
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	if (Data.EvaluatedData.Attribute == GetManaAttribute()) SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 }
 
 #pragma region ONREP METHODS
@@ -97,19 +102,60 @@ void UMMAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Vigor, OldVigor);
 }
 
+void UMMAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, Armor, OldArmor);
+}
+
+void UMMAttributeSet::OnRep_ArmorPenetration(const FGameplayAttributeData& OldArmorPenetration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, ArmorPenetration, OldArmorPenetration);
+}
+
+void UMMAttributeSet::OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, BlockChance, OldBlockChance);
+}
+
+void UMMAttributeSet::OnRep_CriticalHitChance(const FGameplayAttributeData& OldCriticalHitChance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, CriticalHitChance, OldCriticalHitChance);
+}
+
+void UMMAttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, CriticalHitDamage, OldCriticalHitDamage);
+}
+
+void UMMAttributeSet::OnRep_CriticalHitResistance(const FGameplayAttributeData& OldCriticalHitResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, CriticalHitResistance, OldCriticalHitResistance);
+}
+
+void UMMAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, HealthRegeneration, OldHealthRegeneration);
+}
+
+void UMMAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, ManaRegeneration, OldManaRegeneration);
+}
+
 #pragma endregion
 
 //Fill the FEffectProperties struct with useful data
 void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {
 	//Source = causer of the effect, Target = target of the effect (owner of this ASC)
-	
+
 	Props.EffectContextHandle = Data.EffectSpec.GetContext();
-	
+
 	//Returns the ASC from the handle
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
-	if(IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->AvatarActor.IsValid())
+	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->
+		AvatarActor.IsValid())
 	{
 		//Get the source Avatar Actor from ASC
 		Props.SourceAvatarActor = Props.SourceASC->AbilityActorInfo->AvatarActor.Get();
@@ -118,21 +164,21 @@ void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		Props.SourceController = Props.SourceASC->AbilityActorInfo->PlayerController.Get();
 
 		//Try to get the PC from the pawn directly (if its impossible from source)
-		if(Props.SourceController == nullptr && Props.SourceController != nullptr)
+		if (Props.SourceController == nullptr && Props.SourceController != nullptr)
 		{
-			if(const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor))
+			if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor))
 			{
 				Props.SourceController = Pawn->GetController();
 			}
 		}
-		
-		if(Props.SourceController)
+
+		if (Props.SourceController)
 		{
 			Props.SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
 		}
 	}
 
-	if(Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
 		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();

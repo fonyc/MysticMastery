@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 AMMPlayerState::AMMPlayerState()
 {
@@ -19,7 +20,19 @@ AMMPlayerState::AMMPlayerState()
 	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 }
 
+void AMMPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMMPlayerState, Level);
+}
+
 UAbilitySystemComponent* AMMPlayerState::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AMMPlayerState::OnRep_Level(int32 OldLevel)
+{
+	
 }

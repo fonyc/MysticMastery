@@ -40,7 +40,7 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	FName("Attributes.Secondary.CriticalHitDamage"), FString("Bonus damage added when a critical hit is performed"));
 
 	GameplayTags.Attributes_Secondary_CriticalHitResistance = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("Attributes.Secondary.CriticalHitResistance"), FString("Chance to reduce incoming damage by half"));
+	FName("Attributes.Secondary.CriticalHitResistance"), FString("Reduces Critical Hit Chance of attacking enemies"));
 
 	GameplayTags.Attributes_Secondary_HealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Attributes.Secondary.HealthRegeneration"), FString("Quantity of Health regenerated per second"));

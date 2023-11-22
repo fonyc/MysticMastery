@@ -3,8 +3,6 @@
 
 #include "AbilitySystem/Data/AttributeInfo.h"
 
-#include "Misc/LowLevelTestAdapter.h"
-
 FMMAttributeInfo UAttributeInfo::FindAttributeInfoByTag(const FGameplayTag& Tag, bool bLogNotFound) const
 {
 	for (const FMMAttributeInfo& AttributeInfo : AttributeInformation)

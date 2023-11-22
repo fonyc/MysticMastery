@@ -52,6 +52,15 @@ struct FEffectProperties
 
 };
 
+//we need the FGameplayAttribute() signature, but to make it generic we use TStaticFunPtr
+//real signature would be TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultUserPolicy>::FFuncPtr FAttributeFuncPtr;
+template <class T>
+using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T,FDefaultDelegateUserPolicy>::FFuncPtr;
+
+/**
+ * 
+ */
+
 UCLASS()
 class MYSTICMASTERY_API UMMAttributeSet : public UAttributeSet
 {
@@ -63,6 +72,9 @@ public:
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	//Maps every given tag to its FGameplayAttribute (in the form of a function pointer that points a static function)
+	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
 #pragma region PRIMARY ATTRIBUTES
 	

@@ -3,6 +3,7 @@
 
 #include "UI/HUD/MMHUD.h"
 
+#include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "UI/Widgets/MMUserWidget.h"
 
@@ -18,7 +19,18 @@ UOverlayWidgetController* AMMHUD::GetOverlayWidgetController(const FWidgetContro
 	return OverlayWidgetController;
 }
 
-//In charge of construct the widget controller, the widget, set the Widget Controller and add it to the viewport
+UAttributeMenuWidgetController* AMMHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WidgetControllerParams)
+{
+	if(AttributeMenuWidgetController == nullptr)
+	{
+		AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController>(this,AttributeMenuWidgetControllerClass);
+		AttributeMenuWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+		AttributeMenuWidgetController->BindCallbacksToDependencies();
+	}
+	return AttributeMenuWidgetController;
+}
+
+//In charge of construct the overlay widget controller, the widget(View) and set the Widget Controller and add it to the viewport
 void AMMHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class is not initialized. Fill out BP_MMHUD"));

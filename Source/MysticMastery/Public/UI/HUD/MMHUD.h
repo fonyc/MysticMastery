@@ -7,6 +7,7 @@
 #include "UI/WidgetController/MMWidgetController.h"
 #include "MMHUD.generated.h"
 
+class UAttributeMenuWidgetController;
 class UOverlayWidgetController;
 struct FWidgetControllerParams;
 class UMMUserWidget;
@@ -20,10 +21,9 @@ class MYSTICMASTERY_API AMMHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	TObjectPtr<UMMUserWidget> OverlayWidget;
 	
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WidgetControllerParams);
+	UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WidgetControllerParams);
 
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
@@ -34,9 +34,17 @@ private:
 	TSubclassOf<UMMUserWidget> OverlayWidgetClass;
 
 	UPROPERTY()
+	TObjectPtr<UMMUserWidget> OverlayWidget;
+
+	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
-	
+
+	UPROPERTY()
+	TObjectPtr<UAttributeMenuWidgetController> AttributeMenuWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
 };

@@ -32,8 +32,7 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	}
 }
 
-void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,
-                                                            const FGameplayAttribute& Attribute)
+void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,const FGameplayAttribute& Attribute) const
 {
 	FMMAttributeInfo Info = AttributeInfo->FindAttributeInfoByTag(AttributeTag);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);

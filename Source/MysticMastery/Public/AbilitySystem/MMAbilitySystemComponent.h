@@ -23,6 +23,8 @@ public:
 	//Delegate called to broadcast the tags that affects a GE
 	FEffectAssetTags EffectAssetTags;
 
+	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
+
 protected:
 	/** Called on server whenever a GE is applied to self. This includes instant and duration based GEs. */
 	void EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec,

@@ -3,6 +3,7 @@
 
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/MMAbilitySystemComponent.h"
 
 // Sets default values
 AMMCharacterBase::AMMCharacterBase()
@@ -44,4 +45,13 @@ void AMMCharacterBase::InitializeDefaultAttributes() const
 
 void AMMCharacterBase::InitializeAbilityActorInfo()
 {
+}
+
+void AMMCharacterBase::AddCharacterAbilities()
+{
+	UMMAbilitySystemComponent* ASC = CastChecked<UMMAbilitySystemComponent>(AbilitySystemComponent);
+	if(!HasAuthority()) return;
+
+	//If there is authority, then we must grant the Ability, but its something that the ASC must do
+	ASC->AddCharacterAbilities(StartupAbilities);
 }

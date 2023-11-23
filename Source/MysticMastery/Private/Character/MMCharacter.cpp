@@ -57,6 +57,7 @@ void AMMCharacter::PossessedBy(AController* NewController)
 
 	//Init ability actor info for the SERVER 
 	InitializeAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
 void AMMCharacter::OnRep_PlayerState()

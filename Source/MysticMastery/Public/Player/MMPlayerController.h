@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "MMPlayerController.generated.h"
 
+struct FGameplayTag;
+class UMMInputConfig;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -22,7 +24,7 @@ class MYSTICMASTERY_API AMMPlayerController : public APlayerController
 public:
 	AMMPlayerController();
 	virtual void Tick(float DeltaSeconds) override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -40,4 +42,11 @@ private:
 	void CursorTrace();
 	IEnemyInterface* LastActorUnderCursor;
 	IEnemyInterface* CurrentActorUnderCursor;
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UMMInputConfig> InputConfig;
 };

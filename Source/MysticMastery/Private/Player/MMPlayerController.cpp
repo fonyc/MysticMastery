@@ -3,7 +3,8 @@
 
 #include "Player/MMPlayerController.h"
 #include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
+#include "GameplayTagContainer.h"
+#include "Input/MMInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
 AMMPlayerController::AMMPlayerController()
@@ -40,16 +41,16 @@ void AMMPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMMPlayerController::Move);
+	UMMInputComponent* MMInputComponent = CastChecked<UMMInputComponent>(InputComponent);
+	MMInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMMPlayerController::Move);
+	MMInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
 
-	//Based in our controller, FW direction is the (0,Controller.Yaw,0) value  
+	//Based in our controller, FW direction is the (0, Controller.Yaw, 0) value  
 	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
@@ -84,4 +85,19 @@ void AMMPlayerController::CursorTrace()
 	{
 		LastActorUnderCursor->UnHighlightActor();
 	}
+}
+
+void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	UE_LOG(LogTemp,Warning,TEXT("Key pressed[%s]"),*InputTag.ToString());
+}
+
+void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(1,3.f,FColor::Blue, *InputTag.ToString());
+}
+
+void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(1,3.f,FColor::Green, *InputTag.ToString());
 }

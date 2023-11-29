@@ -13,5 +13,8 @@ UCLASS()
 class MYSTICMASTERY_API UMMGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-	
+public:
+	//If the ability is set as initial Ability, then this will be its default input key
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	FGameplayTag StartupInputTag;
 };

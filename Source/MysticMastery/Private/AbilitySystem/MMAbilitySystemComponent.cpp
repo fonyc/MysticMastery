@@ -2,6 +2,8 @@
 
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 
+#include "Abilities/MMGameplayAbility.h"
+
 void UMMAbilitySystemComponent::AbilityActorInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UMMAbilitySystemComponent::EffectApplied);
@@ -9,11 +11,46 @@ void UMMAbilitySystemComponent::AbilityActorInfoSet()
 
 void UMMAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
 {
-	for (auto AbilityClass : StartupAbilities)
+	for (const auto AbilityClass : StartupAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
-		//GiveAbility(AbilitySpec);
-		GiveAbilityAndActivateOnce(AbilitySpec);
+
+		if(const UMMGameplayAbility* MMAbility = Cast<UMMGameplayAbility>(AbilitySpec.Ability))
+		{
+			//add the StartupInputTag to the ability 
+			AbilitySpec.DynamicAbilityTags.AddTag(MMAbility->StartupInputTag);
+			GiveAbility(AbilitySpec);
+		}
+	}
+}
+
+void UMMAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid()) return;
+	
+	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+			if(!AbilitySpec.IsActive())
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
+	}
+}
+
+void UMMAbilitySystemComponent::AbilityInputReleased(const FGameplayTag& InputTag)
+{
+	if(!InputTag.IsValid()) return;
+	
+	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputReleased(AbilitySpec);
+		}
 	}
 }
 

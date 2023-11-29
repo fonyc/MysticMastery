@@ -7,11 +7,12 @@
 #include "MMPlayerController.generated.h"
 
 struct FGameplayTag;
+struct FInputActionValue;
 class UMMInputConfig;
 class UInputMappingContext;
 class UInputAction;
-struct FInputActionValue;
 class IEnemyInterface;
+class UMMAbilitySystemComponent;
 
 /**
  * 
@@ -49,4 +50,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UMMInputConfig> InputConfig;
+
+	UPROPERTY()
+	TObjectPtr<UMMAbilitySystemComponent> MMAbilitySystemComponent;
+
+	UMMAbilitySystemComponent* GetAbilitySystemComponent();
 };

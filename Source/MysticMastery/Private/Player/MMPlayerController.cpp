@@ -2,8 +2,11 @@
 
 
 #include "Player/MMPlayerController.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Input/MMInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
@@ -89,15 +92,28 @@ void AMMPlayerController::CursorTrace()
 
 void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	UE_LOG(LogTemp,Warning,TEXT("Key pressed[%s]"),*InputTag.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Key pressed[%s]"), *InputTag.ToString());
 }
 
 void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1,3.f,FColor::Blue, *InputTag.ToString());
+	UMMAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC == nullptr) return;
+	ASC->AbilityInputReleased(InputTag);
 }
 
 void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1,3.f,FColor::Green, *InputTag.ToString());
+	UMMAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC == nullptr) return;
+	ASC->AbilityInputTagHeld(InputTag);
+}
+
+UMMAbilitySystemComponent* AMMPlayerController::GetAbilitySystemComponent()
+{
+	if (MMAbilitySystemComponent == nullptr)
+	{
+		MMAbilitySystemComponent = Cast<UMMAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+	return MMAbilitySystemComponent;
 }

@@ -13,6 +13,7 @@ class UInputMappingContext;
 class UInputAction;
 class IEnemyInterface;
 class UMMAbilitySystemComponent;
+class USplineComponent;
 
 /**
  * 
@@ -55,4 +56,26 @@ private:
 	TObjectPtr<UMMAbilitySystemComponent> MMAbilitySystemComponent;
 
 	UMMAbilitySystemComponent* GetAbilitySystemComponent();
+
+	//Destination stored after we click with the mouse
+	FVector CachedDestination = FVector::ZeroVector;
+
+	//Time that character have been following the mouse cursor
+	float TimeFollowingCursor = 0.f;
+
+	//Amount of time needed to pass before a short press (move to click) is considered long press (auto move) 
+	float ShortPressThreshold = 0.5f;
+	
+	//Flag used to determine if the AutoRunning is on/off
+	bool bAutoRunning = false;
+
+	//Flag that determines if the cursor is on some Actor with the IEnemyInterface
+	bool bTargeting = false;
+
+	//Min Distance which we consider the character has arrived destination 
+	UPROPERTY(EditDefaultsOnly)
+	float AutoRunAcceptanceRadius = 50.f;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USplineComponent> Spline;
 };

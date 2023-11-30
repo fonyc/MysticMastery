@@ -6,13 +6,17 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameplayTagContainer.h"
+#include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
+#include "Components/SplineComponent.h"
 #include "Input/MMInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
 AMMPlayerController::AMMPlayerController()
 {
 	bReplicates = true;
+
+	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
 void AMMPlayerController::Tick(float DeltaSeconds)
@@ -26,7 +30,8 @@ void AMMPlayerController::BeginPlay()
 	Super::BeginPlay();
 	check(Context);
 
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(Context, 0);
 	}
@@ -92,21 +97,56 @@ void AMMPlayerController::CursorTrace()
 
 void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Key pressed[%s]"), *InputTag.ToString());
+	if (InputTag.MatchesTag(FMMGameplayTags::Get().InputTag_LMB))
+	{
+		bTargeting = CurrentActorUnderCursor ? true : false;
+		bAutoRunning = false;
+	}
 }
 
 void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	UMMAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC == nullptr) return;
-	ASC->AbilityInputReleased(InputTag);
+	if (GetAbilitySystemComponent() == nullptr) return;
+	GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
 }
 
 void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	UMMAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC == nullptr) return;
-	ASC->AbilityInputTagHeld(InputTag);
+	//We are pressing RMB
+	if (!InputTag.MatchesTagExact(FMMGameplayTags::Get().InputTag_LMB))
+	{
+		if (GetAbilitySystemComponent())
+		{
+			GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		}
+		return;
+	}
+
+	//We are pressing LMB but we are targeting an enemy --> Cast Ability
+	if (bTargeting)
+	{
+		if (GetAbilitySystemComponent())
+		{
+			GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+		}
+	}
+	//We press LMB without target --> We are moving
+	else
+	{
+		TimeFollowingCursor += GetWorld()->GetDeltaSeconds();
+
+		FHitResult Hit;
+		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		{
+			CachedDestination = Hit.ImpactPoint;
+		}
+
+		if (APawn* ControlledPawn = GetPawn())
+		{
+			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+			ControlledPawn->AddMovementInput(WorldDirection);
+		}
+	}
 }
 
 UMMAbilitySystemComponent* AMMPlayerController::GetAbilitySystemComponent()

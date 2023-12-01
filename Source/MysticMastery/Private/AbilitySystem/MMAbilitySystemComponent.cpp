@@ -6,7 +6,7 @@
 
 void UMMAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UMMAbilitySystemComponent::EffectApplied);
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UMMAbilitySystemComponent::ClientEffectApplied);
 }
 
 void UMMAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
@@ -55,7 +55,7 @@ void UMMAbilitySystemComponent::AbilityInputReleased(const FGameplayTag& InputTa
 }
 
 //Whenever we apply a GE, this method will be called
-void UMMAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
+void UMMAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                               const FGameplayEffectSpec& EffectSpec,
                                               FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
 {

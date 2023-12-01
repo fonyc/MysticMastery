@@ -29,7 +29,8 @@ public:
 	void AbilityInputReleased(const FGameplayTag& InputTag);
 
 protected:
-	/** Called on server whenever a GE is applied to self. This includes instant and duration based GEs. */
-	void EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec,
-	                   FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
+	// Called on server whenever a GE is applied to self. This includes instant and duration based GEs
+	// We need to turn this function into an Client_RPC since it only executes on the server, but we want clients to be affected by them  
+	UFUNCTION(Client, Reliable)
+	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
 };

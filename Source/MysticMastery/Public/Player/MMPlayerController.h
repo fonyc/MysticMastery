@@ -41,6 +41,7 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 
 	//Tracing stuff under mouse
+	FHitResult CursorHit;
 	void CursorTrace();
 	IEnemyInterface* LastActorUnderCursor;
 	IEnemyInterface* CurrentActorUnderCursor;
@@ -71,6 +72,9 @@ private:
 
 	//Flag that determines if the cursor is on some Actor with the IEnemyInterface
 	bool bTargeting = false;
+
+	//Function that takes care of running
+	void AutoRun();
 
 	//Min Distance which we consider the character has arrived destination 
 	UPROPERTY(EditDefaultsOnly)

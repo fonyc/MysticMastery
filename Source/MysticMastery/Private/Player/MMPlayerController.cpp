@@ -7,6 +7,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameplayTagContainer.h"
 #include "MMGameplayTags.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/SplineComponent.h"
 #include "Input/MMInputComponent.h"
@@ -22,7 +24,9 @@ AMMPlayerController::AMMPlayerController()
 void AMMPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
 	CursorTrace();
+	AutoRun();
 }
 
 void AMMPlayerController::BeginPlay()
@@ -51,7 +55,8 @@ void AMMPlayerController::SetupInputComponent()
 
 	UMMInputComponent* MMInputComponent = CastChecked<UMMInputComponent>(InputComponent);
 	MMInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMMPlayerController::Move);
-	MMInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	MMInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed,
+	                                     &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -73,25 +78,16 @@ void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AMMPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActorUnderCursor = CurrentActorUnderCursor;
 	CurrentActorUnderCursor = Cast<IEnemyInterface>(CursorHit.GetActor());
 
-	if (LastActorUnderCursor == nullptr && CurrentActorUnderCursor != nullptr)
+	if (LastActorUnderCursor != CurrentActorUnderCursor)
 	{
-		CurrentActorUnderCursor->HighlightActor();
-	}
-	else if (LastActorUnderCursor != nullptr && CurrentActorUnderCursor != nullptr)
-	{
-		LastActorUnderCursor->UnHighlightActor();
-		CurrentActorUnderCursor->HighlightActor();
-	}
-	else if (LastActorUnderCursor != nullptr && CurrentActorUnderCursor == nullptr)
-	{
-		LastActorUnderCursor->UnHighlightActor();
+		if (LastActorUnderCursor) LastActorUnderCursor->UnHighlightActor();
+		if (CurrentActorUnderCursor) CurrentActorUnderCursor->HighlightActor();
 	}
 }
 
@@ -106,8 +102,42 @@ void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() == nullptr) return;
-	GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
+	//We are pressing RMB
+	if (!InputTag.MatchesTagExact(FMMGameplayTags::Get().InputTag_LMB))
+	{
+		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
+		return;
+	}
+	//We are pressing LMB but we are targeting an enemy --> Cast Ability
+	if (bTargeting)
+	{
+		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
+	}
+	//We press LMB without target --> We are moving
+	else
+	{
+		if (const APawn* ControlledPawn = GetPawn(); TimeFollowingCursor <= ShortPressThreshold)
+		{
+			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
+			{
+				Spline->ClearSplinePoints();
+				int32 index = 0;
+				
+				for (const FVector& PointLocation : NavPath->PathPoints)
+				{
+					Spline->AddSplinePoint(PointLocation, ESplineCoordinateSpace::World);
+				}
+				
+				if (NavPath->PathPoints.Num() > 0)
+				{
+					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+				}
+				bAutoRunning = true;
+			}
+		}
+		TimeFollowingCursor = 0.f;
+		bTargeting = false;
+	}
 }
 
 void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
@@ -115,31 +145,21 @@ void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	//We are pressing RMB
 	if (!InputTag.MatchesTagExact(FMMGameplayTags::Get().InputTag_LMB))
 	{
-		if (GetAbilitySystemComponent())
-		{
-			GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetAbilitySystemComponent())GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 		return;
 	}
 
 	//We are pressing LMB but we are targeting an enemy --> Cast Ability
 	if (bTargeting)
 	{
-		if (GetAbilitySystemComponent())
-		{
-			GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 	}
 	//We press LMB without target --> We are moving
 	else
 	{
 		TimeFollowingCursor += GetWorld()->GetDeltaSeconds();
 
-		FHitResult Hit;
-		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
-		{
-			CachedDestination = Hit.ImpactPoint;
-		}
+		if (CursorHit.bBlockingHit) CachedDestination = CursorHit.ImpactPoint;
 
 		if (APawn* ControlledPawn = GetPawn())
 		{
@@ -156,4 +176,23 @@ UMMAbilitySystemComponent* AMMPlayerController::GetAbilitySystemComponent()
 		MMAbilitySystemComponent = Cast<UMMAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}
 	return MMAbilitySystemComponent;
+}
+
+void AMMPlayerController::AutoRun()
+{
+	if (!bAutoRunning) return;
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		const FVector ClosetsLocationOnSpline = Spline->FindLocationClosestToWorldLocation(
+			ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(
+			ClosetsLocationOnSpline, ESplineCoordinateSpace::World);
+		ControlledPawn->AddMovementInput(Direction);
+
+		const float DistanceToDestination = (ClosetsLocationOnSpline - CachedDestination).Length();
+		if (DistanceToDestination <= AutoRunAcceptanceRadius)
+		{
+			bAutoRunning = false;
+		}
+	}
 }

@@ -27,6 +27,12 @@ void AMMCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+FVector AMMCharacterBase::GetCombatSocketLocation()
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(WeaponTipSocketName);
+}
+
 void AMMCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const 
 {
 	check(IsValid(GetAbilitySystemComponent()) && GameplayEffectClass)

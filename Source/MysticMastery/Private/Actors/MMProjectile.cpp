@@ -6,6 +6,7 @@
 AMMProjectile::AMMProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	SetRootComponent(SphereComponent);

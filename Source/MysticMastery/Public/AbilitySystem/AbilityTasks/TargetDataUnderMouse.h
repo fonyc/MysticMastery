@@ -7,10 +7,12 @@
 #include "TargetDataUnderMouse.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature,const FVector&, Data);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature,const FGameplayAbilityTargetDataHandle&, DataHandle);
+
 /**
  * 
  */
+
 UCLASS()
 class MYSTICMASTERY_API UTargetDataUnderMouse : public UAbilityTask
 {
@@ -25,4 +27,9 @@ public:
 
 private:
 	virtual void Activate() override;
+
+	void SendMouseCursorDataToServer() const;
+
+	//Used as a callback when the server sends the target data, so if it arrives before the Activate method, it can wait for it
+	void OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag);
 };

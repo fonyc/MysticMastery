@@ -4,6 +4,7 @@
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AMMCharacterBase::AMMCharacterBase()
@@ -15,6 +16,10 @@ AMMCharacterBase::AMMCharacterBase()
 
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//Ignore Camera collision
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const

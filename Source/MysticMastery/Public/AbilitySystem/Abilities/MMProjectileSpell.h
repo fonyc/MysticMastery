@@ -22,7 +22,7 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable, Category="Projectile")
-	void SpawnProjectile();
+	void SpawnProjectile(const FVector& ProjectileTarget);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AMMProjectile> ProjectileClass;

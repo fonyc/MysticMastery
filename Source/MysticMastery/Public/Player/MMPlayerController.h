@@ -38,6 +38,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction;
+
+	FORCEINLINE void ShiftPressed() { bShiftKeyDown = true; }
+	FORCEINLINE void ShiftReleased() { bShiftKeyDown = false; }
+	bool bShiftKeyDown = false;
+
 	void Move(const FInputActionValue& InputActionValue);
 
 	//Tracing stuff under mouse

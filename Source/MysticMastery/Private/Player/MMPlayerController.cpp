@@ -55,8 +55,11 @@ void AMMPlayerController::SetupInputComponent()
 
 	UMMInputComponent* MMInputComponent = CastChecked<UMMInputComponent>(InputComponent);
 	MMInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMMPlayerController::Move);
-	MMInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed,
-	                                     &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	
+	MMInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AMMPlayerController::ShiftPressed);
+	MMInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AMMPlayerController::ShiftReleased);
+	
+	MMInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -108,13 +111,11 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
 		return;
 	}
+	
+	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
+	
 	//We are pressing LMB but we are targeting an enemy --> Cast Ability
-	if (bTargeting)
-	{
-		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputReleased(InputTag);
-	}
-	//We press LMB without target --> We are moving
-	else
+	if (!bTargeting && !bShiftKeyDown)
 	{
 		if (const APawn* ControlledPawn = GetPawn(); TimeFollowingCursor <= ShortPressThreshold)
 		{
@@ -150,7 +151,7 @@ void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	}
 
 	//We are pressing LMB but we are targeting an enemy --> Cast Ability
-	if (bTargeting)
+	if (bTargeting || bShiftKeyDown)
 	{
 		if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 	}

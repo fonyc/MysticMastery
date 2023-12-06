@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "MysticMastery/MysticMastery.h"
 
 // Sets default values
 AMMCharacterBase::AMMCharacterBase()
@@ -17,9 +18,13 @@ AMMCharacterBase::AMMCharacterBase()
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	//Ignore Camera collision
+	//Set Basic responses to Camera, and Projectile Channels
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
+	GetMesh()->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
 }
 
 UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const

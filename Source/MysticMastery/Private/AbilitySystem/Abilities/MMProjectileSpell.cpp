@@ -3,13 +3,12 @@
 
 #include "AbilitySystem/Abilities/MMProjectileSpell.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Actors/MMProjectile.h"
 #include "Interaction/CombatInterface.h"
 
-void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                         const FGameplayAbilityActorInfo* ActorInfo,
-                                         const FGameplayAbilityActivationInfo ActivationInfo,
-                                         const FGameplayEventData* TriggerEventData)
+void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -36,9 +35,11 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 		ProjectileClass,
 		SpawnTransform,
 		GetOwningActorFromActorInfo(),
-		Cast<APawn>(GetOwningActorFromActorInfo()),
+		Cast<APawn>(GetAvatarActorFromActorInfo()),
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-	//TODO: Give the projectile a GE to cause damage!! 
+	const UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),ASC->MakeEffectContext());
+	Projectile->DamageEffectSpecHandle = GameplayEffectSpecHandle;
 	Projectile->FinishSpawning(SpawnTransform);
 }

@@ -48,6 +48,10 @@ void AMMEnemy::InitializeAbilityActorInfo()
 
 	//Warn the delegate we just set the ability actor info
 	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+
+	//TODO: Temporary way of init. enemy attributes
+	InitializeDefaultAttributes();
+	
 }
 
 void AMMEnemy::Tick(float DeltaTime)

@@ -1,4 +1,7 @@
 #include "Actors/MMProjectile.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -30,9 +33,16 @@ AMMProjectile::AMMProjectile()
 void AMMProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	SetLifeSpan(LifeSpan);
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AMMProjectile::OnSphereOverlap);
-	LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
+
+	SetLifeSpan(LifeSpan);
+	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(), NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
+
+	//Ignore Instigator of the projectile
+	if (AActor* MyInstigator = GetInstigator(); IsValid(MyInstigator))
+	{
+		SphereComponent->IgnoreActorWhenMoving(MyInstigator, true);
+	}
 }
 
 void AMMProjectile::Destroyed()
@@ -43,7 +53,6 @@ void AMMProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		LoopingSoundComponent->Stop();
 	}
 	
 	Super::Destroyed();
@@ -53,12 +62,17 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 {
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	LoopingSoundComponent->Stop();
 
 	//If the (very unlikely) case that the destruction happens before the clients has had its sphere overlapped
 	//The destruction is made by the server. If the clients comes here first, just raises a flag (and plays the effects)
 	if (HasAuthority())
 	{
+		//Get the OtherACtor ASC and apply the GE to it
+		if(UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+		}
+		
 		Destroy();
 	}
 	else

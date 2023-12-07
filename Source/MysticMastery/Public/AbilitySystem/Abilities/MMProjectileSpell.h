@@ -7,6 +7,8 @@
 #include "MMProjectileSpell.generated.h"
 
 class AMMProjectile;
+class UGameplayEffect;
+
 /**
  * 
  */
@@ -26,4 +28,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AMMProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

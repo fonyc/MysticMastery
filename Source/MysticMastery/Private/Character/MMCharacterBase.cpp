@@ -21,6 +21,7 @@ AMMCharacterBase::AMMCharacterBase()
 	//Set Basic responses to Camera, and Projectile Channels
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetGenerateOverlapEvents(false);
+	
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);

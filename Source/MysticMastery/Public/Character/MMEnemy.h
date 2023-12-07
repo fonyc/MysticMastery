@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Character/MMCharacterBase.h"
 #include "Interaction/EnemyInterface.h"
+#include "UI/WidgetController/OverlayWidgetController.h"
 #include "MMEnemy.generated.h"
+
+class UWidgetComponent;
 
 UCLASS()
 class MYSTICMASTERY_API AMMEnemy : public AMMCharacterBase, public IEnemyInterface
@@ -16,23 +19,30 @@ public:
 	// Sets default values for this character's properties
 	AMMEnemy();
 
-#pragma region ENEMY INTERFACE
-
+	/** Enemy Interface */
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+	/** End Enemy Interface */
 
-#pragma endregion
 
-#pragma region COMBAT INTERFACE
-
+	/** Combat Interface */
 	FORCEINLINE virtual int32 GetPlayerLevel() const override { return Level; }
+	/** End Combat Interface */
 
-#pragma endregion
-
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnHealthChanged;
+	
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxHealthChanged;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void InitializeAbilityActorInfo() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> HealthBar;
 
 public:
 	// Called every frame

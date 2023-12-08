@@ -17,7 +17,8 @@ AMMCharacterBase::AMMCharacterBase()
 
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
 	//Set Basic responses to Camera, and Projectile Channels
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetGenerateOverlapEvents(false);

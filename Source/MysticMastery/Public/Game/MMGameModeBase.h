@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "MMGameModeBase.generated.h"
 
+class UCharacterClassInfo;
+
 /**
  * 
  */
@@ -13,4 +15,8 @@ UCLASS()
 class MYSTICMASTERY_API AMMGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, Category="Character Class Defaults")
+	TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
 };

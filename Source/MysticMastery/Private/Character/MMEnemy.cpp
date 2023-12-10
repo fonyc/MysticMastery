@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MysticMastery/Public/Character/MMEnemy.h"
+#include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
 #include "Components/WidgetComponent.h"
@@ -72,14 +73,17 @@ void AMMEnemy::BeginPlay()
 
 void AMMEnemy::InitializeAbilityActorInfo()
 {
-	Super::InitializeAbilityActorInfo();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	//Warn the delegate we just set the ability actor info
 	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	//TODO: Temporary way of init. enemy attributes
 	InitializeDefaultAttributes();
+}
+
+void AMMEnemy::InitializeDefaultAttributes() const
+{
+	UMMAbilitySystemBlueprintLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }
 
 void AMMEnemy::Tick(float DeltaTime)

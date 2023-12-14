@@ -7,8 +7,12 @@
 #include "AbilitySystemComponent.h"
 #include "Actors/MMProjectile.h"
 #include "Interaction/CombatInterface.h"
+#include "MysticMastery/Public/MMGameplayTags.h"
 
-void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+                                         const FGameplayAbilityActorInfo* ActorInfo,
+                                         const FGameplayAbilityActivationInfo ActivationInfo,
+                                         const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
@@ -26,7 +30,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();
-		Rotation.Pitch = 0.f;
+		//Rotation.Pitch = 0.f;
 		SpawnTransform.SetRotation(Rotation.Quaternion());
 	}
 
@@ -39,7 +43,16 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	const UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),ASC->MakeEffectContext());
-	Projectile->DamageEffectSpecHandle = GameplayEffectSpecHandle;
+	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), ASC->MakeEffectContext());
+
+	//Get GameplayTags to add the modifier magnitude in "Set by caller" (Damage tag in this case)
+	FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
+	
+	//Get damage from ability curve table by using its level
+	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaledDamage);
+
+	Projectile->DamageEffectSpecHandle = SpecHandle;
 	Projectile->FinishSpawning(SpawnTransform);
 }

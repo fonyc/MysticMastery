@@ -62,8 +62,8 @@ void UTargetDataUnderMouse::SendMouseCursorDataToServer() const
 	}
 }
 
-//This function will be called on the server where the Target Data has been received. In that case we need to make sure that
-//the ASC knows that the data has been received (and thus delete it) and then broadcast that data
+//This function will be called on the server where the Target Data has been received. In that case we need to make sure 
+//that the ASC knows that the data has been received (and thus delete it) and then broadcast that data
 void UTargetDataUnderMouse::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag)
 {
 	//Target data has been received --> Dont keep it cached

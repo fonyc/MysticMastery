@@ -135,7 +135,16 @@ public:
 	FGameplayAttributeData Mana;
 	
 #pragma endregion
+
+#pragma region META ATTRIBUTES
+
+	//Meta attributes are not replicated
+	UPROPERTY(BlueprintReadOnly, Category= "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
 	
+#pragma endregion
+	
+#pragma region ATTRIBUTE ACCESSORS
 	//Macro Attribute Accessors 
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Strength);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Intelligence);
@@ -155,6 +164,9 @@ public:
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, CriticalHitResistance);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, HealthRegeneration);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, ManaRegeneration);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, IncomingDamage);
+	
+#pragma endregion
 	
 #pragma region ONREP METHOD DECLARATIONS
 	

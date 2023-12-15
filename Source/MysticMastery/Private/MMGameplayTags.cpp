@@ -73,6 +73,10 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("InputTag.4"), FString("Input Tag for the Num4 key"));
 
+	//Miscelaneous
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Damage"), FString("Input Tag for the meta attribute damage"));
+
+	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));
 }

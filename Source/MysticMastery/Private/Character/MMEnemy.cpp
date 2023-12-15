@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "MysticMastery/MysticMastery.h"
 #include "UI/Widgets/MMUserWidget.h"
+#include "MMGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AMMEnemy::AMMEnemy()
 {
@@ -42,7 +44,11 @@ void AMMEnemy::UnHighlightActor()
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Set initial speed
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
 	InitializeAbilityActorInfo();
+	UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent);
 
 	//Set this very class as the widget controller on health bar
 	if (UMMUserWidget* MMUserWidget = Cast<UMMUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -50,9 +56,10 @@ void AMMEnemy::BeginPlay()
 		MMUserWidget->SetWidgetController(this);
 	}
 
-	//Bind lambdas to our callbacks
+	//Bind lambdas to our callbacks 
 	if (const UMMAttributeSet* MMAS = Cast<UMMAttributeSet>(AttributeSet))
 	{
+		//Listen to changes on Health or MaxHealth to draw the Health bar component on the enemy
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAS->GetHealthAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
@@ -64,6 +71,10 @@ void AMMEnemy::BeginPlay()
 			{
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
 			});
+		
+		//Register for a gameplay tag change so enemy can react to damage
+		FGameplayTag Tag = FMMGameplayTags::Get().Effects_HitReact;
+		AbilitySystemComponent->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddUObject(this,&AMMEnemy::HitReactTagChanged);
 
 		//Broadcast initial values
 		OnHealthChanged.Broadcast(MMAS->GetHealth());
@@ -84,6 +95,12 @@ void AMMEnemy::InitializeAbilityActorInfo()
 void AMMEnemy::InitializeDefaultAttributes() const
 {
 	UMMAbilitySystemBlueprintLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount)
+{
+	bHitReacting = NewTagCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
 }
 
 void AMMEnemy::Tick(float DeltaTime)

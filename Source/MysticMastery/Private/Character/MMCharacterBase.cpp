@@ -34,6 +34,11 @@ UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAnimMontage* AMMCharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

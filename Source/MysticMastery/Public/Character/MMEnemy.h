@@ -30,18 +30,34 @@ public:
 	FORCEINLINE virtual int32 GetPlayerLevel() const override { return Level; }
 	/** End Combat Interface */
 
+	/** Health Component: Callback Functions */
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnHealthChanged;
 	
-	
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;
+	/** End Health Component */
+
+	/** Hit React */
+	UPROPERTY(BlueprintReadOnly, Category= "Combat")
+	bool bHitReacting = false;
+	
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount);
+	/** End Hit React */
+
+	UPROPERTY(BlueprintReadOnly, Category= "Combat")
+	float BaseWalkSpeed = 250.f;
+	
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void InitializeAbilityActorInfo() override;
 	virtual void InitializeDefaultAttributes() const override;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
@@ -52,11 +68,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Character Class Defaults")
 	ECharacterClass CharacterClass = ECharacterClass::Warrior;
-
-public:
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
 };

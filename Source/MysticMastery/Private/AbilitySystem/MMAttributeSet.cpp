@@ -91,6 +91,13 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
 			const bool bIsFatalDamage = NewHealth <= 0.f;
+			if(!bIsFatalDamage)
+			{
+				//Activate an Ability by using a tag related to it
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
 		}
 	}
 }

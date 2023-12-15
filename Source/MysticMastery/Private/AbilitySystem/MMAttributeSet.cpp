@@ -3,6 +3,7 @@
 #include "GameplayEffectExtension.h"
 #include "MMGameplayTags.h"
 #include "GameFramework/Character.h"
+#include "Interaction/CombatInterface.h"
 #include "Net/UnrealNetwork.h"
 
 UMMAttributeSet::UMMAttributeSet()
@@ -85,14 +86,21 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
 		
-		if(LocalIncomingDamage > 0 )
+		if (LocalIncomingDamage > 0 )
 		{
 			const float NewHealth = GetHealth() - LocalIncomingDamage;
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
-			const bool bIsFatalDamage = NewHealth <= 0.f;
-			if(!bIsFatalDamage)
+			if (const bool bIsFatalDamage = NewHealth <= 0.f)
 			{
+				if(ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
+			{
+				//Ability just caused damage
 				//Activate an Ability by using a tag related to it
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);

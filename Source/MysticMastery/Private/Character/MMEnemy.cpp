@@ -41,6 +41,12 @@ void AMMEnemy::UnHighlightActor()
 	Weapon->SetRenderCustomDepth(false);
 }
 
+void AMMEnemy::Die()
+{
+	SetLifeSpan(LifeSpan);
+	Super::Die();
+}
+
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();

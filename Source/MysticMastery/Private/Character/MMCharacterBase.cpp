@@ -39,6 +39,29 @@ UAnimMontage* AMMCharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;
 }
 
+void AMMCharacterBase::Die()
+{
+	//Drop weapon, automatically replicated
+	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	
+	//Ragdoll enemy on client and server and activate weapon physics 
+	MulticastHandleDeath();
+}
+
+void AMMCharacterBase::MulticastHandleDeath_Implementation()
+{
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetEnableGravity(true);
+	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

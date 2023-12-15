@@ -28,6 +28,7 @@ public:
 
 	/** Combat Interface */
 	FORCEINLINE virtual int32 GetPlayerLevel() const override { return Level; }
+	virtual void Die() override;
 	/** End Combat Interface */
 
 	/** Health Component: Callback Functions */
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category= "Combat")
 	float BaseWalkSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")
+	float LifeSpan = 5.f;
 	
 	virtual void Tick(float DeltaTime) override;
 

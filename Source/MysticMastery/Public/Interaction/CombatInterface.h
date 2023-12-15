@@ -28,4 +28,6 @@ public:
 	//It doesnt have to be virtual, its voluntary
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimMontage* GetHitReactMontage();
+
+	virtual void Die() = 0;
 };

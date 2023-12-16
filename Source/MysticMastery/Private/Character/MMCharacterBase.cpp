@@ -60,6 +60,7 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dissolve();
 }
 
 void AMMCharacterBase::BeginPlay()
@@ -100,4 +101,26 @@ void AMMCharacterBase::AddCharacterAbilities()
 
 	//If there is authority, then we must grant the Ability, but its something that the ASC must do
 	ASC->AddCharacterAbilities(StartupAbilities);
+}
+
+/** Creates a Dynamic material instance out of the MI and swap them */
+void AMMCharacterBase::Dissolve()
+{
+	if (IsValid(CharacterDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DMI = UMaterialInstanceDynamic::Create(CharacterDissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DMI);
+
+		//Start the dissolve animation on blueprints
+		StartCharacterDissolveTimeline(DMI);
+	}
+
+	if (IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DMI = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
+		Weapon->SetMaterial(0, DMI);
+
+		//Start the dissolve animation on blueprints
+		StartWeaponDissolveTimeline(DMI);
+	}
 }

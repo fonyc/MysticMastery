@@ -4,7 +4,9 @@
 #include "MMGameplayTags.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/MMPlayerController.h"
 
 UMMAttributeSet::UMMAttributeSet()
 {
@@ -69,6 +71,17 @@ void UMMAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	if (Attribute == GetManaAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 }
 
+void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		if(AMMPlayerController* PC = Cast<AMMPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter);
+		}
+	}
+}
+
 //Function kicks in after the GE has been executed
 void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -105,6 +118,16 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+
+			//ShowFloatingText(Props, LocalIncomingDamage);
+			if (Props.SourceCharacter != Props.TargetCharacter)
+			{
+				//Get Locally Controller Player
+				if(AMMPlayerController* LocalPlayerController = Cast<AMMPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+				{
+					LocalPlayerController->ShowDamageNumber(LocalIncomingDamage, Props.TargetCharacter);
+				}
 			}
 		}
 	}

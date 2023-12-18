@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MMPlayerController.generated.h"
 
+class UDamageTextComponent;
 struct FGameplayTag;
 struct FInputActionValue;
 class UMMInputConfig;
@@ -26,6 +27,9 @@ class MYSTICMASTERY_API AMMPlayerController : public APlayerController
 public:
 	AMMPlayerController();
 	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -89,4 +93,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+	//Damage Text
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

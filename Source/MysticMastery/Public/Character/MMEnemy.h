@@ -44,6 +44,8 @@ public:
 	bool bHitReacting = false;
 	
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount);
+	
+	void MulticastHandleDeath_Implementation() override;
 	/** End Hit React */
 
 	UPROPERTY(BlueprintReadOnly, Category= "Combat")

@@ -109,6 +109,14 @@ void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCo
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
 }
 
+void AMMEnemy::MulticastHandleDeath_Implementation()
+{
+	Super::MulticastHandleDeath_Implementation();
+	
+	FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules::KeepWorldTransform;
+	HealthBar->DetachFromComponent(DetachmentTransformRules);
+}
+
 void AMMEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

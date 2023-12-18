@@ -4,6 +4,7 @@
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
+#include "Character/MMEnemy.h"
 #include "Components/CapsuleComponent.h"
 #include "MysticMastery/MysticMastery.h"
 

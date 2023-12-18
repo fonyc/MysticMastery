@@ -30,7 +30,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();
-		//Rotation.Pitch = 0.f;
+		Rotation.Pitch = 0.f;
 		SpawnTransform.SetRotation(Rotation.Quaternion());
 	}
 

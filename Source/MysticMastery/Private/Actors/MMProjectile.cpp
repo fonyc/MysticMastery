@@ -6,7 +6,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Components/AudioComponent.h"
 #include "MysticMastery/MysticMastery.h"
 
 AMMProjectile::AMMProjectile()
@@ -63,12 +62,12 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 
-	//If the (very unlikely) case that the destruction happens before the clients has had its sphere overlapped
+	//In the (very unlikely) case that the destruction happens before the client has had its sphere overlapped
 	//The destruction is made by the server. If the clients comes here first, just raises a flag (and plays the effects)
 	if (HasAuthority())
 	{
 		//Get the OtherACtor ASC and apply the GE to it
-		if(UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
 			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 		}

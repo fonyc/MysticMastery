@@ -42,8 +42,27 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 		Cast<APawn>(GetAvatarActorFromActorInfo()),
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-	const UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), ASC->MakeEffectContext());
+	const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+
+	// ----- Create and Set FGameplayEffectContextHandle properties --------------------
+	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+	
+	//SetAbility also sets: AbilityCDO, AbilityInstanceNotReplicated and AbilityLevel
+	EffectContextHandle.SetAbility(this);
+	
+	EffectContextHandle.AddSourceObject(Projectile);
+
+	TArray<TWeakObjectPtr<AActor>> Actors;
+	Actors.Add(Projectile);
+	EffectContextHandle.AddActors(Actors);
+
+	FHitResult HitResult;
+	HitResult.Location = ProjectileTarget;
+	EffectContextHandle.AddHitResult(HitResult);
+
+	//----------------------------------------------------------------------------------
+	
+	const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 
 	//Get GameplayTags to add the modifier magnitude in "Set by caller" (Damage tag in this case)
 	FMMGameplayTags GameplayTags = FMMGameplayTags::Get();

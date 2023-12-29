@@ -1,5 +1,7 @@
 
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
+
+#include "MMAbilitySystemTypes.h"
 #include "Game/MMGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MMPlayerState.h"
@@ -80,4 +82,38 @@ UCharacterClassInfo* UMMAbilitySystemBlueprintLibrary::GetCharacterClassInfo(con
 	AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 	if(MMGameModeBase == nullptr) return nullptr;
 	return MMGameModeBase->CharacterClassInfo;
+}
+
+bool UMMAbilitySystemBlueprintLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->IsBlockedHit();
+	}
+	return false;
+}
+
+bool UMMAbilitySystemBlueprintLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->IsCriticalHit();
+	}
+	return false;
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetIsBlockedHit(bInIsBlockedHit);
+	}
 }

@@ -44,7 +44,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 
 	const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 
-	// ----- Create and Set FGameplayEffectContextHandle properties --------------------
+	/** -- Create and Set FGameplayEffectContextHandle properties -- */
 	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 	
 	//SetAbility also sets: AbilityCDO, AbilityInstanceNotReplicated and AbilityLevel
@@ -60,7 +60,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 	HitResult.Location = ProjectileTarget;
 	EffectContextHandle.AddHitResult(HitResult);
 
-	//----------------------------------------------------------------------------------
+	/** -- End -- */
 	
 	const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 

@@ -2,6 +2,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "MMGameplayTags.h"
+#include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -71,7 +72,7 @@ void UMMAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	if (Attribute == GetManaAttribute()) NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 }
 
-void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Damage, bool bBlockedHit, bool bCriticalHit)
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
@@ -120,15 +121,10 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 			}
 
-			//ShowFloatingText(Props, LocalIncomingDamage);
-			if (Props.SourceCharacter != Props.TargetCharacter)
-			{
-				//Get Locally Controller Player
-				if(AMMPlayerController* LocalPlayerController = Cast<AMMPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
-				{
-					LocalPlayerController->ShowDamageNumber(LocalIncomingDamage, Props.TargetCharacter);
-				}
-			}
+			//Call the text damage on top of the character
+			const bool bBlocked = UMMAbilitySystemBlueprintLibrary::IsBlockedHit(Props.EffectContextHandle);
+			const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);
+			ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 		}
 	}
 }

@@ -15,5 +15,5 @@ class MYSTICMASTERY_API UDamageTextComponent : public UWidgetComponent
 public:
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetDamageText(float DamageQty);
+	void SetDamageText(float DamageQty, bool bBlockedHit, bool bCriticalHit);
 };

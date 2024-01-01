@@ -2,6 +2,8 @@
 
 
 #include "MMGameplayTags.h"
+
+#include "AssetTypeCategories.h"
 #include "GameplayTagsManager.h"
 
 FMMGameplayTags FMMGameplayTags::GameplayTags;
@@ -76,6 +78,12 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	//Miscelaneous
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Damage"), FString("Input Tag for the meta attribute damage"));
+
+	GameplayTags.Damage_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Damage.Fire"), FString("Fire damage type"));
+
+	//Add all the damage types to the array
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Fire);
 
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));

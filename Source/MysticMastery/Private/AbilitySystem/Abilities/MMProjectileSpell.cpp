@@ -66,11 +66,13 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 
 	//Get GameplayTags to add the modifier magnitude in "Set by caller" (Damage tag in this case)
 	FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
-	
-	//Get damage from ability curve table by using its level
-	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-	
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaledDamage);
+
+	//Get Damage from the multiple damage tags and assign its value
+	for(auto& Pair : DamageTypes)
+	{
+		const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Pair.Key, ScaledDamage);
+	}
 
 	Projectile->DamageEffectSpecHandle = SpecHandle;
 	Projectile->FinishSpawning(SpawnTransform);

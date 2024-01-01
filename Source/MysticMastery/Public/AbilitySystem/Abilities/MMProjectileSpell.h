@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MMGameplayAbility.h"
+#include "MMDamageGameplayAbility.h"
 #include "MMProjectileSpell.generated.h"
 
 class AMMProjectile;
@@ -13,7 +13,7 @@ class UGameplayEffect;
  * 
  */
 UCLASS()
-class MYSTICMASTERY_API UMMProjectileSpell : public UMMGameplayAbility
+class MYSTICMASTERY_API UMMProjectileSpell : public UMMDamageGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -29,6 +29,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AMMProjectile> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

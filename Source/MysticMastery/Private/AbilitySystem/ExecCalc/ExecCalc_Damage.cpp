@@ -72,7 +72,13 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
 	//Get Damage from Set by called Magnitude
-	float Damage = Spec.GetSetByCallerMagnitude(FMMGameplayTags::Get().Damage);
+	float Damage = 0.f;
+
+	for (FGameplayTag DamageTypeTag : FMMGameplayTags::Get().DamageTypes)
+	{
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag);
+		Damage += DamageTypeValue;
+	}
 	
 	#pragma endregion
 

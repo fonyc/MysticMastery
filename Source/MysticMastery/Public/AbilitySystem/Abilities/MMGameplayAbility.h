@@ -18,8 +18,4 @@ public:
 	//If the ability is set as initial Ability, then this will be its default input key
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	FGameplayTag StartupInputTag;
-
-	//Float in charge of the base damage the ability causes. If the ability causes no damage, dont use it.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
-	FScalableFloat Damage;
 };

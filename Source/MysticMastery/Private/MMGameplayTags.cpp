@@ -11,7 +11,28 @@ FMMGameplayTags FMMGameplayTags::GameplayTags;
 void FMMGameplayTags::InitializeNativeGameplayTags()
 {
 
+	//InputTags
+	
+	GameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.LMB"), FString("Input Tag for Left Mouse Button"));
+
+	GameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.RMB"), FString("Input Tag for Right Mouse Button"));
+
+	GameplayTags.InputTag_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.1"), FString("Input Tag for the Num1 key"));
+
+	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.2"), FString("Input Tag for the Num2 key"));
+
+	GameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.3"), FString("Input Tag for the Num3 key"));
+
+	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.4"), FString("Input Tag for the Num4 key"));
+
 	//Attributes.Primary
+	
 	GameplayTags.Attributes_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Primary.Strength"), FString("Increases physical damage"));
 
@@ -26,6 +47,7 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 
 	
 	//Attributes.Secondary
+	
 	GameplayTags.Attributes_Secondary_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Secondary.Armor"), FString("Reduces damage taken and improves Block Chance"));
 
@@ -56,35 +78,47 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Attributes.Secondary.MaxMana"), FString("Maximum quantity of mana"));
 
-	//InputTags
-	GameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.LMB"), FString("Input Tag for Left Mouse Button"));
+	//Attributes Resistances
+	
+	GameplayTags.Attributes_Resistance_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Resistance.Fire"), FString("Resistance to Fire Damage"));
 
-	GameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.RMB"), FString("Input Tag for Right Mouse Button"));
+	GameplayTags.Attributes_Resistance_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Resistance.Arcane"), FString("Resistance to Arcane Damage"));
 
-	GameplayTags.InputTag_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.1"), FString("Input Tag for the Num1 key"));
+	GameplayTags.Attributes_Resistance_Lightning = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Resistance.Lightning"), FString("Resistance to Lightning Damage"));
 
-	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.2"), FString("Input Tag for the Num2 key"));
+	GameplayTags.Attributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Resistance.Physical"), FString("Resistance to Physical Damage"));
 
-	GameplayTags.InputTag_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.3"), FString("Input Tag for the Num3 key"));
-
-	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-	FName("InputTag.4"), FString("Input Tag for the Num4 key"));
-
-	//Miscelaneous
+	//Damage Types
+	
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Damage"), FString("Input Tag for the meta attribute damage"));
 
 	GameplayTags.Damage_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Damage.Fire"), FString("Fire damage type"));
 
-	//Add all the damage types to the array
-	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Fire);
+	GameplayTags.Damage_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Damage.Arcane"), FString("Arcane damage type"));
 
+	GameplayTags.Damage_Lightning = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Damage.Lightning"), FString("Lightning damage type"));
+
+	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Damage.Physical"), FString("Physical damage type"));
+	
+
+	
+	//Relate every damage with its resistance
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Fire, GameplayTags.Attributes_Resistance_Fire);
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Arcane, GameplayTags.Attributes_Resistance_Arcane);
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Lightning, GameplayTags.Attributes_Resistance_Lightning);
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
+
+	//Effects
+	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));
 }

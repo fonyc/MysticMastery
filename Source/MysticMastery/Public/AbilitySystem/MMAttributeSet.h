@@ -52,7 +52,7 @@ struct FEffectProperties
 
 };
 
-//we need the FGameplayAttribute() signature, but to make it generic we use TStaticFunPtr
+//we need the FGameplayAttribute() signature, but to make it generic we use TStaticFuncPtr
 //real signature would be TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultUserPolicy>::FFuncPtr FAttributeFuncPtr;
 template <class T>
 using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T,FDefaultDelegateUserPolicy>::FFuncPtr;
@@ -123,6 +123,22 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana, Category= "Vital Attributes")
 	FGameplayAttributeData MaxMana;
+
+	/**
+	 * There are also secondary attributes, but they are separated just for clarity
+	 */
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireResistance, Category= "Resistance Attributes")
+	FGameplayAttributeData FireResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ArcaneResistance, Category= "Resistance Attributes")
+	FGameplayAttributeData ArcaneResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LightningResistance, Category= "Resistance Attributes")
+	FGameplayAttributeData LightningResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_PhysicalResistance, Category= "Resistance Attributes")
+	FGameplayAttributeData PhysicalResistance;
 	
 #pragma  endregion
 	
@@ -164,6 +180,12 @@ public:
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, CriticalHitResistance);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, HealthRegeneration);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, ManaRegeneration);
+	
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, FireResistance);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, ArcaneResistance);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, LightningResistance);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, PhysicalResistance);
+	
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, IncomingDamage);
 	
 #pragma endregion
@@ -217,6 +239,18 @@ public:
 
 	UFUNCTION()
 	void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const;
+
+	UFUNCTION()
+	void OnRep_FireResistance (const FGameplayAttributeData& OldFireResistance) const;
+
+	UFUNCTION()
+	void OnRep_ArcaneResistance (const FGameplayAttributeData& OldArcaneResistance) const;
+
+	UFUNCTION()
+	void OnRep_LightningResistance (const FGameplayAttributeData& OldLightningResistance) const;
+
+	UFUNCTION()
+	void OnRep_PhysicalResistance (const FGameplayAttributeData& OldPhysicalResistance) const;
 	
 #pragma endregion
 	

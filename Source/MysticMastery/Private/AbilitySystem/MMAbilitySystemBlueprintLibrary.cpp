@@ -79,7 +79,7 @@ void UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(const UObject* World
 
 UCharacterClassInfo* UMMAbilitySystemBlueprintLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
-	AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	const AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 	if(MMGameModeBase == nullptr) return nullptr;
 	return MMGameModeBase->CharacterClassInfo;
 }

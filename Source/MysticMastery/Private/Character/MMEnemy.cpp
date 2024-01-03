@@ -54,7 +54,11 @@ void AMMEnemy::BeginPlay()
 	//Set initial speed
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
 	InitializeAbilityActorInfo();
-	UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent);
+	
+	if(HasAuthority())
+	{
+		UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent);
+	}
 
 	//Set this very class as the widget controller on health bar
 	if (UMMUserWidget* MMUserWidget = Cast<UMMUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -95,7 +99,10 @@ void AMMEnemy::InitializeAbilityActorInfo()
 	//Warn the delegate we just set the ability actor info
 	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes();
+	if(HasAuthority())
+	{
+		InitializeDefaultAttributes();
+	}
 }
 
 void AMMEnemy::InitializeDefaultAttributes() const

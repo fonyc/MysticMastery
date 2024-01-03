@@ -88,7 +88,7 @@ void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Dama
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		if(AMMPlayerController* PC = Cast<AMMPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		if (AMMPlayerController* PC = Cast<AMMPlayerController>(Props.SourceCharacter->Controller))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}

@@ -8,6 +8,9 @@
 #include "MysticMastery/MysticMastery.h"
 #include "UI/Widgets/MMUserWidget.h"
 #include "MMGameplayTags.h"
+#include "AI/MMAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AMMEnemy::AMMEnemy()
@@ -24,6 +27,21 @@ AMMEnemy::AMMEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+/**
+ * Method that, when the controller posses the actor, initialize its controller (custom AI controller in this case)
+ * And give it BB and BT...
+ */
+void AMMEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if(!HasAuthority()) return;
+	MMAIController = Cast<AMMAIController>(NewController);
+
+	MMAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviourTree->BlackboardAsset);
+	MMAIController->RunBehaviorTree(BehaviourTree);
 }
 
 void AMMEnemy::HighlightActor()

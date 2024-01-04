@@ -25,6 +25,13 @@ AMMEnemy::AMMEnemy()
 
 	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 
+	//Rotation settings
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	
+	//Healthbar component
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
 }

@@ -21,6 +21,9 @@ void AMMEffectActor::BeginPlay()
 
 void AMMEffectActor::ApplyGameplayEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if(bIsEnemy && !bApplyEffectOnEnemies) return;
+	
 	//This is the same as getting the interface from an actor and cast it, but shorter and fancier
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (TargetASC == nullptr) return;
@@ -38,10 +41,19 @@ void AMMEffectActor::ApplyGameplayEffectToTarget(AActor* TargetActor, TSubclassO
 	{
 		ActiveEffectHandles.Add(ActiveGameplayEffectHandle, TargetASC);
 	}
+
+	//Destroy Actor if the GE is instant and actor destruction is enabled
+	if (!bIsInfinite)
+	{
+		Destroy();
+	} 
 }
 
 void AMMEffectActor::OnBeginOverlap(AActor* TargetActor)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if(bIsEnemy && !bApplyEffectOnEnemies) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		for (const auto& InstantEffect : InstantGameplayEffects)
@@ -69,6 +81,9 @@ void AMMEffectActor::OnBeginOverlap(AActor* TargetActor)
 
 void AMMEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if(bIsEnemy && !bApplyEffectOnEnemies) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		for (const auto& InstantEffect : InstantGameplayEffects)

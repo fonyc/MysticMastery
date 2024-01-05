@@ -49,6 +49,9 @@ void AMMEnemy::PossessedBy(AController* NewController)
 
 	MMAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviourTree->BlackboardAsset);
 	MMAIController->RunBehaviorTree(BehaviourTree);
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangeAttack"), CharacterClass != ECharacterClass::Warrior);
+
 }
 
 void AMMEnemy::HighlightActor()
@@ -139,6 +142,7 @@ void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCo
 {
 	bHitReacting = NewTagCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AMMEnemy::MulticastHandleDeath_Implementation()

@@ -69,7 +69,7 @@ void AMMCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-FVector AMMCharacterBase::GetCombatSocketLocation()
+FVector AMMCharacterBase::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponTipSocketName);

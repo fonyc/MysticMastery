@@ -20,7 +20,9 @@ class MYSTICMASTERY_API ICombatInterface
 
 public:
 	virtual int32 GetPlayerLevel() const;
-	virtual FVector GetCombatSocketLocation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetCombatSocketLocation();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void UpdateFacingWarpTarget(const FVector& Target);

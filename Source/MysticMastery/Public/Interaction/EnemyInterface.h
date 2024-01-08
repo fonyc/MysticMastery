@@ -24,4 +24,11 @@ class MYSTICMASTERY_API IEnemyInterface
 public:
 	virtual void HighlightActor() = 0;
 	virtual void UnHighlightActor() = 0;
+
+	/** CombatTarget Getters/Setters needed to motion warp to the direction of the target (the player for example) */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetCombatTarget(AActor* InCombatTarget);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	AActor* GetCombatTarget() const;
 };

@@ -75,6 +75,16 @@ void AMMEnemy::Die()
 	Super::Die();
 }
 
+AActor* AMMEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
+void AMMEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();

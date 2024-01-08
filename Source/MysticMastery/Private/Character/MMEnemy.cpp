@@ -85,7 +85,7 @@ void AMMEnemy::BeginPlay()
 	
 	if(HasAuthority())
 	{
-		UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent);
+		UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent, CharacterClass);
 	}
 
 	//Set this very class as the widget controller on health bar

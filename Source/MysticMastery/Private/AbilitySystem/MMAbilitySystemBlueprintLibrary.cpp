@@ -127,3 +127,25 @@ void UMMAbilitySystemBlueprintLibrary::SetBlockedHit(FGameplayEffectContextHandl
 		MMEffectContext->SetIsBlockedHit(bInIsBlockedHit);
 	}
 }
+
+void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject,
+	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float SphereRadius, const FVector& SphereOrigin)
+{
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+
+	// query scene to see what we hit
+	TArray<FOverlapResult> Overlaps;
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(SphereRadius), SphereParams);
+		for (FOverlapResult& Overlap : Overlaps)
+		{
+			AActor* OverlappedActor =  Overlap.GetActor();
+			if (OverlappedActor->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsDead(OverlappedActor))
+			{
+				OutOverlappingActors.AddUnique(OverlappedActor);
+			}
+		}
+	}
+}

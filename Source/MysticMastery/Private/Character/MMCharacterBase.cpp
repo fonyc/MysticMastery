@@ -49,6 +49,16 @@ void AMMCharacterBase::Die()
 	MulticastHandleDeath();
 }
 
+bool AMMCharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* AMMCharacterBase::GetAvatar_Implementation() 
+{
+	return this;
+}
+
 void AMMCharacterBase::MulticastHandleDeath_Implementation()
 {
 	Weapon->SetSimulatePhysics(true);
@@ -62,6 +72,7 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
+	bDead = true;
 }
 
 void AMMCharacterBase::BeginPlay()

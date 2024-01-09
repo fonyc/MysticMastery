@@ -88,7 +88,15 @@ void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Dama
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
+		//Damage causer is PC
 		if (AMMPlayerController* PC = Cast<AMMPlayerController>(Props.SourceCharacter->Controller))
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			return;
+		}
+
+		//Damage Causer is Enemy AI
+		if (AMMPlayerController* PC = Cast<AMMPlayerController>(Props.TargetCharacter->Controller))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
@@ -264,7 +272,7 @@ void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		Props.SourceController = Props.SourceASC->AbilityActorInfo->PlayerController.Get();
 
 		//Try to get the PC from the pawn directly (if its impossible from source)
-		if (Props.SourceController == nullptr && Props.SourceController != nullptr)
+		if (Props.SourceController == nullptr && Props.SourceAvatarActor != nullptr)
 		{
 			if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor))
 			{

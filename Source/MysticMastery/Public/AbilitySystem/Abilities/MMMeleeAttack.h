@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MMGameplayAbility.h"
+#include "MMDamageGameplayAbility.h"
 #include "MMMeleeAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMASTERY_API UMMMeleeAttack : public UMMGameplayAbility
+class MYSTICMASTERY_API UMMMeleeAttack : public UMMDamageGameplayAbility
 {
 	GENERATED_BODY()
 	

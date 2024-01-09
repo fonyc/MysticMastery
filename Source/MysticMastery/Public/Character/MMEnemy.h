@@ -33,6 +33,8 @@ public:
 	/** Combat Interface */
 	FORCEINLINE virtual int32 GetPlayerLevel() const override { return Level; }
 	virtual void Die() override;
+	virtual AActor* GetCombatTarget_Implementation() const override;
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	/** End Combat Interface */
 
 	/** Health Component: Callback Functions */
@@ -46,7 +48,6 @@ public:
 	/** Hit React */
 	UPROPERTY(BlueprintReadOnly, Category= "Combat")
 	bool bHitReacting = false;
-	
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount);
 	
 	void MulticastHandleDeath_Implementation() override;
@@ -57,6 +58,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")
 	float LifeSpan = 5.f;
+
+	UPROPERTY(BlueprintReadWrite, Category= "Combat")
+	TObjectPtr<AActor> CombatTarget;
 	
 	virtual void Tick(float DeltaTime) override;
 

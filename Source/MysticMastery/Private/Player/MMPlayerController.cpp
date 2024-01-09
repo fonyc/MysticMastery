@@ -145,8 +145,8 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				if (NavPath->PathPoints.Num() > 0)
 				{
 					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+					bAutoRunning = true;
 				}
-				bAutoRunning = true;
 			}
 		}
 		TimeFollowingCursor = 0.f;

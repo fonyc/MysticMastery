@@ -20,5 +20,7 @@ public:
 	AMMAIController();
 
 protected:
+	
+	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 };

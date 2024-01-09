@@ -121,4 +121,7 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));
+
+	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Abilities.Attack"), FString("Tag added when some Actor is performing an attack"));
 }

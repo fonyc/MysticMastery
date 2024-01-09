@@ -25,6 +25,13 @@ AMMEnemy::AMMEnemy()
 
 	AttributeSet = CreateDefaultSubobject<UMMAttributeSet>("AttributeSet");
 
+	//Rotation settings
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	
+	//Healthbar component
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
 }
@@ -42,6 +49,9 @@ void AMMEnemy::PossessedBy(AController* NewController)
 
 	MMAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviourTree->BlackboardAsset);
 	MMAIController->RunBehaviorTree(BehaviourTree);
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangeAttack"), CharacterClass != ECharacterClass::Warrior);
+
 }
 
 void AMMEnemy::HighlightActor()
@@ -65,6 +75,16 @@ void AMMEnemy::Die()
 	Super::Die();
 }
 
+AActor* AMMEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
+void AMMEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
 void AMMEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -75,7 +95,7 @@ void AMMEnemy::BeginPlay()
 	
 	if(HasAuthority())
 	{
-		UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent);
+		UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(this,AbilitySystemComponent, CharacterClass);
 	}
 
 	//Set this very class as the widget controller on health bar
@@ -132,6 +152,7 @@ void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCo
 {
 	bHitReacting = NewTagCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
+	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AMMEnemy::MulticastHandleDeath_Implementation()

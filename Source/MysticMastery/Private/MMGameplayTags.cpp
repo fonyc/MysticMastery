@@ -121,7 +121,18 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));
-
+	
+	//Abilities
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Attack"), FString("Tag added when some Actor is performing an attack"));
+
+	//Socket Weapon montages
+	GameplayTags.Montage_Attack_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Montage.Attack.Weapon"), FString("Weapon Socket"));
+
+	GameplayTags.Montage_Attack_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Montage.Attack.LeftHand"), FString("Left Hand Socket"));
+
+	GameplayTags.Montage_Attack_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Montage.Attack.RightHand"), FString("Right Hand Socket"));
 }

@@ -152,7 +152,10 @@ void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCo
 {
 	bHitReacting = NewTagCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting? 0 : BaseWalkSpeed;
-	MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	if(MMAIController && MMAIController->GetBlackboardComponent())
+	{
+		MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	}
 }
 
 void AMMEnemy::MulticastHandleDeath_Implementation()

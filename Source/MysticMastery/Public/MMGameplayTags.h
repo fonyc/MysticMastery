@@ -55,6 +55,12 @@ public:
 	FGameplayTag Damage_Arcane;
 	FGameplayTag Damage_Physical;
 
+	//Socket Weapon
+	FGameplayTag Montage_Attack_Weapon;
+	FGameplayTag Montage_Attack_RightHand;
+	FGameplayTag Montage_Attack_LeftHand;
+	
+
 	//Abilities
 	FGameplayTag Abilities_Attack;
 

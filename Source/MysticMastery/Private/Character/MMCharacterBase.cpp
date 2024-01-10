@@ -3,6 +3,7 @@
 
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Character/MMEnemy.h"
 #include "Components/CapsuleComponent.h"
@@ -19,11 +20,11 @@ AMMCharacterBase::AMMCharacterBase()
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	
+
 	//Set Basic responses to Camera, and Projectile Channels
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetGenerateOverlapEvents(false);
-	
+
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
@@ -44,7 +45,7 @@ void AMMCharacterBase::Die()
 {
 	//Drop weapon, automatically replicated
 	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
-	
+
 	//Ragdoll enemy on client and server and activate weapon physics 
 	MulticastHandleDeath();
 }
@@ -54,7 +55,7 @@ bool AMMCharacterBase::IsDead_Implementation() const
 	return bDead;
 }
 
-AActor* AMMCharacterBase::GetAvatar_Implementation() 
+AActor* AMMCharacterBase::GetAvatar_Implementation()
 {
 	return this;
 }
@@ -69,10 +70,15 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
 	bDead = true;
+}
+
+TArray<FTaggedMontage> AMMCharacterBase::GetAttackMontages_Implementation()
+{
+	return AttackMontages;
 }
 
 void AMMCharacterBase::BeginPlay()
@@ -80,22 +86,39 @@ void AMMCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-FVector AMMCharacterBase::GetCombatSocketLocation_Implementation()
+/**
+ * 
+ * @param MontageTag There are only 3 types of Montage Tag according to the weapon they use: "Weapon","LeftHand","RightHand"
+ * @return It returns the socket location of the Montage based on the associated tag 
+ */
+FVector AMMCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_Weapon) && IsValid(Weapon))
+	{
+		return Weapon->GetSocketLocation(WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_LeftHand))
+	{
+		return Weapon->GetSocketLocation(LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_RightHand))
+	{
+		return Weapon->GetSocketLocation(RightHandSocketName);
+	}
+	return FVector();
 }
 
-void AMMCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const 
+void AMMCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
 {
 	check(IsValid(GetAbilitySystemComponent()) && GameplayEffectClass)
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, EffectContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(
+		GameplayEffectClass, Level, EffectContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
 }
 
-void AMMCharacterBase::InitializeDefaultAttributes() const 
+void AMMCharacterBase::InitializeDefaultAttributes() const
 {
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1);
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1);
@@ -109,7 +132,7 @@ void AMMCharacterBase::InitializeAbilityActorInfo()
 void AMMCharacterBase::AddCharacterAbilities()
 {
 	UMMAbilitySystemComponent* ASC = CastChecked<UMMAbilitySystemComponent>(AbilitySystemComponent);
-	if(!HasAuthority()) return;
+	if (!HasAuthority()) return;
 
 	//If there is authority, then we must grant the Ability, but its something that the ASC must do
 	ASC->AddCharacterAbilities(StartupAbilities);

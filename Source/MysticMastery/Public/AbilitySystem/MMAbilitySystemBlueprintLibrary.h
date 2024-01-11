@@ -49,4 +49,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereCenter);
+
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
+	static bool IsFriendlyActor(AActor* FirstActor, AActor* SecondActor);
 };

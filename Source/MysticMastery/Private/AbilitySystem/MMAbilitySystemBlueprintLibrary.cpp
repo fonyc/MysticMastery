@@ -149,3 +149,10 @@ void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(const UObject*
 		}
 	}
 }
+
+bool UMMAbilitySystemBlueprintLibrary::IsFriendlyActor(AActor* FirstActor, AActor* SecondActor)
+{
+	const bool BothArePlayers = FirstActor->ActorHasTag(FName("Player")) && SecondActor->ActorHasTag(FName("Player"));
+	const bool BothAreEnemies = FirstActor->ActorHasTag(FName("Enemy")) && SecondActor->ActorHasTag(FName("Enemy"));
+	return BothAreEnemies || BothArePlayers;
+}

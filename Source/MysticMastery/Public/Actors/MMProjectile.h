@@ -16,9 +16,7 @@ class MYSTICMASTERY_API AMMProjectile : public AActor
 	
 public:
 	AMMProjectile();
-
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
-
+	
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
@@ -27,11 +25,19 @@ protected:
 	virtual void Destroyed() override;
 	
 	UFUNCTION()
-	void OnSphereOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnSphereOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor,
+		class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 private:
 
+	UFUNCTION(BlueprintCallable)
+	void DisableMeshIfAny(UStaticMeshComponent* MeshComponent);
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess = true))
+	bool bDisableMeshCollision = true;
+
 	UPROPERTY(EditDefaultsOnly)
-	float LifeSpan = 15.f;
+	float LifeSpan = 10.f;
 	
 	bool bHit = false;
 	

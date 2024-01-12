@@ -22,18 +22,13 @@ AMMProjectile::AMMProjectile()
 	SphereComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	SphereComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
 	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
-	ProjectileMovementComponent->InitialSpeed = 550.f;
-	ProjectileMovementComponent->MaxSpeed = 550.f;
-	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
 void AMMProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AMMProjectile::OnSphereOverlap);
-
+	
 	SetLifeSpan(LifeSpan);
 	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(), NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
 
@@ -80,4 +75,9 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		bHit = true;
 	}
+}
+
+void AMMProjectile::DisableMeshIfAny(UStaticMeshComponent* StaticMesh)
+{
+	if (bDisableMeshCollision && StaticMesh != nullptr && IsValid(StaticMesh)) StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 }

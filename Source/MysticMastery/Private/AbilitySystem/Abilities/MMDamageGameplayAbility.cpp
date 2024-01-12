@@ -19,13 +19,3 @@ void UMMDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	}
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }
-
-FTaggedMontage UMMDamageGameplayAbility::GetRandomTaggedMontage(const TArray<FTaggedMontage>& TaggedMontages)
-{
-	if(TaggedMontages.Num() > 0)
-	{
-		const int32 RandomNumber = FMath::RandRange(0,TaggedMontages.Num() - 1);
-		return TaggedMontages[RandomNumber];
-	}
-	return FTaggedMontage();
-}

@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
+	UPROPERTY(EditAnywhere, Category="Style")
+	TObjectPtr<USkeletalMeshComponent> FaceMask;
+
 	/** Weapon Sockets from where the attack sphere is spawned */
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName WeaponTipSocketName;
@@ -98,6 +101,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;

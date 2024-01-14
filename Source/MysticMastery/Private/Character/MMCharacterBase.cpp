@@ -5,7 +5,6 @@
 #include "AbilitySystemComponent.h"
 #include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
-#include "Character/MMEnemy.h"
 #include "Components/CapsuleComponent.h"
 #include "MysticMastery/MysticMastery.h"
 
@@ -16,10 +15,14 @@ AMMCharacterBase::AMMCharacterBase()
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
-
+	FaceMask = CreateDefaultSubobject<USkeletalMeshComponent>("FaceMask");
+	FaceMask->SetupAttachment(GetMesh(), FName("FaceMask"));
+	
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	FaceMask->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FaceMask->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 	//Set Basic responses to Camera, and Projectile Channels
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
@@ -65,6 +68,10 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	FaceMask->SetSimulatePhysics(true);
+	FaceMask->SetEnableGravity(true);
+	FaceMask->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);

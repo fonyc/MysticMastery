@@ -72,6 +72,7 @@ void AMMEnemy::UnHighlightActor()
 void AMMEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+	if(MMAIController) MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	Super::Die();
 }
 

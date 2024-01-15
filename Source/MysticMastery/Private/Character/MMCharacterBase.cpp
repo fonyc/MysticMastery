@@ -88,6 +88,11 @@ TArray<FTaggedMontage> AMMCharacterBase::GetAttackMontages_Implementation()
 	return AttackMontages;
 }
 
+UNiagaraSystem* AMMCharacterBase::GetHitEffect_Implementation()
+{
+	return HitEffect;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

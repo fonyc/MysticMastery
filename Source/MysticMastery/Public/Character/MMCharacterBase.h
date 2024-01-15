@@ -13,6 +13,7 @@ class UGameplayEffect;
 class UAttributeSet;
 class UAbilitySystemComponent;
 class UAnimMontage;
+class UNiagaraSystem;
 
 UCLASS()
 class MYSTICMASTERY_API AMMCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -35,9 +36,13 @@ public:
 	virtual void Die() override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
+	
 	UPROPERTY(EditAnywhere, Category= "Combat")
 	TArray<FTaggedMontage> AttackMontages;
+	
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+
+	virtual UNiagaraSystem* GetHitEffect_Implementation() override;
 	/** End Combat Interface */
 	
 protected:
@@ -94,13 +99,21 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DMI);
 	
-	/** End Dissolve effects */
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> CharacterDissolveMaterialInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+	
+	/** End Dissolve effects */
+
+	/** Hit effects */
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,  Category="Combat")
+	TObjectPtr<UNiagaraSystem> HitEffect;
+	
+	/** End Hit effects */
+	
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

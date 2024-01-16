@@ -90,7 +90,7 @@ protected:
 
 	void AddCharacterAbilities();
 
-	/** Dissolve effects */
+	/** Death / Dissolve effects */
 	void Dissolve();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -104,6 +104,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,  Category="Combat")
+	TObjectPtr<USoundBase> DeathSound;
 	
 	/** End Dissolve effects */
 
@@ -111,6 +114,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,  Category="Combat")
 	TObjectPtr<UNiagaraSystem> HitEffect;
+
+	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	
 	/** End Hit effects */
 	

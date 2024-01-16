@@ -55,10 +55,16 @@ public:
 	FGameplayTag Damage_Arcane;
 	FGameplayTag Damage_Physical;
 
-	//Socket Weapon
-	FGameplayTag Montage_Attack_Weapon;
-	FGameplayTag Montage_Attack_RightHand;
-	FGameplayTag Montage_Attack_LeftHand;
+	//Combat sockets (Identify a tag with a physical socket from which a character performs an attack)
+	FGameplayTag CombatSocket_Weapon;
+	FGameplayTag CombatSocket_RightHand;
+	FGameplayTag CombatSocket_LeftHand;
+
+	//Identify a montage with a unique tag
+	FGameplayTag Montage_Attack_1;
+	FGameplayTag Montage_Attack_2;
+	FGameplayTag Montage_Attack_3;
+	FGameplayTag Montage_Attack_4;
 	
 
 	//Abilities

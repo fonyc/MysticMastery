@@ -26,7 +26,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
-		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FMMGameplayTags::Get().Montage_Attack_Weapon);
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FMMGameplayTags::Get().CombatSocket_Weapon);
 		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();

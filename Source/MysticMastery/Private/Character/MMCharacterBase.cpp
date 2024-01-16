@@ -6,6 +6,7 @@
 #include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "MysticMastery/MysticMastery.h"
 
 // Sets default values
@@ -65,6 +66,8 @@ AActor* AMMCharacterBase::GetAvatar_Implementation()
 
 void AMMCharacterBase::MulticastHandleDeath_Implementation()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
+	
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -105,15 +108,15 @@ void AMMCharacterBase::BeginPlay()
  */
 FVector AMMCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_Weapon) && IsValid(Weapon))
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_Weapon) && IsValid(Weapon))
 	{
 		return Weapon->GetSocketLocation(WeaponTipSocketName);
 	}
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_LeftHand))
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(LeftHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().Montage_Attack_RightHand))
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_RightHand))
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
@@ -170,4 +173,16 @@ void AMMCharacterBase::Dissolve()
 		//Start the dissolve animation on blueprints
 		StartWeaponDissolveTimeline(DMI);
 	}
+}
+
+FTaggedMontage AMMCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for(FTaggedMontage TaggedMontage : AttackMontages)
+	{
+		if(TaggedMontage.MontageTag == MontageTag)
+		{
+			return TaggedMontage;
+		}
+	}
+	return FTaggedMontage();
 }

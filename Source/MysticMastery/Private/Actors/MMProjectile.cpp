@@ -48,6 +48,7 @@ void AMMProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		bHit = true;
 	}
 	
 	Super::Destroyed();
@@ -66,9 +67,13 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		return;
 	}
-		
-	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+
+	if (!bHit)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		bHit = true;
+	}
 
 	//In the (very unlikely) case that the destruction happens before the client has had its sphere overlapped
 	//The destruction is made by the server. If the clients comes here first, just raises a flag (and plays the effects)

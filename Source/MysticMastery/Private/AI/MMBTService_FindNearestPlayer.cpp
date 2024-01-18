@@ -10,7 +10,7 @@ void UMMBTService_FindNearestPlayer::TickNode(UBehaviorTreeComponent& OwnerComp,
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	AAIController* Controller = OwnerComp.GetAIOwner();
+	const AAIController* Controller = OwnerComp.GetAIOwner();
 	const APawn* OwningPawn = Controller->GetPawn();
 
 	const FName TargetTag = OwningPawn->ActorHasTag(FName("Player")) ? FName("Enemy") : FName("Player");
@@ -34,6 +34,6 @@ void UMMBTService_FindNearestPlayer::TickNode(UBehaviorTreeComponent& OwnerComp,
 		}
 	}
 	
-	Controller->GetBlackboardComponent()->SetValueAsObject(TargetToFollowSelector.SelectedKeyName, ClosestActor);
-	Controller->GetBlackboardComponent()->SetValueAsFloat(DistanceToTargetSelector.SelectedKeyName, ClosestDistance);
+	OwnerComp.GetBlackboardComponent()->SetValueAsObject(TargetToFollowSelector.SelectedKeyName, ClosestActor);
+	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(DistanceToTargetSelector.SelectedKeyName, ClosestDistance);
 }

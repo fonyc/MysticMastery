@@ -120,6 +120,10 @@ FVector AMMCharacterBase::GetCombatSocketLocation_Implementation(const FGameplay
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
+	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_Head))
+	{
+		return GetMesh()->GetSocketLocation(HeadSocketName);
+	}
 	return FVector();
 }
 

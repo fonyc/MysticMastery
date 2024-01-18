@@ -65,6 +65,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName RightHandSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName HeadSocketName;
 	/**  End Sockets */
 
 	UPROPERTY()

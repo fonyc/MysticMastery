@@ -59,6 +59,7 @@ public:
 	FGameplayTag CombatSocket_Weapon;
 	FGameplayTag CombatSocket_RightHand;
 	FGameplayTag CombatSocket_LeftHand;
+	FGameplayTag CombatSocket_Head;
 
 	//Identify a montage with a unique tag
 	FGameplayTag Montage_Attack_1;

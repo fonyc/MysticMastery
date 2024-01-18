@@ -134,6 +134,9 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.CombatSocket_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("CombatSocket.RightHand"), FString("Right Hand Socket"));
+	
+	GameplayTags.CombatSocket_Head = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("CombatSocket.Head"), FString("Head Socket"));
 
 	//Montage Tags
 	GameplayTags.Montage_Attack_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(

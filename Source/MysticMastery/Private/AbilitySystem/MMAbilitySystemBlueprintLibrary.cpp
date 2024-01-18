@@ -2,7 +2,6 @@
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 
 #include "MMAbilitySystemTypes.h"
-#include "Character/MMCharacterBase.h"
 #include "Game/MMGameModeBase.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,12 +46,8 @@ void UMMAbilitySystemBlueprintLibrary::InitializeDefaultAttributes(const UObject
 	if (UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject))
 	{
 		const FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
-		AActor* AvatarActor = ASC->GetAvatarActor();
+		const AActor* AvatarActor = ASC->GetAvatarActor();
 
-		//Copy the tags names into the character 
-		AMMCharacterBase* Character = Cast<AMMCharacterBase>(AvatarActor);
-		Character->SocketTagNames = CharacterClassInfo->SocketTagNames;
-		
 		FGameplayEffectContextHandle PrimaryAttributesContextHandle = ASC->MakeEffectContext();
 		PrimaryAttributesContextHandle.AddSourceObject(AvatarActor);
 		const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle = ASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes, Level,PrimaryAttributesContextHandle);

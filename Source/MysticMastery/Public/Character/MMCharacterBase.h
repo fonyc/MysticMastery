@@ -39,9 +39,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category= "Combat")
 	TArray<FTaggedMontage> AttackMontages;
-
-	UPROPERTY(BlueprintReadOnly, Category= "Combat")
-	TMap<FGameplayTag, FName> SocketTagNames;
 	
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
 
@@ -53,12 +50,25 @@ protected:
 
 	bool bDead = false;
 
-
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnywhere, Category="Style")
 	TObjectPtr<USkeletalMeshComponent> FaceMask;
+
+	/** Weapon Sockets from where the attack sphere is spawned */
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName WeaponTipSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName LeftHandSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName RightHandSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName HeadSocketName;
+	/**  End Sockets */
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

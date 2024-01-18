@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
 #include "CharacterClassInfo.generated.h"
 
@@ -57,8 +56,5 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults | Damage")
 	TObjectPtr<UCurveTable> DamageExecCalcCoefficients;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults | Socket Names")
-	TMap<FGameplayTag, FName> SocketTagNames;
-	
 	FCharacterClassDefaultInfo GetClassDefaultInfo(const ECharacterClass CharacterClass);
 };

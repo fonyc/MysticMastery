@@ -8,7 +8,7 @@
 class UNiagaraSystem;
 class UAnimMontage;
 
-/** Struct in charge of bind a Montage with a certain socket and sound */
+/** Struct in charge of bind a Montage with a certain socket */
 USTRUCT(BlueprintType)
 struct FTaggedMontage
 {

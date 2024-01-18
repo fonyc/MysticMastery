@@ -52,6 +52,4 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static bool IsFriendlyActor(AActor* FirstActor, AActor* SecondActor);
-
-	
 };

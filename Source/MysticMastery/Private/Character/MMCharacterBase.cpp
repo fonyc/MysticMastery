@@ -4,6 +4,7 @@
 #include "MysticMastery/Public/Character/MMCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "MMGameplayTags.h"
+#include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,7 +19,7 @@ AMMCharacterBase::AMMCharacterBase()
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	FaceMask = CreateDefaultSubobject<USkeletalMeshComponent>("FaceMask");
 	FaceMask->SetupAttachment(GetMesh(), FName("FaceMask"));
-	
+
 	//Remove any collision from weapon
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
@@ -67,7 +68,7 @@ AActor* AMMCharacterBase::GetAvatar_Implementation()
 void AMMCharacterBase::MulticastHandleDeath_Implementation()
 {
 	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
-	
+
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -101,30 +102,15 @@ void AMMCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-/**
- * 
- * @param MontageTag There are only 3 types of Montage Tag according to the weapon they use: "Weapon","LeftHand","RightHand"
- * @return It returns the socket location of the Montage based on the associated tag 
- */
 FVector AMMCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
+	const FName SocketName = SocketTagNames.FindChecked(MontageTag);
+	
 	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_Weapon) && IsValid(Weapon))
 	{
-		return Weapon->GetSocketLocation(WeaponTipSocketName);
+		return Weapon->GetSocketLocation(SocketName);
 	}
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_LeftHand))
-	{
-		return GetMesh()->GetSocketLocation(LeftHandSocketName);
-	}
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_RightHand))
-	{
-		return GetMesh()->GetSocketLocation(RightHandSocketName);
-	}
-	if (MontageTag.MatchesTagExact(FMMGameplayTags::Get().CombatSocket_Head))
-	{
-		return GetMesh()->GetSocketLocation(HeadSocketName);
-	}
-	return FVector();
+	return GetMesh()->GetSocketLocation(SocketName);
 }
 
 void AMMCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
@@ -181,9 +167,9 @@ void AMMCharacterBase::Dissolve()
 
 FTaggedMontage AMMCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
 {
-	for(FTaggedMontage TaggedMontage : AttackMontages)
+	for (FTaggedMontage TaggedMontage : AttackMontages)
 	{
-		if(TaggedMontage.MontageTag == MontageTag)
+		if (TaggedMontage.MontageTag == MontageTag)
 		{
 			return TaggedMontage;
 		}

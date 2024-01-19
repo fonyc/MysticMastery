@@ -17,7 +17,7 @@ void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
+void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget, const FGameplayTag& SocketTag)
 {
 	//Spawn projectile as replicated Actor -> Only if we are in the server
 	if (const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); !bIsServer) return;
@@ -26,7 +26,7 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget)
 
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
-		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FMMGameplayTags::Get().CombatSocket_Weapon);
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
 		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();

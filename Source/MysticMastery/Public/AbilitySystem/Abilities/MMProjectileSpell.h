@@ -6,6 +6,7 @@
 #include "MMDamageGameplayAbility.h"
 #include "MMProjectileSpell.generated.h"
 
+struct FGameplayTag;
 class AMMProjectile;
 class UGameplayEffect;
 
@@ -24,9 +25,8 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable, Category="Projectile")
-	void SpawnProjectile(const FVector& ProjectileTarget);
+	void SpawnProjectile(const FVector& ProjectileTarget, const FGameplayTag& SocketTag);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AMMProjectile> ProjectileClass;
-
 };

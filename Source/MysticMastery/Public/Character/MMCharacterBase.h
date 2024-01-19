@@ -14,6 +14,7 @@ class UAttributeSet;
 class UAbilitySystemComponent;
 class UAnimMontage;
 class UNiagaraSystem;
+class AMMProjectile;
 
 UCLASS()
 class MYSTICMASTERY_API AMMCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -45,6 +46,7 @@ public:
 	virtual UNiagaraSystem* GetHitEffect_Implementation() override;
 	/** End Combat Interface */
 	
+	TSubclassOf<AMMProjectile> GetCharacterProjectileClass() const;
 protected:
 	virtual void BeginPlay() override;
 
@@ -70,6 +72,9 @@ protected:
 	FName HeadSocketName;
 	/**  End Sockets */
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Combat")
+	TSubclassOf<AMMProjectile> ProjectileClass;
+
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
@@ -84,6 +89,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+
+	
 
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
 

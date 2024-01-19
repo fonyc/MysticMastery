@@ -96,6 +96,11 @@ UNiagaraSystem* AMMCharacterBase::GetHitEffect_Implementation()
 	return HitEffect;
 }
 
+TSubclassOf<AMMProjectile> AMMCharacterBase::GetCharacterProjectileClass() const
+{
+	return ProjectileClass;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

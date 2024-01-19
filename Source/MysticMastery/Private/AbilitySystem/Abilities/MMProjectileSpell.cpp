@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Actors/MMProjectile.h"
+#include "Character/MMEnemy.h"
 #include "Interaction/CombatInterface.h"
 #include "MysticMastery/Public/MMGameplayTags.h"
 
@@ -34,9 +35,14 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget, const 
 		SpawnTransform.SetRotation(Rotation.Quaternion());
 	}
 
+	AMMCharacterBase* CharacterBase = Cast<AMMCharacterBase>(GetAvatarActorFromActorInfo());
+	TSubclassOf<AMMProjectile> ProjectileClassFromCharacter = CharacterBase->GetCharacterProjectileClass();
+
+	TSubclassOf<AMMProjectile> SpawnProjectileClass = ProjectileClassFromCharacter == nullptr ? ProjectileClass : CharacterBase->GetCharacterProjectileClass();
+
 	//SpawnActorDeferred allows us to Spawn a class WITHOUT using its constructor, that will be something on the caller by calling UGameplayStatics::FinishSpawningActor
 	AMMProjectile* Projectile = GetWorld()->SpawnActorDeferred<AMMProjectile>(
-		ProjectileClass,
+		SpawnProjectileClass,
 		SpawnTransform,
 		GetOwningActorFromActorInfo(),
 		Cast<APawn>(GetAvatarActorFromActorInfo()),

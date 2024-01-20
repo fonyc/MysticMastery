@@ -96,6 +96,11 @@ UNiagaraSystem* AMMCharacterBase::GetHitEffect_Implementation()
 	return HitEffect;
 }
 
+int32 AMMCharacterBase::GetMinionCount_Implementation()
+{
+	return MinionCount;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

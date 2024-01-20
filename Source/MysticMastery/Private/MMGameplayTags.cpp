@@ -117,13 +117,15 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
 
 	//Effects
-	
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Effects.HitReact"), FString("Tag added when some Actor is Hit by an attack"));
 	
 	//Abilities
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Attack"), FString("Tag added when some Actor is performing an attack"));
+
+	GameplayTags.Abilities_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Abilities.Summon"), FString("Tag added when some Actor is summoning minions"));
 
 	//Combat Sockets
 	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(

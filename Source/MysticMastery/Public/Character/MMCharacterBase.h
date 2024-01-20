@@ -43,6 +43,8 @@ public:
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
 
 	virtual UNiagaraSystem* GetHitEffect_Implementation() override;
+
+	virtual int32 GetMinionCount_Implementation() override;
 	/** End Combat Interface */
 	
 protected:
@@ -121,7 +123,10 @@ protected:
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	
 	/** End Hit effects */
-	
+
+	/** Minions / Companions  */
+	int32 MinionCount = 0;
+	/** End Minions / Companions */
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

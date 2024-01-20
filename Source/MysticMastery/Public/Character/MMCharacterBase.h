@@ -45,6 +45,8 @@ public:
 	virtual UNiagaraSystem* GetHitEffect_Implementation() override;
 
 	virtual int32 GetMinionCount_Implementation() override;
+
+	virtual void IncrementMinionCount_Implementation(const int32 DeltaAmount) override;
 	/** End Combat Interface */
 	
 protected:
@@ -127,6 +129,10 @@ protected:
 	/** Minions / Companions  */
 	int32 MinionCount = 0;
 	/** End Minions / Companions */
+
+	//Used for spawn animation on Begin play 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat")
+	bool bIsSummonedCreature = false; 
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

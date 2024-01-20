@@ -26,7 +26,7 @@ protected:
 	
 	UFUNCTION()
 	void OnSphereOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor,
-		class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 private:
 
@@ -40,7 +40,7 @@ private:
 	float LifeSpan = 10.f;
 	
 	bool bHit = false;
-	
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> SphereComponent;
 

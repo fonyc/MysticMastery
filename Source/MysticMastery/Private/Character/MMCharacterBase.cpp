@@ -101,6 +101,11 @@ int32 AMMCharacterBase::GetMinionCount_Implementation()
 	return MinionCount;
 }
 
+void AMMCharacterBase::IncrementMinionCount_Implementation(const int32 DeltaAmount)
+{
+	MinionCount += DeltaAmount;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

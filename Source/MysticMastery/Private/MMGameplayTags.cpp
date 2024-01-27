@@ -127,6 +127,9 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Summon"), FString("Tag added when some Actor is summoning minions"));
 
+	GameplayTags.Abilities_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Abilities.Fire.FireBolt"), FString("Tag added when some Actor is attacking with the ability FireBolt"));
+
 	//Combat Sockets
 	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("CombatSocket.Weapon"), FString("Weapon Socket"));

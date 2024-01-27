@@ -6,6 +6,7 @@
 #include "MMWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
+class UAbilityInfo;
 class UMMUserWidget;
 
 USTRUCT(BlueprintType)
@@ -62,6 +63,9 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo; 
 
 	template <typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);

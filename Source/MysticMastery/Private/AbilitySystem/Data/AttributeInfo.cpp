@@ -1,5 +1,6 @@
-
 #include "AbilitySystem/Data/AttributeInfo.h"
+
+#include "MysticMastery/MMLogChannels.h"
 
 FMMAttributeInfo UAttributeInfo::FindAttributeInfoByTag(const FGameplayTag& Tag, bool bLogNotFound) const
 {
@@ -13,7 +14,7 @@ FMMAttributeInfo UAttributeInfo::FindAttributeInfoByTag(const FGameplayTag& Tag,
 
 	if (bLogNotFound)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Cant find Info for Attribute Tag [%s] on AttributeInfo[%s]."), *Tag.ToString(),
+		UE_LOG(MMLog, Error, TEXT("Cant find Info for Attribute Tag [%s] on AttributeInfo[%s]."), *Tag.ToString(),
 		       *GetNameSafe(this));
 	}
 	return FMMAttributeInfo();

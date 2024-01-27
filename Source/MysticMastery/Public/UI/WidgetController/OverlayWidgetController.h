@@ -6,8 +6,10 @@
 #include "MMWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
+struct FMMAbilityInfo;
 class UAbilityInfo;
 class UMMUserWidget;
+class UMMAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -29,6 +31,7 @@ struct FUIWidgetRow : public FTableRowBase
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FMMAbilityInfo&, Info);
 
 /**
  * 
@@ -60,6 +63,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FAbilityInfoSignature AbilityInfoDelegate;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable = nullptr;
@@ -69,6 +74,9 @@ protected:
 
 	template <typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+
+	//Function called as soon as the AS has given all of his start up abilities
+	void OnInitializeStartupAbilities(UMMAbilitySystemComponent* MMAbilitySystemComponent);
 };
 
 template <typename T>

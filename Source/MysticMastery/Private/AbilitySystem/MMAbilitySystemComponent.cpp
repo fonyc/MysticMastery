@@ -2,6 +2,7 @@
 
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/MMGameplayAbility.h"
+#include "MysticMastery/MMLogChannels.h"
 
 void UMMAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -14,25 +15,27 @@ void UMMAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<U
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
 
-		if(const UMMGameplayAbility* MMAbility = Cast<UMMGameplayAbility>(AbilitySpec.Ability))
+		if (const UMMGameplayAbility* MMAbility = Cast<UMMGameplayAbility>(AbilitySpec.Ability))
 		{
 			//add the StartupInputTag to the ability 
 			AbilitySpec.DynamicAbilityTags.AddTag(MMAbility->StartupInputTag);
 			GiveAbility(AbilitySpec);
 		}
 	}
+	bStartupAbilitiesGiven = true;
+	OnAbilitiesGivenDelegate.Broadcast(this);
 }
 
 void UMMAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
-	if(!InputTag.IsValid()) return;
-	
-	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	if (!InputTag.IsValid()) return;
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
 			AbilitySpecInputPressed(AbilitySpec);
-			if(!AbilitySpec.IsActive())
+			if (!AbilitySpec.IsActive())
 			{
 				TryActivateAbility(AbilitySpec.Handle);
 			}
@@ -42,21 +45,75 @@ void UMMAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag
 
 void UMMAbilitySystemComponent::AbilityInputReleased(const FGameplayTag& InputTag)
 {
-	if(!InputTag.IsValid()) return;
-	
-	for(FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	if (!InputTag.IsValid()) return;
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if(AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
 			AbilitySpecInputReleased(AbilitySpec);
 		}
 	}
 }
 
+void UMMAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+	//Lock the abilities while we loop through them. Abilities can change with a gameplay tag so we prevent that
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			UE_LOG(MMLog, Error, TEXT("Failed to execute delegate in [%hs]"), __FUNCTION__);
+		}
+	}
+}
+
+FGameplayTag UMMAbilitySystemComponent::GetAbilityTagBySpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if(AbilitySpec.Ability)
+	{
+		for(FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if(Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	UE_LOG(MMLog, Error, TEXT("Requested Ability for AbilitySpec is null or there are no tags inside"));
+	return FGameplayTag();
+}
+
+FGameplayTag UMMAbilitySystemComponent::GetInputTagBySpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	UE_LOG(MMLog, Error, TEXT("The AbilitySpec selected has no matches with type <InputTag> GameplayTag"));
+	return FGameplayTag();
+}
+
+void UMMAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	if (!bStartupAbilitiesGiven)
+	{
+		bStartupAbilitiesGiven = true;
+		OnAbilitiesGivenDelegate.Broadcast(this);
+	}
+}
+
 //Whenever we apply a GE, this method will be called
 void UMMAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-                                              const FGameplayEffectSpec& EffectSpec,
-                                              FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
+                                                                   const FGameplayEffectSpec& EffectSpec,
+                                                                   FActiveGameplayEffectHandle
+                                                                   ActiveGameplayEffectHandle)
 {
 	FGameplayTagContainer TagContainer;
 	EffectSpec.GetAllAssetTags(TagContainer);

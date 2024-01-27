@@ -4,6 +4,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -37,17 +38,50 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetMaxManaAttribute()).AddLambda(
 	[this](const FOnAttributeChangeData& Data){OnMaxManaChanged.Broadcast(Data.NewValue);});
 
-	//Messages
-	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[this](const FGameplayTagContainer& AssetTags)
+	if(UMMAbilitySystemComponent* MMASC = Cast<UMMAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		if(MMASC->bStartupAbilitiesGiven) //The abilities has been given already, so we can perform the actions
 		{
-			for (const FGameplayTag& Tag : AssetTags)
-			{
-				if (!Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Message")))) continue;
-
-				const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-				MessageWidgetRowDelegate.Broadcast(*Row);
-			}
+			OnInitializeStartupAbilities(MMASC);
 		}
-	);
+		else //In this case, the abilities has not been given yet, so we bind it 
+		{
+			//Abilities (Give them its icons, backgrounds and so on)
+			MMASC->OnAbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+		
+			//Messages
+			MMASC->EffectAssetTags.AddLambda(
+				[this](const FGameplayTagContainer& AssetTags)
+				{
+					for (const FGameplayTag& Tag : AssetTags)
+					{
+						if (!Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Message")))) continue;
+
+						const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+						MessageWidgetRowDelegate.Broadcast(*Row);
+					}
+				}
+				);
+		}
+	}
+}
+
+/**
+ *
+ * This function looks up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon
+ * @param MMASC MMAbilitySystemComponent Holds the information about all the given abilities 
+ */
+void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComponent* MMASC)
+{
+	if (!MMASC->bStartupAbilitiesGiven) return;
+
+	FForEachAbility BroadcastDelegate;
+	BroadcastDelegate.BindLambda([this, MMASC](const FGameplayAbilitySpec& AbilitySpec)
+	{
+		
+		FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(MMASC->GetAbilityTagBySpec(AbilitySpec));
+		Info.InputTag = MMASC->GetInputTagBySpec(AbilitySpec);
+		AbilityInfoDelegate.Broadcast(Info);
+	});
+	MMASC->ForEachAbility(BroadcastDelegate);
 }

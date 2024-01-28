@@ -60,8 +60,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 						const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
 						MessageWidgetRowDelegate.Broadcast(*Row);
 					}
-				}
-				);
+				});
 		}
 	}
 }
@@ -69,7 +68,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 /**
  *
  * Look up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon, bg... etc
- * @param MMASC MMAbilitySystemComponent Holds the information about all the given abilities 
+ * @param MMASC MMAbilitySystemComponent Holds the information about all the given abilities
+ * 
  */
 void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComponent* MMASC)
 {

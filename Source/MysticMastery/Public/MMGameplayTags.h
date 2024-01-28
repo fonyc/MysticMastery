@@ -67,11 +67,14 @@ public:
 	FGameplayTag Montage_Attack_3;
 	FGameplayTag Montage_Attack_4;
 	
-
 	//Abilities
 	FGameplayTag Abilities_Attack;
 	FGameplayTag Abilities_Summon;
 	FGameplayTag Abilities_Fire_FireBolt;
+
+	//Cooldown
+	FGameplayTag Cooldown_Fire_FireBolt;
+	
 
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 	

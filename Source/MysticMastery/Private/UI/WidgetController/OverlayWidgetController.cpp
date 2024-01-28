@@ -40,13 +40,13 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 	if(UMMAbilitySystemComponent* MMASC = Cast<UMMAbilitySystemComponent>(AbilitySystemComponent))
 	{
-		if(MMASC->bStartupAbilitiesGiven) //The abilities has been given already, so we can perform the actions
+		if(MMASC->bStartupAbilitiesGiven) //The abilities has been given already, so we can perform the actions (such as broadcast the abilities to the widgets)
 		{
 			OnInitializeStartupAbilities(MMASC);
 		}
-		else //In this case, the abilities has not been given yet, so we bind it 
+		else //In this case, the abilities has not been given yet, so we bind them
 		{
-			//Abilities (Give them its icons, backgrounds and so on)
+			//Abilities 
 			MMASC->OnAbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
 		
 			//Messages
@@ -68,7 +68,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 /**
  *
- * This function looks up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon
+ * Look up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon, bg... etc
  * @param MMASC MMAbilitySystemComponent Holds the information about all the given abilities 
  */
 void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComponent* MMASC)
@@ -78,7 +78,6 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComp
 	FForEachAbility BroadcastDelegate;
 	BroadcastDelegate.BindLambda([this, MMASC](const FGameplayAbilitySpec& AbilitySpec)
 	{
-		
 		FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(MMASC->GetAbilityTagBySpec(AbilitySpec));
 		Info.InputTag = MMASC->GetInputTagBySpec(AbilitySpec);
 		AbilityInfoDelegate.Broadcast(Info);

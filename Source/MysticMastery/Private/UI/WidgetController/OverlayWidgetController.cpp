@@ -48,7 +48,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		{
 			//Abilities 
 			MMASC->OnAbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
-		
+			
 			//Messages
 			MMASC->EffectAssetTags.AddLambda(
 				[this](const FGameplayTagContainer& AssetTags)

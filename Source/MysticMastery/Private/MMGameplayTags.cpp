@@ -92,6 +92,10 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Attributes.Resistance.Physical"), FString("Resistance to Physical Damage"));
 
+	//Meta Attributes
+	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Meta.IncomingXP"), FString("Incoming XP meta attribute"));
+	
 	//Damage Types
 	
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(

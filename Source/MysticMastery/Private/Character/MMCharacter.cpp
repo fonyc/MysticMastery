@@ -59,6 +59,8 @@ void AMMCharacter::PossessedBy(AController* NewController)
 
 	//Init ability actor info for the SERVER 
 	InitializeAbilityActorInfo();
+	
+	//These function adds normal and passive abilities
 	AddCharacterAbilities();
 }
 

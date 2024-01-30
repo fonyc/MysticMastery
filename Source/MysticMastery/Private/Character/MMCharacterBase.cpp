@@ -171,6 +171,7 @@ void AMMCharacterBase::AddCharacterAbilities()
 
 	//If there is authority, then we must grant the Ability, but its something that the ASC must do
 	ASC->AddCharacterAbilities(StartupAbilities);
+	ASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 /** Creates a Dynamic material instance out of the MI and swap them */

@@ -157,6 +157,9 @@ public:
 	//Meta attributes are not replicated
 	UPROPERTY(BlueprintReadOnly, Category= "Meta Attributes")
 	FGameplayAttributeData IncomingDamage;
+
+	UPROPERTY(BlueprintReadOnly, Category= "Meta Attributes")
+	FGameplayAttributeData IncomingXP;
 	
 #pragma endregion
 	
@@ -187,6 +190,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, PhysicalResistance);
 	
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, IncomingDamage);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, IncomingXP);
 	
 #pragma endregion
 	
@@ -257,4 +261,5 @@ public:
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	static void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit);
+	void SendXPEvent(const FEffectProperties& Props);
 };

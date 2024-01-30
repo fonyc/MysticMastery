@@ -3,10 +3,10 @@
 
 #include "AbilitySystem/Data/LevelUpInfo.h"
 
-int32 ULevelUpInfo::GetLevelByExperience(int32 XP)
+int32 ULevelUpInfo::GetLevelByExperience(int32 XP) const 
 {
 	if (LevelUpInfo.IsEmpty()) return 1;
-	for (int x = 0; x < LevelUpInfo.Num(); x++)
+	for (int x = 1; x < LevelUpInfo.Num(); x++)
 	{
 		if (LevelUpInfo[x].LevelUpRequirement >= XP) return x + 1;
 	}

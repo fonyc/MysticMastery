@@ -36,5 +36,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FMMLevelUpInfo> LevelUpInfo;
 
-	int32 GetLevelByExperience(int32 XP);
+	int32 GetLevelByExperience(int32 XP) const;
 };

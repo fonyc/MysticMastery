@@ -5,6 +5,8 @@
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Player/MMPlayerState.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -18,10 +20,13 @@ void UOverlayWidgetController::BroadcastInitialValues()
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);
+	//Bind Callbacks to the player State
+	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
+	MMPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
 
 	//Bind callbacks to the GAS system
-
+	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);
+	
 	//Health
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data){OnHealthChanged.Broadcast(Data.NewValue);});
@@ -83,4 +88,28 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComp
 		AbilityInfoDelegate.Broadcast(Info);
 	});
 	MMASC->ForEachAbility(BroadcastDelegate);
+}
+
+void UOverlayWidgetController::OnXPChanged(int32 NewXP)
+{
+	const AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
+	const ULevelUpInfo* LevelUpInfo = MMPlayerState->LevelUpInfo;
+
+	checkf(LevelUpInfo, TEXT("Level up info is missing inside the Overlay Widget Controller. Please fill it out on its Blueprint"));
+
+	const int32 CurrentLevel = LevelUpInfo->GetLevelByExperience(NewXP);
+	const int32 MaxLevel = LevelUpInfo->LevelUpInfo.Num();
+
+	if (CurrentLevel <= MaxLevel && CurrentLevel > 0)
+	{
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInfo[CurrentLevel].LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInfo[CurrentLevel - 1].LevelUpRequirement;
+		
+		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 XPForThisLevel = NewXP - PreviousLevelUpRequirement;
+
+		const float XPBarPercent = static_cast<float>(XPForThisLevel) /  static_cast<float>(DeltaLevelRequirement);
+
+		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
+	}
 }

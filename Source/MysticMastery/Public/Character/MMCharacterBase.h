@@ -47,6 +47,8 @@ public:
 	virtual int32 GetMinionCount_Implementation() override;
 
 	virtual void IncrementMinionCount_Implementation(const int32 DeltaAmount) override;
+
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	/** End Combat Interface */
 	
 protected:
@@ -88,6 +90,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Warrior;
 
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
 

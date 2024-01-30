@@ -42,6 +42,8 @@ AMMCharacter::AMMCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArmComponent);
 	Camera->bUsePawnControlRotation = false;
+
+	CharacterClass = ECharacterClass::Mage;
 }
 
 int32 AMMCharacter::GetPlayerLevel() const 

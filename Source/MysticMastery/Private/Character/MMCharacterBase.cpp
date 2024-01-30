@@ -7,6 +7,7 @@
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "MysticMastery/MysticMastery.h"
 
 // Sets default values
@@ -104,6 +105,11 @@ int32 AMMCharacterBase::GetMinionCount_Implementation()
 void AMMCharacterBase::IncrementMinionCount_Implementation(const int32 DeltaAmount)
 {
 	MinionCount += DeltaAmount;
+}
+
+ECharacterClass AMMCharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
 }
 
 void AMMCharacterBase::BeginPlay()

@@ -87,6 +87,16 @@ void UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(const UObject* World
 	}
 }
 
+int32 UMMAbilitySystemBlueprintLibrary::GetXPRewardByClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return 0;
+
+	const FCharacterClassDefaultInfo& Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	return static_cast<int32>(Info.XPReward.GetValueAtLevel(CharacterLevel));
+}
+
+
 UCharacterClassInfo* UMMAbilitySystemBlueprintLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
 	const AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));

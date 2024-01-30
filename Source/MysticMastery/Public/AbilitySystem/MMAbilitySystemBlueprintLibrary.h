@@ -53,5 +53,6 @@ public:
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static bool IsFriendlyActor(AActor* FirstActor, AActor* SecondActor);
 
-	
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
+	static int32 GetXPRewardByClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel);
 };

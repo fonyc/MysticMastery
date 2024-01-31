@@ -105,6 +105,7 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInfo[CurrentLevel - 1].LevelUpRequirement;
 
 		int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInfo[FMath::Clamp(CurrentLevel - 2, 0, MaxLevel)].LevelUpRequirement;
+		//In case we are at level 1, we need PreviousLevelUpRequirement not to be equal no the LevelUpRequirement
 		if (PreviousLevelUpRequirement == LevelUpRequirement) PreviousLevelUpRequirement = 0;
 			
 		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;

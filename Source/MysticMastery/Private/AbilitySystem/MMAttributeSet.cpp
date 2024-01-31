@@ -5,6 +5,7 @@
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
+#include "Interaction/PlayerInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "MysticMastery/MMLogChannels.h"
 #include "Net/UnrealNetwork.h"
@@ -179,7 +180,11 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	{
 		const float LocalIncomingXP = GetIncomingXP();
 		SetIncomingXP(0.f);
-		UE_LOG(MMLog, Log, TEXT("EEEEEEEEEEEXP: %f"), LocalIncomingXP);
+		//TODO: Check If we should level up
+		if(Props.SourceCharacter->Implements<UPlayerInterface>())
+		{
+			IPlayerInterface::Execute_AddXP(Props.SourceCharacter, LocalIncomingXP);
+		}
 	}
 }
 

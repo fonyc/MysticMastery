@@ -53,6 +53,13 @@ int32 AMMCharacter::GetPlayerLevel() const
 	return MMPlayerState->GetPlayerLevel();
 }
 
+void AMMCharacter::AddXP_Implementation(int32 DeltaXP)
+{
+	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	MMPlayerState->AddXP(DeltaXP);
+}
+
 void AMMCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

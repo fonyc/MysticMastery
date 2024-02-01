@@ -80,9 +80,12 @@ void UMMAbilitySystemBlueprintLibrary::GiveStartupAbilities(const UObject* World
 
 	for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities)
 	{
-		ICombatInterface* CombatInterface = Cast<ICombatInterface>(ASC->GetAvatarActor());
-		if (CombatInterface == nullptr) continue;
-		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, CombatInterface->GetPlayerLevel());
+		int32 PlayerLevel = 1;
+		if (ASC->GetAvatarActor()->Implements<UCombatInterface>())
+		{
+			PlayerLevel = ICombatInterface::Execute_GetPlayerLevel(ASC->GetAvatarActor());
+		}
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, PlayerLevel);
 		ASC->GiveAbility(AbilitySpec);
 	}
 }

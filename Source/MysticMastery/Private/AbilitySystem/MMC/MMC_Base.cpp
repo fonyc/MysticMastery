@@ -22,8 +22,11 @@ float UMMC_Base::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec
 	EvaluationParameters.TargetTags = TargetTags;
 
 	//Get PlayerLevel (Variable required for the calculation)
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 PlayerLevel = CombatInterface->GetPlayerLevel();
+	int32 PlayerLevel = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UCombatInterface>())
+	{
+		PlayerLevel = ICombatInterface::Execute_GetPlayerLevel(Spec.GetContext().GetSourceObject());
+	}
 	float TotalAttributesValue = 0.f;
 	int32 index = 0;
 	

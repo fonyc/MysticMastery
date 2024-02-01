@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -46,7 +47,7 @@ AMMCharacter::AMMCharacter()
 	CharacterClass = ECharacterClass::Mage;
 }
 
-int32 AMMCharacter::GetPlayerLevel() const 
+int32 AMMCharacter::GetPlayerLevel_Implementation() const 
 {
 	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
@@ -58,6 +59,61 @@ void AMMCharacter::AddXP_Implementation(int32 DeltaXP)
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
 	MMPlayerState->AddXP(DeltaXP);
+}
+
+void AMMCharacter::LevelUp_Implementation()
+{
+	
+}
+
+int32 AMMCharacter::GetXP_Implementation() const
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->GetXP();
+}
+
+int32 AMMCharacter::FindLevelByXP_Implementation(int32 XP)
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->LevelUpInfo->GetLevelByExperience(XP);
+}
+
+int32 AMMCharacter::GetAttributePointsReward_Implementation(const int32 InLevel) const
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->LevelUpInfo->GetAttributePointsRewardByLevel(InLevel);
+}
+
+int32 AMMCharacter::GetSpellPointsReward_Implementation(const int32 InLevel) const
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->LevelUpInfo->GetSpellPointsRewardByLevel(InLevel);
+}
+
+void AMMCharacter::AddAttributePoints_Implementation(int32 InAttributePoints)
+{
+	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	//TODO: Add Attribute points to player state
+}
+
+void AMMCharacter::AddSpellPoints_Implementation(int32 InSpellPoints)
+{
+	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+
+	//TODO: Add spell points to player state
+}
+
+void AMMCharacter::AddPlayerLevel_Implementation(int32 InLevelsToAdd)
+{
+	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	MMPlayerState->AddLevel(InLevelsToAdd);
 }
 
 void AMMCharacter::PossessedBy(AController* NewController)

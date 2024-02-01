@@ -69,6 +69,11 @@ void AMMEnemy::UnHighlightActor()
 	Weapon->SetRenderCustomDepth(false);
 }
 
+int32 AMMEnemy::GetPlayerLevel_Implementation() const
+{
+	return Level;
+}
+
 void AMMEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);

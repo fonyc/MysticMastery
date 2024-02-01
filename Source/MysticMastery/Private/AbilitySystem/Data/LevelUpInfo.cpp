@@ -14,3 +14,15 @@ int32 ULevelUpInfo::GetLevelByExperience(int32 XP) const
 	
 	return 1;
 }
+
+int32 ULevelUpInfo::GetSpellPointsRewardByLevel(int32 InLevel) const
+{
+	const int32 SafeIndex = InLevel - 1 < 0 ? 0 : InLevel - 1; 
+	return LevelUpInfo[SafeIndex].SpellPointAward;
+}
+
+int32 ULevelUpInfo::GetAttributePointsRewardByLevel(int32 InLevel) const
+{
+	const int32 SafeIndex = InLevel - 1 < 0 ? 0 : InLevel - 1; 
+	return LevelUpInfo[SafeIndex].AttributePointAward;
+}

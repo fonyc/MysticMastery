@@ -37,4 +37,8 @@ public:
 	TArray<FMMLevelUpInfo> LevelUpInfo;
 
 	int32 GetLevelByExperience(int32 XP) const;
+
+	int32 GetSpellPointsRewardByLevel(int32 InLevel) const;
+
+	int32 GetAttributePointsRewardByLevel(int32 InLevel) const;
 };

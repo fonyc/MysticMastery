@@ -30,7 +30,7 @@ public:
 
 
 	/** Combat Interface */
-	FORCEINLINE virtual int32 GetPlayerLevel() const override { return Level; }
+	virtual int32 GetPlayerLevel_Implementation() const override;
 	virtual void Die() override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;

@@ -23,6 +23,11 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	//Bind Callbacks to the player State
 	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
 	MMPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+	
+	MMPlayerState->OnLevelChangedDelegate.AddLambda([this](int32 NewLevel)
+	{
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+	});
 
 	//Bind callbacks to the GAS system
 	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);

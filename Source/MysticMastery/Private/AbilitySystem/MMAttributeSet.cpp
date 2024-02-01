@@ -6,8 +6,6 @@
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/PlayerInterface.h"
-#include "Kismet/GameplayStatics.h"
-#include "MysticMastery/MMLogChannels.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/MMPlayerController.h"
 
@@ -108,9 +106,9 @@ void UMMAttributeSet::ShowFloatingText(const FEffectProperties& Props,float Dama
 
 void UMMAttributeSet::SendXPEvent(const FEffectProperties& Props)
 {
-	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
+	if (Props.TargetCharacter->Implements<UCombatInterface>())
 	{
-		const int32 TargetLevel = CombatInterface->GetPlayerLevel();
+		const int32 TargetLevel = ICombatInterface::Execute_GetPlayerLevel(Props.TargetCharacter);
 		const ECharacterClass TargetCharacterClass = ICombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
 		const int32 XPReward = UMMAbilitySystemBlueprintLibrary::GetXPRewardByClassAndLevel(Props.TargetCharacter, TargetCharacterClass, TargetLevel);
 
@@ -180,9 +178,35 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	{
 		const float LocalIncomingXP = GetIncomingXP();
 		SetIncomingXP(0.f);
-		//TODO: Check If we should level up
-		if(Props.SourceCharacter->Implements<UPlayerInterface>())
+
+		// Remember SourceCharacter is the owner (GA_ListenForEvents applies GE_EventBased, adding to Incoming XP to himself)
+		if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
 		{
+			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+			const int32 NewLevel = IPlayerInterface::Execute_FindLevelByXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+			const int32 TimesLeveledUp = NewLevel - CurrentLevel;
+
+			//Player Leveled up 1+ times
+			if (TimesLeveledUp > 0)
+			{
+				const int32 AttributePointsAwarded = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+				const int32 SpellPointsAwarded = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+				//Add Level, Spell Points and Attribute Points to spend
+				IPlayerInterface::Execute_AddPlayerLevel(Props.SourceCharacter, TimesLeveledUp);
+				IPlayerInterface::Execute_AddAttributePoints(Props.SourceCharacter, AttributePointsAwarded);
+				IPlayerInterface::Execute_AddSpellPoints(Props.SourceCharacter, SpellPointsAwarded);
+
+				//Set Health and Mana to full
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+
+				// Perform additional actions inside the character when leveling up (specially Aesthetics)
+				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+			}
+			
 			IPlayerInterface::Execute_AddXP(Props.SourceCharacter, LocalIncomingXP);
 		}
 	}

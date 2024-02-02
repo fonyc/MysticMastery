@@ -9,6 +9,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UNiagaraComponent;
 
 UCLASS()
 class MYSTICMASTERY_API AMMCharacter : public AMMCharacterBase, public IPlayerInterface
@@ -38,6 +39,7 @@ public:
 /* End Player Interface */
 
 protected:
+	
 	UPROPERTY(EditAnywhere, Category="Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
@@ -48,6 +50,13 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
+
 private:
+	
 	virtual void InitializeAbilityActorInfo() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLevelUpParticles() const;
 };

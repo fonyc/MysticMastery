@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/MMCharacter.h"
-
 #include "AbilitySystemComponent.h"
+#include "NiagaraComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Camera/CameraComponent.h"
@@ -17,8 +16,6 @@
 // Sets default values
 AMMCharacter::AMMCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
 	//Rotate character to face movement direction
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 400.0f, 0.0f);
@@ -29,19 +26,25 @@ AMMCharacter::AMMCharacter()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
+	//Level up Particle system
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
+	LevelUpNiagaraComponent->bAutoActivate = false;
+
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(RootComponent);
 
 	SpringArmComponent->TargetArmLength = 750.0f;
 	SpringArmComponent->bUsePawnControlRotation = false;
+	SpringArmComponent->bDoCollisionTest = false;
+	SpringArmComponent->SetUsingAbsoluteRotation(true);
 
 	SpringArmComponent->bInheritPitch = false;
 	SpringArmComponent->bInheritRoll = false;
 	SpringArmComponent->bInheritYaw = false;
 
-
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
-	Camera->SetupAttachment(SpringArmComponent);
+	Camera->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
 	CharacterClass = ECharacterClass::Mage;
@@ -61,9 +64,22 @@ void AMMCharacter::AddXP_Implementation(int32 DeltaXP)
 	MMPlayerState->AddXP(DeltaXP);
 }
 
+void AMMCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		//Orient the VFX towards the camera
+		const FVector CameraLocation = Camera->GetComponentLocation();
+		const FVector NiagaraSystemLocation = LevelUpNiagaraComponent->GetComponentLocation();
+		const FRotator CameraNiagaraRotation = (CameraLocation - NiagaraSystemLocation).Rotation();
+		LevelUpNiagaraComponent->SetWorldRotation(CameraNiagaraRotation);
+		LevelUpNiagaraComponent->Activate(true);
+	}
+}
+
 void AMMCharacter::LevelUp_Implementation()
 {
-	
+	MulticastLevelUpParticles();
 }
 
 int32 AMMCharacter::GetXP_Implementation() const
@@ -164,3 +180,4 @@ void AMMCharacter::InitializeAbilityActorInfo()
 	//Give initial values to the attributes. We do it just on the Server since its marked to be replicated
 	InitializeDefaultAttributes();
 }
+

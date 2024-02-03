@@ -7,6 +7,8 @@
 #include "UObject/Object.h"
 #include "MMWidgetController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+
 class UAttributeSet;
 class UAbilitySystemComponent;
 

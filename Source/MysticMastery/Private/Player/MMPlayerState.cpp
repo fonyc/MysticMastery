@@ -26,6 +26,8 @@ void AMMPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME(AMMPlayerState, Level);
 	DOREPLIFETIME(AMMPlayerState, XP);
+	DOREPLIFETIME(AMMPlayerState, AttributePoints);
+	DOREPLIFETIME(AMMPlayerState, SpellPoints);
 }
 
 UAbilitySystemComponent* AMMPlayerState::GetAbilitySystemComponent() const
@@ -57,6 +59,31 @@ void AMMPlayerState::SetLevel(int NewLevel)
 	OnLevelChangedDelegate.Broadcast(Level);
 }
 
+void AMMPlayerState::AddAttributePoints(const int32 DeltaAttributePoints)
+{
+	AttributePoints += DeltaAttributePoints;
+	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
+void AMMPlayerState::SetAttributePoints(const int32 TotalAttributePoints)
+{
+	AttributePoints = TotalAttributePoints;
+	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
+void AMMPlayerState::AddSpellPoints(const int32 DeltaSpellPoints)
+{
+	SpellPoints+= DeltaSpellPoints;
+	OnSpellPointsChanged.Broadcast(SpellPoints);
+}
+
+void AMMPlayerState::SetSpellPoints(const int32 TotalSpellPoints)
+{
+	SpellPoints = TotalSpellPoints;
+	OnSpellPointsChanged.Broadcast(SpellPoints);
+}
+
+#pragma region ONREP METHODS
 void AMMPlayerState::OnRep_Level(int32 OldLevel)
 {
 	OnLevelChangedDelegate.Broadcast(Level);
@@ -66,3 +93,14 @@ void AMMPlayerState::OnRep_XP(int32 OldXP)
 {
 	OnXPChangedDelegate.Broadcast(XP);
 }
+
+void AMMPlayerState::OnRep_SpellPoints(int32 OldSpellPoints)
+{
+	OnSpellPointsChanged.Broadcast(SpellPoints);
+}
+
+void AMMPlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
+{
+	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+#pragma endregion 

@@ -126,7 +126,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayTag DamageTypeTag = Pair.Key;
 		const FGameplayTag ResistanceTag = Pair.Value;
 		
-		checkf(MMDamageStatics().TagsToCaptureDefinitions.Contains(ResistanceTag), TEXT("TagsCpatureDefinitions doesnt contain Tag: [%s]"), *ResistanceTag.ToString());
+		checkf(MMDamageStatics().TagsToCaptureDefinitions.Contains(ResistanceTag), TEXT("TagsCaptureDefinitions doesnt contain Tag: [%s]"), *ResistanceTag.ToString());
 		const FGameplayEffectAttributeCaptureDefinition CaptureDefinition = MMDamageStatics().TagsToCaptureDefinitions[ResistanceTag];
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDefinition, EvaluationParameters, Resistance);

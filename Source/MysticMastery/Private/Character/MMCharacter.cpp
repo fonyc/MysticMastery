@@ -114,15 +114,14 @@ void AMMCharacter::AddAttributePoints_Implementation(int32 InAttributePoints)
 {
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
-	//TODO: Add Attribute points to player state
+	MMPlayerState->AddAttributePoints(InAttributePoints);
 }
 
 void AMMCharacter::AddSpellPoints_Implementation(int32 InSpellPoints)
 {
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
-
-	//TODO: Add spell points to player state
+	MMPlayerState->AddSpellPoints(InSpellPoints);
 }
 
 void AMMCharacter::AddPlayerLevel_Implementation(int32 InLevelsToAdd)

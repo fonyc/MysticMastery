@@ -9,6 +9,8 @@
 
 class UAttributeInfo;
 struct FMMAttributeInfo;
+struct FGameplayTag;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FMMAttributeInfo&, Info);
 
 /**
@@ -29,6 +31,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnPlayerStatChangedSignature AttributePointsChangedDelegate;
 
+	UFUNCTION(BlueprintCallable)
+	void UpgradeAttributeByTag(const FGameplayTag& AttributeTag);
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;

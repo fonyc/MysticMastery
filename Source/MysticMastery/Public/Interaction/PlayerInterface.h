@@ -24,11 +24,29 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetXP() const;
 
+	/**
+	 * Returns the Attribute points awarded when leveling up. It looks inside the DA_LevelUpInfo 
+	 */
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetAttributePointsReward(const int32 InLevel) const;
 
+	/**
+	 * Returns the Spell points awarded when leveling up. It looks inside the DA_LevelUpInfo 
+	 */
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetSpellPointsReward(const int32 InLevel) const;
+
+	/**
+	 * Return the Attribute points AVAILABLE to spend. It looks inside the Player State 
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetCurrentAttributePoints() const;
+
+	/**
+	 * Return the Spell points AVAILABLE to spend. It looks inside the Player State 
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetCurrentSpellPoints() const;
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void AddXP(int32 DeltaXP);

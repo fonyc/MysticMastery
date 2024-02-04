@@ -110,6 +110,20 @@ int32 AMMCharacter::GetSpellPointsReward_Implementation(const int32 InLevel) con
 	return MMPlayerState->LevelUpInfo->GetSpellPointsRewardByLevel(InLevel);
 }
 
+int32 AMMCharacter::GetCurrentAttributePoints_Implementation() const
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->GetAttributePoints();
+}
+
+int32 AMMCharacter::GetCurrentSpellPoints_Implementation() const
+{
+	const AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
+	check(MMPlayerState);
+	return MMPlayerState->GetSpellPoints();
+}
+
 void AMMCharacter::AddAttributePoints_Implementation(int32 InAttributePoints)
 {
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();

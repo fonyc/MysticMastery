@@ -41,6 +41,11 @@ public:
 	
 	FGameplayTag GetAbilityTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	FGameplayTag GetInputTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
+
+	void UpgradeAttributeByTag(const FGameplayTag& AttributeTag);
+
+	UFUNCTION(Server, Reliable)
+	void ServerUpgradeAttributeByTag(const FGameplayTag& AttributeTag);
 protected:
 	// Called on server whenever a GE is applied to self. This includes instant and duration based GEs
 	// We need to turn this function into an Client_RPC since it only executes on the server, but we want clients to be affected by them  

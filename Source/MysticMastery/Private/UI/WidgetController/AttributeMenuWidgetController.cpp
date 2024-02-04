@@ -2,6 +2,8 @@
 
 
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
+
+#include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "Player/MMPlayerState.h"
@@ -43,6 +45,12 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	//Broadcast initial values to the attribute controller
 	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
 	AttributePointsChangedDelegate.Broadcast(MMPlayerState->GetAttributePoints());
+}
+
+void UAttributeMenuWidgetController::UpgradeAttributeByTag(const FGameplayTag& AttributeTag)
+{
+	UMMAbilitySystemComponent* MMASC = CastChecked<UMMAbilitySystemComponent>(AbilitySystemComponent);
+	MMASC->UpgradeAttributeByTag(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,const FGameplayAttribute& Attribute) const

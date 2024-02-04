@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/MMAbilitySystemComponent.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Abilities/MMGameplayAbility.h"
+#include "Interaction/PlayerInterface.h"
 #include "MysticMastery/MMLogChannels.h"
 
 void UMMAbilitySystemComponent::AbilityActorInfoSet()
@@ -105,6 +108,34 @@ FGameplayTag UMMAbilitySystemComponent::GetInputTagBySpec(const FGameplayAbility
 	}
 	UE_LOG(MMLog, Error, TEXT("The AbilitySpec selected has no matches with type <InputTag> GameplayTag"));
 	return FGameplayTag();
+}
+
+void UMMAbilitySystemComponent::UpgradeAttributeByTag(const FGameplayTag& AttributeTag)
+{
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		if (IPlayerInterface::Execute_GetCurrentAttributePoints(GetAvatarActor()) > 0)
+		{
+			ServerUpgradeAttributeByTag(AttributeTag);
+		}
+	}
+}
+
+/**
+ * Server Upgrade uses the GAS Event listener that every player has to upgrade the attribute
+ */
+void UMMAbilitySystemComponent::ServerUpgradeAttributeByTag_Implementation(const FGameplayTag& AttributeTag)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.f;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
+
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_AddAttributePoints(GetAvatarActor(), -1);
+	}
 }
 
 void UMMAbilitySystemComponent::OnRep_ActivateAbilities()

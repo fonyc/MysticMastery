@@ -33,6 +33,8 @@ public:
 	virtual int32 FindLevelByXP_Implementation(int32 XP) override;
 	virtual int32 GetAttributePointsReward_Implementation(const int32 InLevel) const override;
 	virtual int32 GetSpellPointsReward_Implementation(const int32 InLevel) const override;
+	virtual int32 GetCurrentAttributePoints_Implementation() const override;
+	virtual int32 GetCurrentSpellPoints_Implementation() const override;
 	virtual void AddAttributePoints_Implementation(int32 InAttributePoints) override;
 	virtual void AddSpellPoints_Implementation(int32 InSpellPoints) override;
 	virtual void AddPlayerLevel_Implementation(int32 InLevelsToAdd) override;

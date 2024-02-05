@@ -38,6 +38,7 @@ public:
 	virtual void AddAttributePoints_Implementation(int32 InAttributePoints) override;
 	virtual void AddSpellPoints_Implementation(int32 InSpellPoints) override;
 	virtual void AddPlayerLevel_Implementation(int32 InLevelsToAdd) override;
+	
 /* End Player Interface */
 
 protected:

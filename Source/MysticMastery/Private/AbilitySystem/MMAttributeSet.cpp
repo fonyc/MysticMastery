@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/PlayerInterface.h"
+#include "MysticMastery/MMLogChannels.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/MMPlayerController.h"
 
@@ -199,9 +200,11 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				IPlayerInterface::Execute_AddAttributePoints(Props.SourceCharacter, AttributePointsAwarded);
 				IPlayerInterface::Execute_AddSpellPoints(Props.SourceCharacter, SpellPointsAwarded);
 
-				//Set Health and Mana to full
-				SetHealth(GetMaxHealth());
-				SetMana(GetMaxMana());
+				//Raise flags to restore mana and health inside PostAttributeChange
+				bRestoreHealth = true;
+				bRestoreMana = true;
+				SetVigor(GetVigor());
+				SetIntelligence(GetIntelligence());
 
 				// Perform additional actions inside the character when leveling up (specially Aesthetics)
 				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
@@ -209,6 +212,25 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			
 			IPlayerInterface::Execute_AddXP(Props.SourceCharacter, LocalIncomingXP);
 		}
+	}
+}
+
+void UMMAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+	UE_LOG(MMLog, Log, TEXT("POST ATTRIBUTE CHANGE %s"), *Attribute.GetName());
+	//The Max health changed AND RestoreHealth is true cause we leveled up
+	if (Attribute == GetMaxHealthAttribute() && bRestoreHealth)
+	{
+		UE_LOG(MMLog, Log, TEXT("REFILLING HEALTH"));
+		SetHealth(GetMaxHealth());
+		bRestoreHealth = false;
+	}
+	if (Attribute == GetMaxManaAttribute() && bRestoreMana)
+	{
+		UE_LOG(MMLog, Log, TEXT("REFILLING MANA"));
+		SetMana(GetMaxMana());
+		bRestoreMana = false;
 	}
 }
 

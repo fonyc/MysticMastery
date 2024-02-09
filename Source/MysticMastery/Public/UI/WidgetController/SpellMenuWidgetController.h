@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class MYSTICMASTERY_API USpellMenuWidgetController : public UMMWidgetController
 {
 	GENERATED_BODY()

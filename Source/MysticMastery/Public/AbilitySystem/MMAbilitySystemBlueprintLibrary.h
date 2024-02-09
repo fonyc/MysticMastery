@@ -24,16 +24,16 @@ class MYSTICMASTERY_API UMMAbilitySystemBlueprintLibrary : public UBlueprintFunc
 	
 public:
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
 	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWidgetControllerParams, AMMHUD*& OutMMHUD);
 	
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
 	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|CharacterClassDefaults")

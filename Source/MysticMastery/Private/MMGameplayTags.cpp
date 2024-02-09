@@ -31,6 +31,12 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("InputTag.4"), FString("Input Tag for the Num4 key"));
 
+	GameplayTags.InputTag_Passive_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.Passive.1"), FString("Input Tag for the Passive 1"));
+
+	GameplayTags.InputTag_Passive_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("InputTag.Passive.2"), FString("Input Tag for the Passive 2"));
+
 	//Attributes.Primary
 	
 	GameplayTags.Attributes_Primary_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(

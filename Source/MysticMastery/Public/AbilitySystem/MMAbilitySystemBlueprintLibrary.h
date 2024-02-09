@@ -7,9 +7,12 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MMAbilitySystemBlueprintLibrary.generated.h"
 
+class AMMHUD;
+class USpellMenuWidgetController;
 class UAbilitySystemComponent;
 class UAttributeMenuWidgetController;
 class UOverlayWidgetController;
+struct FWidgetControllerParams;
 
 /**
  * 
@@ -20,12 +23,19 @@ class MYSTICMASTERY_API UMMAbilitySystemBlueprintLibrary : public UBlueprintFunc
 	GENERATED_BODY()
 	
 public:
+
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWidgetControllerParams, AMMHUD*& OutMMHUD);
+	
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary")
+	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 Level, UAbilitySystemComponent* ASC);
 

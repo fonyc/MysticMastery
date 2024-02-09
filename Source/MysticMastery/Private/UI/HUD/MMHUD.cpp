@@ -5,6 +5,7 @@
 
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "UI/WidgetController/SpellMenuWidgetController.h"
 #include "UI/Widgets/MMUserWidget.h"
 
 //This method works kind of a singleton. If no OverlayWidget create it, if it does, just get it
@@ -21,13 +22,24 @@ UOverlayWidgetController* AMMHUD::GetOverlayWidgetController(const FWidgetContro
 
 UAttributeMenuWidgetController* AMMHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WidgetControllerParams)
 {
-	if(AttributeMenuWidgetController == nullptr)
+	if (AttributeMenuWidgetController == nullptr)
 	{
 		AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController>(this,AttributeMenuWidgetControllerClass);
 		AttributeMenuWidgetController->SetWidgetControllerParams(WidgetControllerParams);
 		AttributeMenuWidgetController->BindCallbacksToDependencies();
 	}
 	return AttributeMenuWidgetController;
+}
+
+USpellMenuWidgetController* AMMHUD::GetSpellMenuWidgetController(const FWidgetControllerParams& WidgetControllerParams)
+{
+	if (SpellMenuWidgetController == nullptr)
+	{
+		SpellMenuWidgetController = NewObject<USpellMenuWidgetController>(this, SpellMenuWidgetControllerClass);
+		SpellMenuWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+		SpellMenuWidgetController->BindCallbacksToDependencies();
+	}
+	return SpellMenuWidgetController;
 }
 
 //In charge of construct the overlay widget controller, the widget(View) and set the Widget Controller and add it to the viewport

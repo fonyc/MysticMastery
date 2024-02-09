@@ -1,42 +1,66 @@
 
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
-
 #include "MMAbilitySystemTypes.h"
 #include "Game/MMGameModeBase.h"
 #include "Interaction/CombatInterface.h"
+#include "UI/WidgetController/MMWidgetController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MMPlayerState.h"
 #include "UI/HUD/MMHUD.h"
-#include "UI/WidgetController/MMWidgetController.h"
 
-UOverlayWidgetController* UMMAbilitySystemBlueprintLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+bool UMMAbilitySystemBlueprintLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWidgetControllerParams, AMMHUD*& OutMMHUD)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
 	{
-		if (AMMHUD* MMHUD = Cast<AMMHUD>(PC->GetHUD()))
+		OutMMHUD = Cast<AMMHUD>(PC->GetHUD());
+		if (OutMMHUD)
 		{
 			AMMPlayerState* PS = PC->GetPlayerState<AMMPlayerState>();
 			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return MMHUD->GetOverlayWidgetController(WidgetControllerParams);
+				
+			OutWidgetControllerParams.AttributeSet = AS;
+			OutWidgetControllerParams.PlayerController = PC;
+			OutWidgetControllerParams.AbilitySystemComponent = ASC;
+			OutWidgetControllerParams.PlayerState = PC->GetPlayerState<AMMPlayerState>();;
+			return true;
 		}
+	}
+	return false;
+}
+
+UOverlayWidgetController* UMMAbilitySystemBlueprintLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	AMMHUD* MMHUD = nullptr;
+
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, MMHUD))
+	{
+		return MMHUD->GetOverlayWidgetController(WCParams);
 	}
 	return nullptr;
 }
 
 UAttributeMenuWidgetController* UMMAbilitySystemBlueprintLibrary::GetAttributeMenuWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	FWidgetControllerParams WCParams;
+	AMMHUD* MMHUD = nullptr;
+
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, MMHUD))
 	{
-		if (AMMHUD* MMHUD = Cast<AMMHUD>(PC->GetHUD()))
-		{
-			AMMPlayerState* PS = PC->GetPlayerState<AMMPlayerState>();
-			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return MMHUD->GetAttributeMenuWidgetController(WidgetControllerParams);
-		}
+		return MMHUD->GetAttributeMenuWidgetController(WCParams);
+	}
+	return nullptr;
+}
+
+USpellMenuWidgetController* UMMAbilitySystemBlueprintLibrary::GetSpellMenuWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	AMMHUD* MMHUD = nullptr;
+
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, MMHUD))
+	{
+		return MMHUD->GetSpellMenuWidgetController(WCParams);
 	}
 	return nullptr;
 }

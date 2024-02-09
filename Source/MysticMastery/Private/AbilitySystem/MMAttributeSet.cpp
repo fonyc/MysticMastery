@@ -218,17 +218,14 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 void UMMAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
-	UE_LOG(MMLog, Log, TEXT("POST ATTRIBUTE CHANGE %s"), *Attribute.GetName());
 	//The Max health changed AND RestoreHealth is true cause we leveled up
 	if (Attribute == GetMaxHealthAttribute() && bRestoreHealth)
 	{
-		UE_LOG(MMLog, Log, TEXT("REFILLING HEALTH"));
 		SetHealth(GetMaxHealth());
 		bRestoreHealth = false;
 	}
 	if (Attribute == GetMaxManaAttribute() && bRestoreMana)
 	{
-		UE_LOG(MMLog, Log, TEXT("REFILLING MANA"));
 		SetMana(GetMaxMana());
 		bRestoreMana = false;
 	}

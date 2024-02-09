@@ -26,7 +26,7 @@ void UMMAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<U
 		}
 	}
 	bStartupAbilitiesGiven = true;
-	OnAbilitiesGivenDelegate.Broadcast(this);
+	OnAbilitiesGivenDelegate.Broadcast();
 }
 
 void UMMAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
@@ -145,7 +145,7 @@ void UMMAbilitySystemComponent::OnRep_ActivateAbilities()
 	if (!bStartupAbilitiesGiven)
 	{
 		bStartupAbilitiesGiven = true;
-		OnAbilitiesGivenDelegate.Broadcast(this);
+		OnAbilitiesGivenDelegate.Broadcast();
 	}
 }
 

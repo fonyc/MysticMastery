@@ -10,57 +10,53 @@
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
-	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);
-
-	OnHealthChanged.Broadcast(MMAttributeSet->GetHealth());
-	OnMaxHealthChanged.Broadcast(MMAttributeSet->GetMaxHealth());
-	OnManaChanged.Broadcast(MMAttributeSet->GetMana());
-	OnMaxManaChanged.Broadcast(MMAttributeSet->GetMaxMana());
+	OnHealthChanged.Broadcast(GetMMAttributeSet()->GetHealth());
+	OnMaxHealthChanged.Broadcast(GetMMAttributeSet()->GetMaxHealth());
+	OnManaChanged.Broadcast(GetMMAttributeSet()->GetMana());
+	OnMaxManaChanged.Broadcast(GetMMAttributeSet()->GetMaxMana());
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	//Bind Callbacks to the player State
-	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
-	MMPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+	GetMMPlayerState()->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
 	
-	MMPlayerState->OnLevelChangedDelegate.AddLambda([this](int32 NewLevel)
+	GetMMPlayerState()->OnLevelChangedDelegate.AddLambda([this](int32 NewLevel)
 	{
 		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
 	});
 
 	//Bind callbacks to the GAS system
-	const UMMAttributeSet* MMAttributeSet = CastChecked<UMMAttributeSet>(AttributeSet);
-	
 	//Health
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetHealthAttribute()).AddLambda(
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMMAttributeSet()->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data){OnHealthChanged.Broadcast(Data.NewValue);});
 
 	//MaxHealth
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetMaxHealthAttribute()).AddLambda(
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMMAttributeSet()->GetMaxHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data){OnMaxHealthChanged.Broadcast(Data.NewValue);});
 
 	//Mana
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetManaAttribute()).AddLambda(
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMMAttributeSet()->GetManaAttribute()).AddLambda(
 	[this](const FOnAttributeChangeData& Data){OnManaChanged.Broadcast(Data.NewValue);});
 
 	//MaxMana
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MMAttributeSet->GetMaxManaAttribute()).AddLambda(
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMMAttributeSet()->GetMaxManaAttribute()).AddLambda(
 	[this](const FOnAttributeChangeData& Data){OnMaxManaChanged.Broadcast(Data.NewValue);});
 
-	if(UMMAbilitySystemComponent* MMASC = Cast<UMMAbilitySystemComponent>(AbilitySystemComponent))
+	if (GetMMAbilitySystemComponent())
 	{
-		if(MMASC->bStartupAbilitiesGiven) //The abilities has been given already, so we can perform the actions (such as broadcast the abilities to the widgets)
+		//The abilities has been given already, so we can perform the actions (such as broadcast the abilities to the widgets)
+		if (GetMMAbilitySystemComponent()->bStartupAbilitiesGiven) 
 		{
-			OnInitializeStartupAbilities(MMASC);
+			BroadCastAbilityInfo();
 		}
 		else //In this case, the abilities has not been given yet, so we bind them
 		{
 			//Abilities 
-			MMASC->OnAbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+			GetMMAbilitySystemComponent()->OnAbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::BroadCastAbilityInfo);
 			
 			//Messages
-			MMASC->EffectAssetTags.AddLambda(
+			GetMMAbilitySystemComponent()->EffectAssetTags.AddLambda(
 				[this](const FGameplayTagContainer& AssetTags)
 				{
 					for (const FGameplayTag& Tag : AssetTags)
@@ -75,31 +71,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	}
 }
 
-/**
- *
- * Look up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon, bg... etc
- * @param MMASC MMAbilitySystemComponent Holds the information about all the given abilities
- * 
- */
-void UOverlayWidgetController::OnInitializeStartupAbilities(UMMAbilitySystemComponent* MMASC)
-{
-	if (!MMASC->bStartupAbilitiesGiven) return;
-
-	FForEachAbility BroadcastDelegate;
-	BroadcastDelegate.BindLambda([this, MMASC](const FGameplayAbilitySpec& AbilitySpec)
-	{
-		FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(MMASC->GetAbilityTagBySpec(AbilitySpec));
-		Info.InputTag = MMASC->GetInputTagBySpec(AbilitySpec);
-		AbilityInfoDelegate.Broadcast(Info);
-	});
-	MMASC->ForEachAbility(BroadcastDelegate);
-}
-
 void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 {
-	const AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
-	const ULevelUpInfo* LevelUpInfo = MMPlayerState->LevelUpInfo;
-
+	const ULevelUpInfo* LevelUpInfo = GetMMPlayerState()->LevelUpInfo;
 	checkf(LevelUpInfo, TEXT("Level up info is missing inside the Overlay Widget Controller. Please fill it out on its Blueprint"));
 
 	const int32 CurrentLevel = LevelUpInfo->GetLevelByExperience(NewXP);

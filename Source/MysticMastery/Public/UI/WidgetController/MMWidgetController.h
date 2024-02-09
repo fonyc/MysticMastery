@@ -9,17 +9,28 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FMMAbilityInfo&, Info);
+
 class UAttributeSet;
 class UAbilitySystemComponent;
+class AMMPlayerController;
+class AMMPlayerState;
+class UMMAbilitySystemComponent;
+class UMMAttributeSet;
+class UAbilityInfo;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
 {
 	GENERATED_BODY()
-	FWidgetControllerParams() {};
+	FWidgetControllerParams()
+	{
+	};
 
 	FWidgetControllerParams(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
-	: PlayerController(PC), PlayerState(PS),AbilitySystemComponent(ASC), AttributeSet(AS) {};
+		: PlayerController(PC), PlayerState(PS), AbilitySystemComponent(ASC), AttributeSet(AS)
+	{
+	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
@@ -43,6 +54,9 @@ class MYSTICMASTERY_API UMMWidgetController : public UObject
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FAbilityInfoSignature AbilityInfoDelegate;
+
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WidgetControllerParams);
 
@@ -50,12 +64,20 @@ public:
 	virtual void BroadcastInitialValues();
 
 	virtual void BindCallbacksToDependencies();
+
+	void BroadCastAbilityInfo();
+
 protected:
-	
 	/** 
 	* DEPENDENCIES:
 	* These pointers are the places the widget may need to require data from or subscribe to some events
+	* MM Versions are included an lazy loaded, so we dont have to cast them on the widgets each time
 	*/
+	//Regular Dependencies
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
+	
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 
@@ -67,4 +89,23 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	//Custom dependencies
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<AMMPlayerController> MMPlayerController;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<AMMPlayerState> MMPlayerState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<UMMAbilitySystemComponent> MMAbilitySystemComponent;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<UMMAttributeSet> MMAttributeSet;
+
+	//Custom dependencies Getters (Lazy Load version)
+	AMMPlayerController* GetMMPlayerController();
+	AMMPlayerState* GetMMPlayerState();
+	UMMAbilitySystemComponent* GetMMAbilitySystemComponent();
+	UMMAttributeSet* GetMMAttributeSet();
 };

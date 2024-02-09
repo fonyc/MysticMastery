@@ -7,7 +7,7 @@
 #include "MMAbilitySystemComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /*AssetTags*/);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilitiesGiven, UMMAbilitySystemComponent*);
+DECLARE_MULTICAST_DELEGATE(FOnAbilitiesGiven);
 
 //Delegate in charge of looping through every ability and give back the AbilityInfo (so we dont expose everything) 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);

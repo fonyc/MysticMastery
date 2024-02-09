@@ -10,8 +10,8 @@
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
-	UMMAttributeSet* AS = CastChecked<UMMAttributeSet>(AttributeSet);
-	for (auto& Pair : AS->TagsToAttributes)
+	check(AttributeInfo);
+	for (auto& Pair : GetMMAttributeSet()->TagsToAttributes)
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
 			[this, Pair](const FOnAttributeChangeData& Data)
@@ -22,8 +22,7 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 	}
 
 	//Bind Callbacks to the player State (Attribute Points)
-	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
-	MMPlayerState->OnAttributePointsChanged.AddLambda([this](int32 Points)
+	GetMMPlayerState()->OnAttributePointsChanged.AddLambda([this](int32 Points)
 		{
 			AttributePointsChangedDelegate.Broadcast(Points);
 		}
@@ -32,25 +31,21 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 
 void UAttributeMenuWidgetController::BroadcastInitialValues()
 {
-	UMMAttributeSet* AS = CastChecked<UMMAttributeSet>(AttributeSet);
-
 	check(AttributeInfo);
 
 	//Iterate all key-value tags and Broadcast Attributes initial values
-	for (auto& Pair : AS->TagsToAttributes)
+	for (auto& Pair : GetMMAttributeSet()->TagsToAttributes)
 	{
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	}
 
 	//Broadcast initial values to the attribute controller
-	AMMPlayerState* MMPlayerState = CastChecked<AMMPlayerState>(PlayerState);
-	AttributePointsChangedDelegate.Broadcast(MMPlayerState->GetAttributePoints());
+	AttributePointsChangedDelegate.Broadcast(GetMMPlayerState()->GetAttributePoints());
 }
 
 void UAttributeMenuWidgetController::UpgradeAttributeByTag(const FGameplayTag& AttributeTag)
 {
-	UMMAbilitySystemComponent* MMASC = CastChecked<UMMAbilitySystemComponent>(AbilitySystemComponent);
-	MMASC->UpgradeAttributeByTag(AttributeTag);
+	GetMMAbilitySystemComponent()->UpgradeAttributeByTag(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,const FGameplayAttribute& Attribute) const

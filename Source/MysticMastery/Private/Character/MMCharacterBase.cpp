@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "MysticMastery/MysticMastery.h"
 
 // Sets default values
@@ -20,18 +21,21 @@ AMMCharacterBase::AMMCharacterBase()
 	FaceMask = CreateDefaultSubobject<USkeletalMeshComponent>("FaceMask");
 	FaceMask->SetupAttachment(GetMesh(), FName("FaceMask"));
 	
-	//Remove any collision from weapon
+	//Remove any collision from weapon/Facemask or mesh
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	FaceMask->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	FaceMask->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
-	//Set Basic responses to Camera, and Projectile Channels
+	//Set overlap events
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 	GetMesh()->SetGenerateOverlapEvents(false);
 
+	//Collision response to camera
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	FaceMask->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
+	//Collision response to projectiles
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
 }
@@ -83,6 +87,12 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetSimulatePhysics(false);
+
+	//Disable RVO Avoidance, so dead enemies do not block the path
+	UCharacterMovementComponent* CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent());
+	CharacterMovementComponent->SetAvoidanceEnabled(false);
+	
 	Dissolve();
 	bDead = true;
 }

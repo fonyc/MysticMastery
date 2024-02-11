@@ -34,6 +34,7 @@ void UMMWidgetController::BroadCastAbilityInfo()
 	{
 		FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(MMAbilitySystemComponent->GetAbilityTagBySpec(AbilitySpec));
 		Info.InputTag = MMAbilitySystemComponent->GetInputTagBySpec(AbilitySpec);
+		Info.StatusTag = MMAbilitySystemComponent->GetAbilityStatusBySpec(AbilitySpec);
 		AbilityInfoDelegate.Broadcast(Info);
 	});
 	GetMMAbilitySystemComponent()->ForEachAbility(BroadcastDelegate);

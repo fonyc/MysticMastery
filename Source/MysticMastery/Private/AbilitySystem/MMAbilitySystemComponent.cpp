@@ -3,6 +3,7 @@
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "MMGameplayTags.h"
 #include "AbilitySystem/Abilities/MMGameplayAbility.h"
 #include "Interaction/PlayerInterface.h"
 #include "MysticMastery/MMLogChannels.h"
@@ -22,6 +23,7 @@ void UMMAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<U
 		{
 			//add the StartupInputTag to the ability 
 			AbilitySpec.DynamicAbilityTags.AddTag(MMAbility->StartupInputTag);
+			AbilitySpec.DynamicAbilityTags.AddTag(FMMGameplayTags::Get().Abilities_Status_Equipped);
 			GiveAbility(AbilitySpec);
 		}
 	}
@@ -107,6 +109,19 @@ FGameplayTag UMMAbilitySystemComponent::GetInputTagBySpec(const FGameplayAbility
 		}
 	}
 	UE_LOG(MMLog, Error, TEXT("The AbilitySpec selected has no matches with type <InputTag> GameplayTag"));
+	return FGameplayTag();
+}
+
+//Checks if the Ability has the tag of type "Abilities.Status". If so, return it. Else return an empty one
+FGameplayTag UMMAbilitySystemComponent::GetAbilityStatusBySpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag StatusTag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (StatusTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Status"))))
+		{
+			return StatusTag;
+		}
+	}
 	return FGameplayTag();
 }
 

@@ -143,6 +143,11 @@ void AMMCharacter::AddPlayerLevel_Implementation(int32 InLevelsToAdd)
 	AMMPlayerState* MMPlayerState = GetPlayerState<AMMPlayerState>();
 	check(MMPlayerState);
 	MMPlayerState->AddLevel(InLevelsToAdd);
+
+	if (UMMAbilitySystemComponent* MMASC = Cast<UMMAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		MMASC->UpdateAbilityStatuses(MMPlayerState->GetPlayerLevel());
+	}
 }
 
 void AMMCharacter::PossessedBy(AController* NewController)

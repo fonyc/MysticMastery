@@ -168,6 +168,7 @@ void UMMAbilitySystemComponent::UpdateAbilityStatuses(int32 LevelRequirement)
 			AbilitySpec.DynamicAbilityTags.AddTag(FMMGameplayTags::Get().Abilities_Status_Eligible);
 			GiveAbility(AbilitySpec);
 			MarkAbilitySpecDirty(AbilitySpec);
+			ClientUpdateAbilityStatus(Info.AbilityTag, FMMGameplayTags::Get().Abilities_Status_Eligible);
 		}
 	}
 }
@@ -198,6 +199,11 @@ void UMMAbilitySystemComponent::OnRep_ActivateAbilities()
 		bStartupAbilitiesGiven = true;
 		OnAbilitiesGivenDelegate.Broadcast();
 	}
+}
+
+void UMMAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+{
+	OnAbilitiesStatusChanged.Broadcast(AbilityTag, StatusTag);
 }
 
 //Whenever we apply a GE, this method will be called

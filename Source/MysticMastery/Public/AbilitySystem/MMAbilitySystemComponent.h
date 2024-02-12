@@ -11,6 +11,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAbilitiesGiven);
 
 //Delegate in charge of looping through every ability and give back the AbilityInfo (so we dont expose everything) 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityStatusChanged,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/);
 
 /**
  * 
@@ -29,6 +30,9 @@ public:
 
 	//Delegate called to broadcast the moment the abilities has been given (just a signal)
 	FOnAbilitiesGiven OnAbilitiesGivenDelegate;
+
+	//When leveling up, maybe one skill is eligible to buy 
+	FAbilityStatusChanged OnAbilitiesStatusChanged;
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
@@ -62,4 +66,7 @@ protected:
 	 * In this case, we need it to replicate the Ability's icons on the client once we give a player its abilities
 	 */
 	virtual void OnRep_ActivateAbilities() override;
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag);
 };

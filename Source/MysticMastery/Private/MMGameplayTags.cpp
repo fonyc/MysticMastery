@@ -134,6 +134,9 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Attack"), FString("Tag added when some Actor is performing an attack"));
 
+	GameplayTags.Abilities_None = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Abilities.None"), FString("Null tag when some ability is empty"));
+
 	GameplayTags.Abilities_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Summon"), FString("Tag added when some Actor is summoning minions"));
 

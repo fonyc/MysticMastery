@@ -202,8 +202,6 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				//Raise flags to restore mana and health inside PostAttributeChange
 				bRestoreHealth = true;
 				bRestoreMana = true;
-				SetVigor(GetVigor());
-				SetIntelligence(GetIntelligence());
 
 				// Perform additional actions inside the character when leveling up (specially Aesthetics)
 				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);

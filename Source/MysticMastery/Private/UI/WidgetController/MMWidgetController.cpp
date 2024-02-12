@@ -21,9 +21,7 @@ void UMMWidgetController::BroadcastInitialValues() {}
 void UMMWidgetController::BindCallbacksToDependencies() {}
 
 /**
- *
  * Look up for the AbilityInfo of every ability and broadcast it to the widgets so they have an icon, bg... etc
- * 
  */
 void UMMWidgetController::BroadCastAbilityInfo()
 {

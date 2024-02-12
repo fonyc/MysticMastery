@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OverlayWidgetController.h"
 #include "UI/WidgetController/MMWidgetController.h"
 #include "SpellMenuWidgetController.generated.h"
 
@@ -14,7 +15,11 @@ class MYSTICMASTERY_API USpellMenuWidgetController : public UMMWidgetController
 {
 	GENERATED_BODY()
 public:
+	
 	virtual void BroadcastInitialValues() override;
 
 	virtual void BindCallbacksToDependencies() override;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStatChangedSignature OnSpellPointsChanged;
 };

@@ -42,13 +42,15 @@ public:
 	static FGameplayTag GetAbilityTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetInputTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityStatusBySpec(const FGameplayAbilitySpec& AbilitySpec);
+	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
 	
 	void UpgradeAttributeByTag(const FGameplayTag& AttributeTag);
 
 	UFUNCTION(Server, Reliable)
 	void ServerUpgradeAttributeByTag(const FGameplayTag& AttributeTag);
 
-	
+	//Update the ability statuses. When leveling up, maybe we reached the level requirement to but an ability and that
+	void UpdateAbilityStatuses(int32 LevelRequirement);
 protected:
 	// Called on server whenever a GE is applied to self. This includes instant and duration based GEs
 	// We need to turn this function into an Client_RPC since it only executes on the server, but we want clients to be affected by them  

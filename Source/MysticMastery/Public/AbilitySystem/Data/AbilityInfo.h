@@ -7,6 +7,8 @@
 #include "Engine/DataAsset.h"
 #include "AbilityInfo.generated.h"
 
+class UGameplayAbility;
+
 USTRUCT(BlueprintType)
 struct FMMAbilityInfo
 {
@@ -29,6 +31,14 @@ struct FMMAbilityInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UMaterialInterface> BackgroundMaterial = nullptr;
+
+	//Level in which the character can access it in the spell tree menu and buy it
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 LevelRequirement = 1;
+
+	//This is the ability Itself
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> Ability;
 };
 
 /**

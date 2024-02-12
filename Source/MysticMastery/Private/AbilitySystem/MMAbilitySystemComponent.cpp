@@ -4,7 +4,9 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "MMGameplayTags.h"
+#include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Abilities/MMGameplayAbility.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "Interaction/PlayerInterface.h"
 #include "MysticMastery/MMLogChannels.h"
 
@@ -125,6 +127,20 @@ FGameplayTag UMMAbilitySystemComponent::GetAbilityStatusBySpec(const FGameplayAb
 	return FGameplayTag();
 }
 
+FGameplayAbilitySpec* UMMAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(AbilityTag)) return &AbilitySpec;
+		}
+	}
+	return nullptr;
+}
+
 void UMMAbilitySystemComponent::UpgradeAttributeByTag(const FGameplayTag& AttributeTag)
 {
 	if (GetAvatarActor()->Implements<UPlayerInterface>())
@@ -132,6 +148,26 @@ void UMMAbilitySystemComponent::UpgradeAttributeByTag(const FGameplayTag& Attrib
 		if (IPlayerInterface::Execute_GetCurrentAttributePoints(GetAvatarActor()) > 0)
 		{
 			ServerUpgradeAttributeByTag(AttributeTag);
+		}
+	}
+}
+
+void UMMAbilitySystemComponent::UpdateAbilityStatuses(int32 LevelRequirement)
+{
+	UAbilityInfo* AbilityInfo = UMMAbilitySystemBlueprintLibrary::GetAbilityInfo(GetAvatarActor());
+
+	for (const FMMAbilityInfo& Info : AbilityInfo->AbilityInformation)
+	{
+		//Ability tag not valid or The level up didnt reach the ability requirements --> we don bother on update that one
+		if (LevelRequirement < Info.LevelRequirement || !Info.AbilityTag.IsValid()) continue;
+		//This ability is not on our activatable abilities --> must be locked 
+		if (GetSpecFromAbilityTag(Info.AbilityTag) == nullptr)
+		{
+			//TODO: The level of the ability is 1 unless we are loading the ability from disk. 
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
+			AbilitySpec.DynamicAbilityTags.AddTag(FMMGameplayTags::Get().Abilities_Status_Eligible);
+			GiveAbility(AbilitySpec);
+			MarkAbilitySpecDirty(AbilitySpec);
 		}
 	}
 }

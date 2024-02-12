@@ -127,8 +127,15 @@ int32 UMMAbilitySystemBlueprintLibrary::GetXPRewardByClassAndLevel(const UObject
 UCharacterClassInfo* UMMAbilitySystemBlueprintLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
 	const AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if(MMGameModeBase == nullptr) return nullptr;
+	if (MMGameModeBase == nullptr) return nullptr;
 	return MMGameModeBase->CharacterClassInfo;
+}
+
+UAbilityInfo* UMMAbilitySystemBlueprintLibrary::GetAbilityInfo(const UObject* WorldContextObject)
+{
+	const AMMGameModeBase* MMGameModeBase = Cast<AMMGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (MMGameModeBase == nullptr) return nullptr;
+	return MMGameModeBase->AbilityInfo;
 }
 
 bool UMMAbilitySystemBlueprintLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)

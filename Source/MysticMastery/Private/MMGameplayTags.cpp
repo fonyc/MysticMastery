@@ -140,6 +140,10 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Abilities.Fire.FireBolt"), FString("Tag added when some Actor is attacking with the ability FireBolt"));
 
+	GameplayTags.Abilities_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Abilities.Lightning.Electrocute"), FString("Tag added when some Actor is attacking with the ability Electrocute"));
+
+
 	//Cooldown
 	GameplayTags.Cooldown_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Cooldown.Fire.FireBolt"), FString("Tag added when some Actor has the Ability FireBolt in cooldown"));

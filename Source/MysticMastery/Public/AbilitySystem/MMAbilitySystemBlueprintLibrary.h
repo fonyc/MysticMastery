@@ -8,6 +8,7 @@
 #include "MMAbilitySystemBlueprintLibrary.generated.h"
 
 class AMMHUD;
+class UAbilityInfo;
 class USpellMenuWidgetController;
 class UAbilitySystemComponent;
 class UAttributeMenuWidgetController;
@@ -24,16 +25,16 @@ class MYSTICMASTERY_API UMMAbilitySystemBlueprintLibrary : public UBlueprintFunc
 	
 public:
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|Widgets", meta = (DefaultToSelf = "WorldContextObject"))
 	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWidgetControllerParams, AMMHUD*& OutMMHUD);
 	
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|Widgets", meta = (DefaultToSelf = "WorldContextObject"))
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|Widgets", meta = (DefaultToSelf = "WorldContextObject"))
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary", meta = (DefaultToSelf = "WorldContextObject"))
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|Widgets", meta = (DefaultToSelf = "WorldContextObject"))
 	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|CharacterClassDefaults")
@@ -44,6 +45,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|CharacterClassDefaults")
 	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|AbilityInfo")
+	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
 	static bool IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle);

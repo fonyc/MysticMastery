@@ -15,7 +15,7 @@ void USpellMenuWidgetController::BroadcastInitialValues()
 
 void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
-	GetMMAbilitySystemComponent()->OnAbilitiesStatusChanged.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+	GetMMAbilitySystemComponent()->OnAbilitiesStatusChanged.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 NewLevel)
 	{
 		if (SelectedAbility.Ability.MatchesTagExact(AbilityTag))
 		{
@@ -76,6 +76,15 @@ void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityT
 
 	ShouldEnableButtons(AbilityStatus, SpellPoints, bEnableSpendButton, bEnableEquipButton);
 	OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
+}
+
+void USpellMenuWidgetController::SpendPointButtonPressed()
+{
+	//Talk to ASC to upgrade a skill and remove 1SP from Playerstate
+	if(GetMMAbilitySystemComponent())
+	{
+		GetMMAbilitySystemComponent()->ServerSpendSpellPoint(SelectedAbility.Ability);
+	}
 }
 
 void USpellMenuWidgetController::ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton)

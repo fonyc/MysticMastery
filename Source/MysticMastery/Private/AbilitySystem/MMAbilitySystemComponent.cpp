@@ -168,8 +168,39 @@ void UMMAbilitySystemComponent::UpdateAbilityStatuses(int32 LevelRequirement)
 			AbilitySpec.DynamicAbilityTags.AddTag(FMMGameplayTags::Get().Abilities_Status_Eligible);
 			GiveAbility(AbilitySpec);
 			MarkAbilitySpecDirty(AbilitySpec);
-			ClientUpdateAbilityStatus(Info.AbilityTag, FMMGameplayTags::Get().Abilities_Status_Eligible);
+			ClientUpdateAbilityStatus(Info.AbilityTag, FMMGameplayTags::Get().Abilities_Status_Eligible, 1);
 		}
+	}
+}
+
+void UMMAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
+{
+	//If we dont have Ability Spec it means it is not inside the ActivatableAbilities (so it must be locked)
+	if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		//Spend the SP
+		if (GetAvatarActor()->Implements<UPlayerInterface>())
+		{
+			IPlayerInterface::Execute_AddSpellPoints(GetAvatarActor(), -1);
+		}
+		//Make the change on the tags and level up the ability
+		const FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
+		FGameplayTag Status = GetAbilityStatusBySpec(*AbilitySpec);
+		//The ability is Eligible (1st time a point is spent on it)--> change of tag (Default level is 1)
+		if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Eligible))
+		{
+			AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Eligible);
+			AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Unlocked);
+			Status = GameplayTags.Abilities_Status_Unlocked;
+		}
+		//The ability is Equipped or Unlocked (at least 1 point invested on the ability) --> We level up the ability
+		else if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Equipped) || Status.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked))
+		{
+			AbilitySpec->Level++;
+		}
+		//Broadcast the ability to the widgets
+		ClientUpdateAbilityStatus_Implementation(AbilityTag, Status, AbilitySpec->Level);
+		MarkAbilitySpecDirty(*AbilitySpec);
 	}
 }
 
@@ -201,9 +232,9 @@ void UMMAbilitySystemComponent::OnRep_ActivateAbilities()
 	}
 }
 
-void UMMAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+void UMMAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
 {
-	OnAbilitiesStatusChanged.Broadcast(AbilityTag, StatusTag);
+	OnAbilitiesStatusChanged.Broadcast(AbilityTag, StatusTag, AbilityLevel);
 }
 
 //Whenever we apply a GE, this method will be called

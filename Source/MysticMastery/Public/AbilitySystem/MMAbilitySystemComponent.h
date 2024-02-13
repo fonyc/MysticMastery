@@ -11,7 +11,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAbilitiesGiven);
 
 //Delegate in charge of looping through every ability and give back the AbilityInfo (so we dont expose everything) 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityStatusChanged,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/, int32 /*AbilityLevel*/);
 
 /**
  * 
@@ -55,18 +55,24 @@ public:
 
 	//Update the ability statuses. When leveling up, maybe we reached the level requirement to but an ability and that
 	void UpdateAbilityStatuses(int32 LevelRequirement);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+	
 protected:
-	// Called on server whenever a GE is applied to self. This includes instant and duration based GEs
-	// We need to turn this function into an Client_RPC since it only executes on the server, but we want clients to be affected by them  
+	/*
+	 * Called on server whenever a GE is applied to self. This includes instant and duration based GEs
+	 * We need to turn this function into an Client_RPC since it only executes on the server, but we want clients to be affected by them
+	*/
 	UFUNCTION(Client, Reliable)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
 
-	/**
+	/*
 	 * Function called when we use Activate Abilities (when we give abilities to a player)
 	 * In this case, we need it to replicate the Ability's icons on the client once we give a player its abilities
 	 */
 	virtual void OnRep_ActivateAbilities() override;
 
 	UFUNCTION(Client, Reliable)
-	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag);
+	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 };

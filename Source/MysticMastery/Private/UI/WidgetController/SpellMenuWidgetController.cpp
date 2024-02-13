@@ -20,11 +20,16 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 		if (SelectedAbility.Ability.MatchesTagExact(AbilityTag))
 		{
 			SelectedAbility.Status = StatusTag;
+			
 			bool bEnableSpendButton = false;
 			bool bEnableEquipButton = false;
-
 			ShouldEnableButtons(StatusTag, CurrentSpellPoints, bEnableSpendButton, bEnableEquipButton);
-			OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
+
+			FString Description;
+			FString NextLevelDescription;
+			GetMMAbilitySystemComponent()->GetDescriptionsByAbilityTag(AbilityTag,Description,NextLevelDescription);
+
+			OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton, Description, NextLevelDescription);
 		}
 		
 		if (AbilityInfo)
@@ -42,9 +47,13 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 
 		bool bEnableSpendButton = false;
 		bool bEnableEquipButton = false;
-
 		ShouldEnableButtons(SelectedAbility.Status, CurrentSpellPoints, bEnableSpendButton, bEnableEquipButton);
-		OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
+		
+		FString Description;
+		FString NextLevelDescription;
+		GetMMAbilitySystemComponent()->GetDescriptionsByAbilityTag(SelectedAbility.Ability,Description,NextLevelDescription);
+
+		OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton, Description, NextLevelDescription);
 	});
 }
 
@@ -73,9 +82,13 @@ void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityT
 	
 	bool bEnableSpendButton = false;
 	bool bEnableEquipButton = false;
-
 	ShouldEnableButtons(AbilityStatus, SpellPoints, bEnableSpendButton, bEnableEquipButton);
-	OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
+	
+	FString Description;
+	FString NextLevelDescription;
+	GetMMAbilitySystemComponent()->GetDescriptionsByAbilityTag(AbilityTag,Description,NextLevelDescription);
+
+	OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton, Description, NextLevelDescription);
 }
 
 void USpellMenuWidgetController::SpendPointButtonPressed()

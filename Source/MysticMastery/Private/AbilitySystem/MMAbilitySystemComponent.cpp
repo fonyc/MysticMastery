@@ -173,6 +173,25 @@ void UMMAbilitySystemComponent::UpdateAbilityStatuses(int32 LevelRequirement)
 	}
 }
 
+bool UMMAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextDescription)
+{
+	if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		if (UMMGameplayAbility* MMAbility = Cast<UMMGameplayAbility>(AbilitySpec->Ability))
+		{
+			OutDescription = MMAbility->GetDescription(AbilitySpec->Level);
+			OutNextDescription = MMAbility->GetNextLevelDescription(AbilitySpec->Level + 1);
+			return true;
+		}
+	}
+
+	//Ability is not inside activatable abilities -> is locked (no description)
+	const UAbilityInfo* AbilityInfo = UMMAbilitySystemBlueprintLibrary::GetAbilityInfo(GetAvatarActor());
+	OutDescription = UMMGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoByTag(AbilityTag).LevelRequirement);
+	OutNextDescription = FString();
+	return false;
+}
+
 void UMMAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
 {
 	//If we dont have Ability Spec it means it is not inside the ActivatableAbilities (so it must be locked)

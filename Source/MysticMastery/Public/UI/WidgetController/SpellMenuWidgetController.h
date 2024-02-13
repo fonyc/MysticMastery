@@ -6,9 +6,16 @@
 #include "OverlayWidgetController.h"
 #include "UI/WidgetController/MMWidgetController.h"
 #include "GameplayTagContainer.h"
+#include "MMGameplayTags.h"
 #include "SpellMenuWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSpellGlobeSelectedSignature, bool, bSpendPointsButtonEnabled, bool, bEquipButtonEnabled);
+
+struct FSelectedAbility
+{
+	FGameplayTag Ability = FGameplayTag();
+	FGameplayTag Status = FGameplayTag();
+};
 
 /**
  * 
@@ -35,4 +42,9 @@ public:
 
 private:
 	static void ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton);
+	
+	//Used to cache the current state of the player because broadcasts can happen at different times
+	//so when we check if an ability is eligible, maybe we have 0 SP because the delegate didnt update yet
+	FSelectedAbility SelectedAbility = { FMMGameplayTags::Get().Abilities_None, FMMGameplayTags::Get().Abilities_Status_Locked };
+	int32 CurrentSpellPoints = 0;
 };

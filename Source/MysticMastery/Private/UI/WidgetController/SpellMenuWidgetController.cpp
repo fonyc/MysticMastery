@@ -2,7 +2,6 @@
 
 
 #include "UI/WidgetController/SpellMenuWidgetController.h"
-
 #include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
@@ -18,6 +17,16 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
 	GetMMAbilitySystemComponent()->OnAbilitiesStatusChanged.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
 	{
+		if (SelectedAbility.Ability.MatchesTagExact(AbilityTag))
+		{
+			SelectedAbility.Status = StatusTag;
+			bool bEnableSpendButton = false;
+			bool bEnableEquipButton = false;
+
+			ShouldEnableButtons(StatusTag, CurrentSpellPoints, bEnableSpendButton, bEnableEquipButton);
+			OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
+		}
+		
 		if (AbilityInfo)
 		{
 			FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(AbilityTag);
@@ -29,13 +38,20 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 	GetMMPlayerState()->OnSpellPointsChanged.AddLambda([this](int32 SpellPoints)
 	{
 		OnSpellPointsChanged.Broadcast(SpellPoints);
+		CurrentSpellPoints = SpellPoints;
+
+		bool bEnableSpendButton = false;
+		bool bEnableEquipButton = false;
+
+		ShouldEnableButtons(SelectedAbility.Status, CurrentSpellPoints, bEnableSpendButton, bEnableEquipButton);
+		OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
 	});
 }
 
 void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityTag)
 {
 	const FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
-	const int32 CurrentSpellPoints = GetMMPlayerState()->GetSpellPoints();
+	const int32 SpellPoints = GetMMPlayerState()->GetSpellPoints();
 	FGameplayTag AbilityStatus;
 	
 	const bool bTagIsValid = AbilityTag.IsValid();
@@ -52,10 +68,13 @@ void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityT
 		AbilityStatus = GetMMAbilitySystemComponent()->GetAbilityStatusBySpec(*AbilitySpec);
 	}
 
+	SelectedAbility.Status = AbilityStatus;
+	SelectedAbility.Ability = AbilityTag;
+	
 	bool bEnableSpendButton = false;
 	bool bEnableEquipButton = false;
 
-	ShouldEnableButtons(AbilityStatus, CurrentSpellPoints, bEnableSpendButton, bEnableEquipButton);
+	ShouldEnableButtons(AbilityStatus, SpellPoints, bEnableSpendButton, bEnableEquipButton);
 	OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton);
 }
 

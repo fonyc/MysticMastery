@@ -43,6 +43,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpendPointButtonPressed();
 
+	//Called when clicking an already selected ability in the spell menu
+	UFUNCTION(BlueprintCallable)
+	void RemoveSelection();
+
 private:
 	static void ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton);
 	

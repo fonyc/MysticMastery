@@ -100,6 +100,14 @@ void USpellMenuWidgetController::SpendPointButtonPressed()
 	}
 }
 
+void USpellMenuWidgetController::RemoveSelection()
+{
+	SelectedAbility.Ability = FMMGameplayTags::Get().Abilities_None;
+	SelectedAbility.Status = FMMGameplayTags::Get().Abilities_Status_Locked;
+
+	OnSpellGlobeSelectedDelegate.Broadcast(false, false, FString(), FString());
+}
+
 void USpellMenuWidgetController::ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton)
 {
 	const FMMGameplayTags GameplayTags = FMMGameplayTags::Get();

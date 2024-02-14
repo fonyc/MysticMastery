@@ -187,7 +187,14 @@ bool UMMAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& 
 
 	//Ability is not inside activatable abilities -> is locked (no description)
 	const UAbilityInfo* AbilityInfo = UMMAbilitySystemBlueprintLibrary::GetAbilityInfo(GetAvatarActor());
-	OutDescription = UMMGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoByTag(AbilityTag).LevelRequirement);
+	if (AbilityTag.IsValid() || AbilityTag.MatchesTagExact(FMMGameplayTags::Get().Abilities_None))
+	{
+		OutDescription = FString();
+	}
+	else
+	{
+		OutDescription = UMMGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoByTag(AbilityTag).LevelRequirement);
+	}
 	OutNextDescription = FString();
 	return false;
 }

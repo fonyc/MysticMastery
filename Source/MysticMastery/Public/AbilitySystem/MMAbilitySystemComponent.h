@@ -12,6 +12,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAbilitiesGiven);
 //Delegate in charge of looping through every ability and give back the AbilityInfo (so we dont expose everything) 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/, int32 /*AbilityLevel*/);
+DECLARE_MULTICAST_DELEGATE_FourParams(FAbilityEquippedSignature,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/, const FGameplayTag& /*SlotTag*/, const FGameplayTag&/*PrevSlot*/);
 
 /**
  * 
@@ -34,6 +35,8 @@ public:
 	//When leveling up, maybe one skill is eligible to buy 
 	FAbilityStatusChanged OnAbilitiesStatusChanged;
 
+	FAbilityEquippedSignature AbilityEquippedDelegate;
+
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
 	bool bStartupAbilitiesGiven = false;
@@ -46,6 +49,10 @@ public:
 	static FGameplayTag GetAbilityTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetInputTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityStatusBySpec(const FGameplayAbilitySpec& AbilitySpec);
+
+	FGameplayTag GetInputTagByAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetStatusByAbilityTag(const FGameplayTag& AbilityTag);
+	
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
 	
 	void UpgradeAttributeByTag(const FGameplayTag& AttributeTag);
@@ -59,8 +66,18 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& SlotTag);
+
+	UFUNCTION(Server, Reliable)
+	void ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& SlotTag, const FGameplayTag& PreviousSlot);
+
 	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextDescription);
-	
+
+	void ClearSlot(FGameplayAbilitySpec* Spec);
+
+	void ClearAbilitiesFromSlot(const FGameplayTag& SlotTag); 
+	static bool AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag SlotTag);
 protected:
 	/*
 	 * Called on server whenever a GE is applied to self. This includes instant and duration based GEs

@@ -2,6 +2,8 @@
 
 
 #include "UI/WidgetController/OverlayWidgetController.h"
+
+#include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/MMAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
@@ -45,6 +47,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 	if (GetMMAbilitySystemComponent())
 	{
+		GetMMAbilitySystemComponent()->AbilityEquippedDelegate.AddUObject(this, &UOverlayWidgetController::OnAbilityEquipped);
+		
 		//The abilities has been given already, so we can perform the actions (such as broadcast the abilities to the widgets)
 		if (GetMMAbilitySystemComponent()->bStartupAbilitiesGiven) 
 		{
@@ -94,4 +98,22 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 		
 		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
 	}
+}
+
+void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
+{
+	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+	
+	FMMAbilityInfo LastSlotAbilityInfo;
+	LastSlotAbilityInfo.StatusTag = GameplayTags.Abilities_Status_Unlocked;
+	LastSlotAbilityInfo.InputTag = PreviousSlot;
+	LastSlotAbilityInfo.AbilityTag = GameplayTags.Abilities_None;
+
+	//Broadcast empty info if prevSlot is a valid slot (only equipping an already equipped spell)
+	AbilityInfoDelegate.Broadcast(LastSlotAbilityInfo);
+
+	FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(AbilityTag);
+	Info.StatusTag = Status;
+	Info.InputTag = Slot;
+	AbilityInfoDelegate.Broadcast(Info);
 }

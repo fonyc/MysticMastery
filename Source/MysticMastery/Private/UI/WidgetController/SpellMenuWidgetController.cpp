@@ -2,6 +2,7 @@
 
 
 #include "UI/WidgetController/SpellMenuWidgetController.h"
+
 #include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
@@ -55,6 +56,8 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 
 		OnSpellGlobeSelectedDelegate.Broadcast(bEnableSpendButton, bEnableEquipButton, Description, NextLevelDescription);
 	});
+
+	GetMMAbilitySystemComponent()->AbilityEquippedDelegate.AddUObject(this, &USpellMenuWidgetController::OnAbilityEquipped);
 }
 
 void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityTag)
@@ -129,7 +132,48 @@ void USpellMenuWidgetController::EquipButtonPressed()
 
 	OnWaitForEquipSelectionDelegate.Broadcast(AbilityType);
 	bWaitingForEquipSelection = true;
+
+	const FGameplayTag SelectedStatus = GetMMAbilitySystemComponent()->GetStatusByAbilityTag(SelectedAbility.Ability);
+
+	if (SelectedStatus.MatchesTagExact(FMMGameplayTags::Get().Abilities_Status_Equipped))
+	{
+		SelectedSlot = GetMMAbilitySystemComponent()->GetInputTagByAbilityTag(SelectedAbility.Ability);
+	}
 }
+
+void USpellMenuWidgetController::SpellRowButtonPressed(const FGameplayTag& SlotTag, const FGameplayTag& AbilityType)
+{
+	if (!bWaitingForEquipSelection) return;
+	//Check selected ability against slot ability type (dont equip an offensive spell in a passive slot and vice versa)
+	const FGameplayTag& SelectedAbilityType = AbilityInfo->FindAbilityInfoByTag(SelectedAbility.Ability).AbilityType;
+	if (!SelectedAbilityType.MatchesTagExact(AbilityType)) return;
+
+	GetMMAbilitySystemComponent()->ServerEquipAbility(SelectedAbility.Ability, SlotTag);
+}
+
+void USpellMenuWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot)
+{
+	bWaitingForEquipSelection = false;
+	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+	
+	FMMAbilityInfo LastSlotAbilityInfo;
+	LastSlotAbilityInfo.StatusTag = GameplayTags.Abilities_Status_Unlocked;
+	LastSlotAbilityInfo.InputTag = PreviousSlot;
+	LastSlotAbilityInfo.AbilityTag = GameplayTags.Abilities_None;
+
+	//Broadcast empty info if prevSlot is a valid slot (only equipping an already equipped spell)
+	AbilityInfoDelegate.Broadcast(LastSlotAbilityInfo);
+
+	FMMAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(AbilityTag);
+	Info.StatusTag = Status;
+	Info.InputTag = Slot;
+	AbilityInfoDelegate.Broadcast(Info);
+
+	OnStopWaitingForEquipSelectionDelegate.Broadcast(AbilityInfo->FindAbilityInfoByTag(AbilityTag).AbilityType);
+	SpellGlobeReassignedDelegate.Broadcast(AbilityTag);
+	RemoveSelection();
+}
+
 
 void USpellMenuWidgetController::ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton)
 {

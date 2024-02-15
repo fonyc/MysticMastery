@@ -127,6 +127,24 @@ FGameplayTag UMMAbilitySystemComponent::GetAbilityStatusBySpec(const FGameplayAb
 	return FGameplayTag();
 }
 
+FGameplayTag UMMAbilitySystemComponent::GetInputTagByAbilityTag(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		return GetInputTagBySpec(*Spec);
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UMMAbilitySystemComponent::GetStatusByAbilityTag(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		return GetAbilityStatusBySpec(*Spec);
+	}
+	return FGameplayTag();
+}
+
 FGameplayAbilitySpec* UMMAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock ActiveScopeLock(*this);
@@ -173,6 +191,40 @@ void UMMAbilitySystemComponent::UpdateAbilityStatuses(int32 LevelRequirement)
 	}
 }
 
+void UMMAbilitySystemComponent::ServerEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& SlotTag)
+{
+	//If there is no AbilitySpec means the ability is not inside the activatable array --> we dont have it
+	if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+		const FGameplayTag& PreviousSlot = GetInputTagBySpec(*AbilitySpec);
+		const FGameplayTag& Status = GetAbilityStatusBySpec(*AbilitySpec);
+
+		//Check that the ability can be equipped (we cannot equip locked or eligible)
+		if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked) || Status.MatchesTagExact(GameplayTags.Abilities_Status_Equipped))
+		{
+			//Remove this Slot InputTag from anu ability that has it
+			ClearAbilitiesFromSlot(SlotTag);
+			//Clear this ability slot just in case is a different slot
+			ClearSlot(AbilitySpec);
+			//Assign the ability to the slot
+			AbilitySpec->DynamicAbilityTags.AddTag(SlotTag);
+			if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked))
+			{
+				AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Unlocked);
+				AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
+			}
+			MarkAbilitySpecDirty(*AbilitySpec);
+		}
+		ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped, SlotTag, PreviousSlot);
+	}
+}
+
+void UMMAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& SlotTag, const FGameplayTag& PreviousSlot)
+{
+	AbilityEquippedDelegate.Broadcast(AbilityTag, Status, SlotTag, PreviousSlot);
+}
+
 bool UMMAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextDescription)
 {
 	if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
@@ -196,6 +248,38 @@ bool UMMAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& 
 		OutDescription = UMMGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoByTag(AbilityTag).LevelRequirement);
 	}
 	OutNextDescription = FString();
+	return false;
+}
+
+void UMMAbilitySystemComponent::ClearSlot(FGameplayAbilitySpec* Spec)
+{
+	const FGameplayTag& SlotTag = GetInputTagBySpec(*Spec);
+	Spec->DynamicAbilityTags.RemoveTag(SlotTag);
+	MarkAbilitySpecDirty(*Spec);
+}
+
+void UMMAbilitySystemComponent::ClearAbilitiesFromSlot(const FGameplayTag& SlotTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+
+	for (FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (AbilityHasSlot(&Spec, SlotTag))
+		{
+			ClearSlot(&Spec);
+		}
+	}
+}
+
+bool UMMAbilitySystemComponent::AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag SlotTag)
+{
+	for (FGameplayTag Tag : Spec->DynamicAbilityTags)
+	{
+		if (Tag.MatchesTagExact(SlotTag))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 

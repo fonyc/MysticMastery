@@ -10,6 +10,7 @@
 #include "SpellMenuWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSpellGlobeSelectedSignature, bool, bSpendPointsButtonEnabled, bool, bEquipButtonEnabled, FString, Description, FString, NextLevelDescription);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWaitForEquipSelectionSignature, const FGameplayTag&, AbilityType);
 
 struct FSelectedAbility
 {
@@ -36,6 +37,12 @@ public:
 	//Used to broadcast when an ability is selected, if it enable or not the equip/spendPoint buttons
 	UPROPERTY(BlueprintAssignable)
 	FSpellGlobeSelectedSignature OnSpellGlobeSelectedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FWaitForEquipSelectionSignature OnWaitForEquipSelectionDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FWaitForEquipSelectionSignature OnStopWaitingForEquipSelectionDelegate;
 	
 	UFUNCTION(BlueprintCallable)
 	void SpellGlobeSelected(const FGameplayTag& AbilityTag);
@@ -47,6 +54,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveSelection();
 
+	UFUNCTION(BlueprintCallable)
+	void EquipButtonPressed();
+
 private:
 	static void ShouldEnableButtons(const FGameplayTag& AbilityStatus, int32 SpellPoints, bool& bShouldEnableSpendButton, bool& bShouldEnableEquipButton);
 	
@@ -54,4 +64,5 @@ private:
 	//so when we check if an ability is eligible, maybe we have 0 SP because the delegate didnt update yet
 	FSelectedAbility SelectedAbility = { FMMGameplayTags::Get().Abilities_None, FMMGameplayTags::Get().Abilities_Status_Locked };
 	int32 CurrentSpellPoints = 0;
+	bool bWaitingForEquipSelection = false;
 };

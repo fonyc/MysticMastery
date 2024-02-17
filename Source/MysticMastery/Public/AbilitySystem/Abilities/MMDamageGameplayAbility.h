@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MMAbilitySystemTypes.h"
 #include "AbilitySystem/Abilities/MMGameplayAbility.h"
 #include "Interaction/CombatInterface.h"
 #include "MMDamageGameplayAbility.generated.h"
@@ -18,13 +19,29 @@ class MYSTICMASTERY_API UMMDamageGameplayAbility : public UMMGameplayAbility
 public:
 	UFUNCTION(BlueprintCallable)
 	void CauseDamage(AActor* TargetActor);
+
+	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 	
 protected:
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+	FGameplayTag DamageType;
 	
-	float GetDamageByDamageType(float InLevel, const FGameplayTag& DamageType);
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	FScalableFloat Damage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	FScalableFloat DebuffChance;
+
+	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	FScalableFloat DebuffDamage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	float DebuffFrequency = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	float DebuffDuration = 5.f;
 };

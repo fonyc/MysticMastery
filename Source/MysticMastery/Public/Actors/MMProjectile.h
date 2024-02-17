@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GameplayEffectTypes.h"
+#include "MMAbilitySystemTypes.h"
 #include "MMProjectile.generated.h"
 
 class UNiagaraSystem;
@@ -18,10 +18,13 @@ public:
 	AMMProjectile();
 	
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn = true))
-	FGameplayEffectSpecHandle DamageEffectSpecHandle;
+	FDamageEffectParams DamageEffectParams;
 
 protected:
 	virtual void BeginPlay() override;
+	
+	void OnHitActions();
+	
 	virtual void Destroyed() override;
 	
 	UFUNCTION()

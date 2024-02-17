@@ -115,7 +115,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluationParameters.TargetTags = TargetTags;
 
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
-#pragma endregion
+	
+	#pragma endregion
 	
 	#pragma region CALCULATE BASIC DAMAGE WITH RESISTANCES
 

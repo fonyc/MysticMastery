@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MMAbilitySystemTypes.h"
 #include "Data/CharacterClassInfo.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MMAbilitySystemBlueprintLibrary.generated.h"
@@ -66,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static bool IsFriendlyActor(AActor* FirstActor, AActor* SecondActor);
+
+	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|DamageEffect")
+	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams);
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static int32 GetXPRewardByClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel);

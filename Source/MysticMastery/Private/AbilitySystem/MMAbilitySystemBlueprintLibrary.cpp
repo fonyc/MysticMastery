@@ -1,6 +1,9 @@
 
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "MMAbilitySystemTypes.h"
+#include "MMGameplayTags.h"
 #include "Game/MMGameModeBase.h"
 #include "Interaction/CombatInterface.h"
 #include "UI/WidgetController/MMWidgetController.h"
@@ -199,4 +202,25 @@ bool UMMAbilitySystemBlueprintLibrary::IsFriendlyActor(AActor* FirstActor, AActo
 	const bool BothArePlayers = FirstActor->ActorHasTag(FName("Player")) && SecondActor->ActorHasTag(FName("Player"));
 	const bool BothAreEnemies = FirstActor->ActorHasTag(FName("Enemy")) && SecondActor->ActorHasTag(FName("Enemy"));
 	return BothAreEnemies || BothArePlayers;
+}
+
+FGameplayEffectContextHandle UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams)
+{
+	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+	const AActor* SourceAvatarActor = DamageEffectParams.SourceASC->GetAvatarActor();
+	FGameplayEffectContextHandle EffectContextHandle = DamageEffectParams.SourceASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(SourceAvatarActor);
+
+	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceASC->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
+	//Damage of the base ability
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);
+
+	//Damage and parameters of the debuff
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Damage, DamageEffectParams.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Chance, DamageEffectParams.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, DamageEffectParams.DebuffFrequency);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, DamageEffectParams.DebuffDuration);
+	
+	DamageEffectParams.TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	return EffectContextHandle;
 }

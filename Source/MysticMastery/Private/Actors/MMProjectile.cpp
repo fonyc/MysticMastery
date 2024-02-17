@@ -40,40 +40,32 @@ void AMMProjectile::BeginPlay()
 	}
 }
 
+void AMMProjectile::OnHitActions()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+	bHit = true;
+}
+
 void AMMProjectile::Destroyed()
 {
 	//(If the client was first, its flag was raised so the effects wont play twice. If the client was after the
 	//server, then this method ensures the effects are played at least once)
-	if (!bHit && !HasAuthority())
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		bHit = true;
-	}
-	
+	if (!bHit && !HasAuthority()) OnHitActions();
 	Super::Destroyed();
 }
 
 void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AActor* SourceAvatarActor = DamageEffectParams.SourceASC->GetAvatarActor();
 	//Check data is not null and the effect caused do not hit himself
-	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
-	{
-		return;
-	}
+	if (SourceAvatarActor == OtherActor) return;
 
 	//Check that the arrow is not against a friendly target
-	if (UMMAbilitySystemBlueprintLibrary::IsFriendlyActor(DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser(), OtherActor))
-	{
-		return;
-	}
-
-	if (!bHit)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		bHit = true;
-	}
+	if (UMMAbilitySystemBlueprintLibrary::IsFriendlyActor(SourceAvatarActor, OtherActor)) return;
+	
+	if (!bHit) OnHitActions();
+	
 
 	//In the (very unlikely) case that the destruction happens before the client has had its sphere overlapped
 	//The destruction is made by the server. If the clients comes here first, just raises a flag (and plays the effects)
@@ -82,15 +74,15 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		//Get the OtherACtor ASC and apply the GE to it
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+			//Now that we finally know who is the enemy, dont forget to add the target to the DamageEffectParams
+			DamageEffectParams.TargetASC = TargetASC;
+			UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect(DamageEffectParams);
 		}
 		
 		Destroy();
 	}
-	else
-	{
-		bHit = true;
-	}
+	else bHit = true;
+	
 }
 
 void AMMProjectile::DisableMeshIfAny(UStaticMeshComponent* StaticMesh)

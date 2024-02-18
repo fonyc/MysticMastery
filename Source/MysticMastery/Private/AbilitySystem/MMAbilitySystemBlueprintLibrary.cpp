@@ -220,8 +220,53 @@ void UMMAbilitySystemBlueprintLibrary::SetBlockedHit(FGameplayEffectContextHandl
 	}
 }
 
-void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject,
-	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float SphereRadius, const FVector& SphereOrigin)
+void UMMAbilitySystemBlueprintLibrary::SetIsSuccessfulDebuff(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsSuccessfulDebuff)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetIsSuccessfulDebuff(bInIsSuccessfulDebuff);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetDebuffDamage(FGameplayEffectContextHandle& EffectContextHandle, const float InDamage)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetDebuffDamage(InDamage);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetDebuffDuration(FGameplayEffectContextHandle& EffectContextHandle, const float InDuration)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetDebuffDuration(InDuration);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetDebuffFrequency(FGameplayEffectContextHandle& EffectContextHandle, const float InFrequency)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetDebuffFrequency(InFrequency);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::SetDamageType(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InDamageType)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		const TSharedPtr<FGameplayTag> DamageType = MakeShared<FGameplayTag>(InDamageType);
+		MMEffectContext->SetDamageType(DamageType);
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(
+	const UObject* WorldContextObject,
+	TArray<AActor*>& OutOverlappingActors,
+	const TArray<AActor*>& ActorsToIgnore,
+	float SphereRadius,
+	const FVector& SphereOrigin)
 {
 	FCollisionQueryParams SphereParams;
 	SphereParams.AddIgnoredActors(ActorsToIgnore);

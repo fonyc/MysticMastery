@@ -263,6 +263,9 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	static void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit);
 	void SendXPEvent(const FEffectProperties& Props);
+	void HandleIncomingDamage(FEffectProperties Props);
+	void HandleIncomingXP(FEffectProperties Props);
+	void ApplyDebuff(FEffectProperties Props);
 	bool bRestoreHealth = false;
 	bool bRestoreMana = false;
 };

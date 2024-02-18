@@ -10,8 +10,10 @@ struct FDamageEffectParams
 {
 	GENERATED_BODY()
 
-	FDamageEffectParams(){};
-	
+	FDamageEffectParams()
+	{
+	};
+
 	UPROPERTY()
 	TObjectPtr<UObject> WorldContextObject = nullptr;
 
@@ -20,7 +22,7 @@ struct FDamageEffectParams
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> SourceASC = nullptr;
-	
+
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> TargetASC = nullptr;
 
@@ -54,9 +56,9 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	bool IsCriticalHit() const { return bIsCriticalHit; }
 	bool IsBlockedHit() const { return bIsBlockedHit; }
 	bool IsSuccessfulDebuff() const { return bIsSuccessfulDebuff; }
-	float GetDebuffDamage()const { return DebuffDamage; }
-	float GetDebuffFrequency()const { return DebuffFrequency; }
-	float GetDebuffDuration()const { return DebuffDuration; }
+	float GetDebuffDamage() const { return DebuffDamage; }
+	float GetDebuffFrequency() const { return DebuffFrequency; }
+	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 
 	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
@@ -65,6 +67,7 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	void SetDebuffDamage(const float NewDamage) { DebuffDamage = NewDamage; }
 	void SetDebuffFrequency(const float NewFrequency) { DebuffFrequency = NewFrequency; }
 	void SetDebuffDuration(const float NewDuration) { DebuffDuration = NewDuration; }
+	void SetDamageType(const TSharedPtr<FGameplayTag>& InDamageType) { DamageType = InDamageType; }
 
 	/** Creates a copy of this context, used to duplicate for later modifications */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -77,7 +80,7 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	{
 		FMMGameplayEffectContext* NewContext = new FMMGameplayEffectContext();
 		*NewContext = *this;
-		if(GetHitResult())
+		if (GetHitResult())
 		{
 			//Deep copy of hit result
 			NewContext->AddHitResult(*GetHitResult(), true);
@@ -88,10 +91,9 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess) override;
 
 protected:
-	
 	UPROPERTY()
 	bool bIsCriticalHit = false;
-	
+
 	UPROPERTY()
 	bool bIsBlockedHit = false;
 
@@ -110,7 +112,7 @@ protected:
 	TSharedPtr<FGameplayTag> DamageType;
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FMMGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FMMGameplayEffectContext>
 {
 	enum

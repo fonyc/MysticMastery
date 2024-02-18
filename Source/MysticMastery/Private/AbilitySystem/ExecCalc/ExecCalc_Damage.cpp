@@ -92,6 +92,17 @@ void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionPar
 			if (bDebuff)
 			{
 				UE_LOG(MMLog, Log, TEXT("DEBUF!! %f"), EffectiveDebuffChance);
+				FGameplayEffectContextHandle ContextHandle = Spec.GetContext();
+
+				UMMAbilitySystemBlueprintLibrary::SetIsSuccessfulDebuff(ContextHandle, true);
+				UMMAbilitySystemBlueprintLibrary::SetDamageType(ContextHandle, DamageType);
+				
+				const float DebuffDamage = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Damage, false, -1.f);
+				const float DebuffFrequency = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Frequency, false, -1.f);
+				const float DebuffDuration = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Duration, false, -1.f);
+				UMMAbilitySystemBlueprintLibrary::SetDebuffDamage(ContextHandle, DebuffDamage);
+				UMMAbilitySystemBlueprintLibrary::SetDebuffDuration(ContextHandle, DebuffDuration);
+				UMMAbilitySystemBlueprintLibrary::SetDebuffFrequency(ContextHandle, DebuffFrequency);
 			}
 		}
 	}

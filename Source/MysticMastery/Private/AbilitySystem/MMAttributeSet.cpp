@@ -3,9 +3,11 @@
 #include "GameplayEffectExtension.h"
 #include "MMGameplayTags.h"
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/PlayerInterface.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/MMPlayerController.h"
 
@@ -122,6 +124,142 @@ void UMMAttributeSet::SendXPEvent(const FEffectProperties& Props)
 	}
 }
 
+void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+		
+	if (LocalIncomingDamage > 0 )
+	{
+		const float NewHealth = GetHealth() - LocalIncomingDamage;
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+		if (const bool bIsFatalDamage = NewHealth <= 0.f)
+		{
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
+			{
+				CombatInterface->Die();
+			}
+			SendXPEvent(Props);
+		}
+		else
+		{
+			//Ability just caused damage
+			//Activate an Ability by using a tag related to it
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
+			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+		}
+
+		//Call the text damage on top of the character
+		const bool bBlocked = UMMAbilitySystemBlueprintLibrary::IsBlockedHit(Props.EffectContextHandle);
+		const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);
+		ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
+
+		if (UMMAbilitySystemBlueprintLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+		{
+			//Apply the the debuff
+			ApplyDebuff(Props);
+		}
+			
+	}
+}
+
+void UMMAttributeSet::HandleIncomingXP(FEffectProperties Props)
+{
+	const float LocalIncomingXP = GetIncomingXP();
+	SetIncomingXP(0.f);
+
+	// Remember SourceCharacter is the owner (GA_ListenForEvents applies GE_EventBased, adding to Incoming XP to himself)
+	if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
+	{
+		const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+		const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+		const int32 NewLevel = IPlayerInterface::Execute_FindLevelByXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+		const int32 TimesLeveledUp = NewLevel - CurrentLevel;
+
+		//Player Leveled up 1+ times
+		if (TimesLeveledUp > 0)
+		{
+			const int32 AttributePointsAwarded = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+			const int32 SpellPointsAwarded = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+			//Add Level, Spell Points and Attribute Points to spend
+			IPlayerInterface::Execute_AddPlayerLevel(Props.SourceCharacter, TimesLeveledUp);
+			IPlayerInterface::Execute_AddAttributePoints(Props.SourceCharacter, AttributePointsAwarded);
+			IPlayerInterface::Execute_AddSpellPoints(Props.SourceCharacter, SpellPointsAwarded);
+
+			//Raise flags to restore mana and health inside PostAttributeChange
+			bRestoreHealth = true;
+			bRestoreMana = true;
+
+			// Perform additional actions inside the character when leveling up (specially Aesthetics)
+			IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+		}
+			
+		IPlayerInterface::Execute_AddXP(Props.SourceCharacter, LocalIncomingXP);
+	}
+}
+
+void UMMAttributeSet::ApplyDebuff(FEffectProperties Props)
+{
+	const FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
+	
+	FGameplayEffectContextHandle EffectContextHandle = Props.SourceASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(Props.SourceAvatarActor);
+
+	const FGameplayTag DamageType = UMMAbilitySystemBlueprintLibrary::GetDamageType(Props.EffectContextHandle);
+	const float DebuffDuration = UMMAbilitySystemBlueprintLibrary::GetDebuffDuration(Props.EffectContextHandle);
+	const float DebuffDamage = UMMAbilitySystemBlueprintLibrary::GetDebuffDamage(Props.EffectContextHandle);
+	const float DebuffFrequency = UMMAbilitySystemBlueprintLibrary::GetDebuffFrequency(Props.EffectContextHandle);
+	const FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString());
+	UGameplayEffect* DebuffEffect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
+
+	DebuffEffect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	DebuffEffect->Period = DebuffFrequency;
+	DebuffEffect->bExecutePeriodicEffectOnApplication = false;
+	DebuffEffect->DurationMagnitude = FScalableFloat(DebuffDuration);
+	DebuffEffect->StackingType = EGameplayEffectStackingType::AggregateBySource;
+	DebuffEffect->StackLimitCount = 1;
+	
+	//Add calculation type
+	FGameplayEffectExecutionDefinition Execution;
+	Execution.CalculationClass = UExecCalc_Damage::StaticClass();
+	DebuffEffect->Executions.Add(Execution);
+
+	/** -- Start Add tag -- */
+	
+	const FGameplayTag DebuffType = GameplayTags.DamageTypesToDebuffs[DamageType];
+	FInheritedTagContainer TagContainer = FInheritedTagContainer();
+	TagContainer.Added.AddTag(DebuffType); 
+
+	// Create and add the component (a tag container with inheritable tags in this case) to the GE
+	UTargetTagsGameplayEffectComponent& TargetTagsComponent = DebuffEffect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 
+	TargetTagsComponent.SetAndApplyTargetTagChanges(TagContainer);
+	
+	/** -- End Add tag -- */
+
+	const int NumModifiers = DebuffEffect->Modifiers.Num();
+	DebuffEffect->Modifiers.Add(FGameplayModifierInfo());
+	
+	FGameplayModifierInfo& ModifierInfo = DebuffEffect->Modifiers[NumModifiers];
+	ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+	ModifierInfo.Attribute = GetIncomingDamageAttribute();
+
+	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(DebuffEffect, EffectContextHandle, Props.EffectContextHandle.GetAbilityLevel()))
+	{
+		MutableSpec->SetSetByCallerMagnitude(DamageType, DebuffDamage);
+ 
+		FMMGameplayEffectContext* MMContext = static_cast<FMMGameplayEffectContext*>(MutableSpec->GetContext().Get());
+		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
+		MMContext->SetDamageType(DebuffDamageType);
+ 
+		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
+	}
+}
+
 //Function kicks in after the GE has been executed
 void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -129,7 +267,10 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-	//Clamp attributes 
+	//Dont apply anything if the character is already dead
+	if (Props.TargetCharacter->Implements<UCombatInterface>() && ICombatInterface::Execute_IsDead(Props.TargetCharacter))return;
+	
+	//Handle Incoming Attribute 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
@@ -142,73 +283,12 @@ void UMMAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
-		
-		if (LocalIncomingDamage > 0 )
-		{
-			const float NewHealth = GetHealth() - LocalIncomingDamage;
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-			if (const bool bIsFatalDamage = NewHealth <= 0.f)
-			{
-				if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
-				{
-					CombatInterface->Die();
-				}
-				SendXPEvent(Props);
-			}
-			else
-			{
-				//Ability just caused damage
-				//Activate an Ability by using a tag related to it
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
-				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-			}
-
-			//Call the text damage on top of the character
-			const bool bBlocked = UMMAbilitySystemBlueprintLibrary::IsBlockedHit(Props.EffectContextHandle);
-			const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);
-			ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
-		}
+		HandleIncomingDamage(Props);
 	}
 	
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
 	{
-		const float LocalIncomingXP = GetIncomingXP();
-		SetIncomingXP(0.f);
-
-		// Remember SourceCharacter is the owner (GA_ListenForEvents applies GE_EventBased, adding to Incoming XP to himself)
-		if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
-		{
-			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
-			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
-
-			const int32 NewLevel = IPlayerInterface::Execute_FindLevelByXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
-			const int32 TimesLeveledUp = NewLevel - CurrentLevel;
-
-			//Player Leveled up 1+ times
-			if (TimesLeveledUp > 0)
-			{
-				const int32 AttributePointsAwarded = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-				const int32 SpellPointsAwarded = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
-
-				//Add Level, Spell Points and Attribute Points to spend
-				IPlayerInterface::Execute_AddPlayerLevel(Props.SourceCharacter, TimesLeveledUp);
-				IPlayerInterface::Execute_AddAttributePoints(Props.SourceCharacter, AttributePointsAwarded);
-				IPlayerInterface::Execute_AddSpellPoints(Props.SourceCharacter, SpellPointsAwarded);
-
-				//Raise flags to restore mana and health inside PostAttributeChange
-				bRestoreHealth = true;
-				bRestoreMana = true;
-
-				// Perform additional actions inside the character when leveling up (specially Aesthetics)
-				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
-			}
-			
-			IPlayerInterface::Execute_AddXP(Props.SourceCharacter, LocalIncomingXP);
-		}
+		HandleIncomingXP(Props);
 	}
 }
 

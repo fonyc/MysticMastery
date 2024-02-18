@@ -70,7 +70,7 @@ bool FMMGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
 	
 #pragma endregion
 	
-	Ar.SerializeBits(&RepBits, 14);
+	Ar.SerializeBits(&RepBits, 13);
 
 	if (RepBits & (1 << 0))
 	{

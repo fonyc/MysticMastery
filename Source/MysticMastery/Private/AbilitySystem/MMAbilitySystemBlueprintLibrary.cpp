@@ -159,6 +159,51 @@ bool UMMAbilitySystemBlueprintLibrary::IsCriticalHit(const FGameplayEffectContex
 	return false;
 }
 
+bool UMMAbilitySystemBlueprintLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->IsSuccessfulDebuff();
+	}
+	return false;
+}
+
+float UMMAbilitySystemBlueprintLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetDebuffDamage();
+	}
+	return 0.f;
+}
+
+float UMMAbilitySystemBlueprintLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetDebuffDuration();
+	}
+	return 0.f;
+}
+
+float UMMAbilitySystemBlueprintLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetDebuffFrequency();
+	}
+	return 0.f;
+}
+
+FGameplayTag UMMAbilitySystemBlueprintLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return *MMEffectContext->GetDamageType();
+	}
+	return FGameplayTag();
+}
+
 void UMMAbilitySystemBlueprintLibrary::SetCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
 {
 	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))

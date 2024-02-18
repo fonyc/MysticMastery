@@ -53,9 +53,18 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 
 	bool IsCriticalHit() const { return bIsCriticalHit; }
 	bool IsBlockedHit() const { return bIsBlockedHit; }
+	bool IsSuccessfulDebuff() const { return bIsSuccessfulDebuff; }
+	float GetDebuffDamage()const { return DebuffDamage; }
+	float GetDebuffFrequency()const { return DebuffFrequency; }
+	float GetDebuffDuration()const { return DebuffDuration; }
+	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 
-	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
-	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
+	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
+	void SetIsBlockedHit(const bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
+	void SetIsSuccessfulDebuff(const bool bInIsSuccessfulDebuff) { bIsSuccessfulDebuff = bInIsSuccessfulDebuff; }
+	void SetDebuffDamage(const float NewDamage) { DebuffDamage = NewDamage; }
+	void SetDebuffFrequency(const float NewFrequency) { DebuffFrequency = NewFrequency; }
+	void SetDebuffDuration(const float NewDuration) { DebuffDuration = NewDuration; }
 
 	/** Creates a copy of this context, used to duplicate for later modifications */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -79,11 +88,26 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess) override;
 
 protected:
+	
 	UPROPERTY()
 	bool bIsCriticalHit = false;
 	
 	UPROPERTY()
 	bool bIsBlockedHit = false;
+
+	UPROPERTY()
+	bool bIsSuccessfulDebuff = false;
+
+	UPROPERTY()
+	float DebuffDamage = 0.f;
+
+	UPROPERTY()
+	float DebuffDuration = 0.f;
+
+	UPROPERTY()
+	float DebuffFrequency = 0.f;
+
+	TSharedPtr<FGameplayTag> DamageType;
 };
 
 template<>

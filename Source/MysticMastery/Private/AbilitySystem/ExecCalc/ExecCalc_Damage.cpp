@@ -9,6 +9,7 @@
 #include "AbilitySystem/MMAttributeSet.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
+#include "MysticMastery/MMLogChannels.h"
 
 struct MMDamageStatics
 {
@@ -25,8 +26,6 @@ struct MMDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(LightningResistance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(PhysicalResistance);
 
-	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefinitions;
-
 	MMDamageStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UMMAttributeSet, Armor, Target, false);
@@ -41,22 +40,6 @@ struct MMDamageStatics
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UMMAttributeSet, ArcaneResistance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UMMAttributeSet, LightningResistance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UMMAttributeSet, PhysicalResistance, Target, false);
-
-		//Create a map with Tag-definition so its easier to access them later
-		const FMMGameplayTags& Tags = FMMGameplayTags::Get();
-		
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_Armor, ArmorDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_ArmorPenetration, ArmorPenetrationDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_BlockChance, BlockChanceDef);
-		
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitChance, CriticalHitChanceDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitResistance, CriticalHitResistanceDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitDamage, CriticalHitDamageDef);
-		
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Fire, FireResistanceDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Arcane, ArcaneResistanceDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Lightning, LightningResistanceDef);
-		TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Physical, PhysicalResistanceDef);
 	}
 };
 
@@ -82,10 +65,60 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().ArcaneResistanceDef);
 }
 
+void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluationParameters, const TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition>& InTagsTodDefs) const
+{
+	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+	for (TTuple<FGameplayTag, FGameplayTag> Pair : GameplayTags.DamageTypesToDebuffs)
+	{
+		const FGameplayTag& DamageType = Pair.Key;
+		const FGameplayTag& DebuffType = Pair.Value;
+		const float TypeDamage = Spec.GetSetByCallerMagnitude(Pair.Key, false, -1.f);
+		if (TypeDamage > -0.5f) //Returns -1.f if it doesnt find anything, but check -0.5f due tu float precision 
+		{
+			//Determine if there is a successfull debug application
+			const float SourceDebuffChance = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Chance, false, -1.f);
+
+			float TargetDebuffResistance = 0.f;
+			const FGameplayTag& ResistanceTag = GameplayTags.DamageTypesToResistances[DamageType];
+			//Get the TargetDebuffResistance to the concrete attribute
+			ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(InTagsTodDefs[ResistanceTag], EvaluationParameters, TargetDebuffResistance);
+			
+			//Clamp if we dont wat negative resistances, but if we want more damage for a negative res. then dont
+			//TargetDebuffResistance = FMath::Max<float>(0.f,TargetDebuffResistance);
+			
+			const float EffectiveDebuffChance = SourceDebuffChance * (100 - TargetDebuffResistance) / 100.f;
+			const bool bDebuff = FMath::RandRange(1,100) < EffectiveDebuffChance;
+
+			if (bDebuff)
+			{
+				UE_LOG(MMLog, Log, TEXT("DEBUF!! %f"), EffectiveDebuffChance);
+			}
+		}
+	}
+}
+
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	
 	#pragma region GATHER HIT DATA
+
+	const FMMGameplayTags& Tags = FMMGameplayTags::Get();
+	
+	//Create a map with Tag-definition so its easier to access them later
+	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefinitions;
+	
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_Armor, DamageStatics().ArmorDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_ArmorPenetration, DamageStatics().ArmorPenetrationDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_BlockChance, DamageStatics().BlockChanceDef);
+		
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitChance, DamageStatics().CriticalHitChanceDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitResistance, DamageStatics().CriticalHitResistanceDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitDamage, DamageStatics().CriticalHitDamageDef);
+		
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Fire, DamageStatics().FireResistanceDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Arcane, DamageStatics().ArcaneResistanceDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Lightning, DamageStatics().LightningResistanceDef);
+	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Physical, DamageStatics().PhysicalResistanceDef);
 	
 	//Get necessary data
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
@@ -118,17 +151,20 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	
 	#pragma endregion
 	
+	ApplyDebuffIfAble(ExecutionParams, Spec, EvaluationParameters, TagsToCaptureDefinitions);
+
 	#pragma region CALCULATE BASIC DAMAGE WITH RESISTANCES
 
 	float Damage = 0.f;
 
 	for (const TTuple<FGameplayTag, FGameplayTag>& Pair : FMMGameplayTags::Get().DamageTypesToResistances)
 	{
+		TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCapture;
 		const FGameplayTag DamageTypeTag = Pair.Key;
 		const FGameplayTag ResistanceTag = Pair.Value;
 		
-		checkf(MMDamageStatics().TagsToCaptureDefinitions.Contains(ResistanceTag), TEXT("TagsCaptureDefinitions doesnt contain Tag: [%s]"), *ResistanceTag.ToString());
-		const FGameplayEffectAttributeCaptureDefinition CaptureDefinition = MMDamageStatics().TagsToCaptureDefinitions[ResistanceTag];
+		checkf(TagsToCaptureDefinitions.Contains(ResistanceTag), TEXT("TagsCaptureDefinitions doesnt contain Tag: [%s]"), *ResistanceTag.ToString());
+		const FGameplayEffectAttributeCaptureDefinition CaptureDefinition = TagsToCaptureDefinitions[ResistanceTag];
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDefinition, EvaluationParameters, Resistance);
 		Resistance = FMath::Clamp(Resistance, 0.f, 100.f);

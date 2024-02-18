@@ -67,6 +67,9 @@ UExecCalc_Damage::UExecCalc_Damage()
 
 void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluationParameters, const TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition>& InTagsTodDefs) const
 {
+	//Check if the damage is caused by a debuff, so we dont apply AGAIN another one 
+	if (EvaluationParameters.TargetTags->HasTag(FGameplayTag::RequestGameplayTag(FName("Debuff")))) return;
+	
 	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
 	for (TTuple<FGameplayTag, FGameplayTag> Pair : GameplayTags.DamageTypesToDebuffs)
 	{
@@ -75,7 +78,7 @@ void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionPar
 		const float TypeDamage = Spec.GetSetByCallerMagnitude(Pair.Key, false, -1.f);
 		if (TypeDamage > -0.5f) //Returns -1.f if it doesnt find anything, but check -0.5f due tu float precision 
 		{
-			//Determine if there is a successfull debug application
+			//Determine if there is a successful debuff application
 			const float SourceDebuffChance = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Chance, false, -1.f);
 
 			float TargetDebuffResistance = 0.f;
@@ -87,9 +90,9 @@ void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionPar
 			//TargetDebuffResistance = FMath::Max<float>(0.f,TargetDebuffResistance);
 			
 			const float EffectiveDebuffChance = SourceDebuffChance * (100 - TargetDebuffResistance) / 100.f;
-			const bool bDebuff = FMath::RandRange(1,100) < EffectiveDebuffChance;
 
-			if (bDebuff)
+			//Roll the dice to see if there is debuff application
+			if (const bool bDebuff = FMath::RandRange(1,100) < EffectiveDebuffChance)
 			{
 				UE_LOG(MMLog, Log, TEXT("DEBUF!! %f"), EffectiveDebuffChance);
 				FGameplayEffectContextHandle ContextHandle = Spec.GetContext();

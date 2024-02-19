@@ -87,11 +87,11 @@ void UMMAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
 
 FGameplayTag UMMAbilitySystemComponent::GetAbilityTagBySpec(const FGameplayAbilitySpec& AbilitySpec)
 {
-	if(AbilitySpec.Ability)
+	if (AbilitySpec.Ability)
 	{
-		for(FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
 		{
-			if(Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
 			{
 				return Tag;
 			}

@@ -67,9 +67,6 @@ UExecCalc_Damage::UExecCalc_Damage()
 
 void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluationParameters, const TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition>& InTagsTodDefs) const
 {
-	//Check if the damage is caused by a debuff, so we dont apply AGAIN another one 
-	if (EvaluationParameters.TargetTags->HasTag(FGameplayTag::RequestGameplayTag(FName("Debuff")))) return;
-	
 	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
 	for (TTuple<FGameplayTag, FGameplayTag> Pair : GameplayTags.DamageTypesToDebuffs)
 	{
@@ -92,9 +89,9 @@ void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionPar
 			const float EffectiveDebuffChance = SourceDebuffChance * (100 - TargetDebuffResistance) / 100.f;
 
 			//Roll the dice to see if there is debuff application
-			if (const bool bDebuff = FMath::RandRange(1,100) < EffectiveDebuffChance)
+			if (FMath::RandRange(1,100) < EffectiveDebuffChance)
 			{
-				UE_LOG(MMLog, Log, TEXT("DEBUF!! %f"), EffectiveDebuffChance);
+				UE_LOG(MMLog, Log, TEXT("EXEC_CALC: Debuff roll: %f success!"), EffectiveDebuffChance);
 				FGameplayEffectContextHandle ContextHandle = Spec.GetContext();
 
 				UMMAbilitySystemBlueprintLibrary::SetIsSuccessfulDebuff(ContextHandle, true);
@@ -152,7 +149,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	{
 		TargetPlayerLevel = ICombatInterface::Execute_GetPlayerLevel(TargetAvatar);
 	}
-
+	
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
 	FAggregatorEvaluateParameters EvaluationParameters;
@@ -163,11 +160,16 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 	
-	#pragma endregion
+	bool bIsDebuff = EvaluationParameters.TargetTags->HasTag(FGameplayTag::RequestGameplayTag(FName("Debuff")));
 	
-	ApplyDebuffIfAble(ExecutionParams, Spec, EvaluationParameters, TagsToCaptureDefinitions);
+	#pragma endregion
 
-	#pragma region CALCULATE BASIC DAMAGE WITH RESISTANCES
+	if (!bIsDebuff)
+	{
+		ApplyDebuffIfAble(ExecutionParams, Spec, EvaluationParameters, TagsToCaptureDefinitions);
+	}
+
+	#pragma region SUBTRACT DAMAGE FROM RESISTANCE
 
 	float Damage = 0.f;
 
@@ -198,7 +200,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters,TargetBlockChance);
 	TargetBlockChance = FMath::Max(TargetBlockChance, 0.f);
 
-	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
+	const bool bBlocked = bIsDebuff ? false : FMath::RandRange(1, 100) < TargetBlockChance;
 
 	//Set is blocked hit, whether it is or not
 	UMMAbilitySystemBlueprintLibrary::SetBlockedHit(EffectContextHandle, bBlocked);
@@ -209,7 +211,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 	# pragma endregion
 
-	# pragma region ARMOR PENETRATION
+	# pragma region ADD DAMAGE FROM ARMOR PENETRATION
 
 	//Get Armor and Armor penetration. Armor penetration ignores a % of target Armor.
 	float TargetArmor = 0.f;
@@ -234,7 +236,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	Damage *= (100 - EffectiveArmor * EffectiveArmorCoefficient) / 100.f;
 	# pragma endregion
 
-	#pragma region CRITICAL HIT
+	#pragma region ADD DAMAGE FROM CRITICAL HIT
 
 	//Take Target Critical Hit Resistance 
 	float TargetCriticalHitResistance = 0.f;
@@ -259,7 +261,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	//Check if there is critical hit
 	const float EffectiveCriticalChance = FMath::Max(SourceCriticalHitChance - TargetCriticalHitResistance * CriticalHitResistanceCoefficient, 0.f);
-	const bool bCritical = FMath::RandRange(1, 100) < EffectiveCriticalChance;
+	const bool bCritical = bIsDebuff ? false : FMath::RandRange(1, 100) < EffectiveCriticalChance;
 
 	//Set critical hit in the Effect Context Handle whether is critical hit or not
 	UMMAbilitySystemBlueprintLibrary::SetCriticalHit(EffectContextHandle, bCritical);

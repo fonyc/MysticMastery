@@ -205,7 +205,6 @@ void UMMAttributeSet::HandleIncomingXP(FEffectProperties Props)
 void UMMAttributeSet::ApplyDebuff(FEffectProperties Props)
 {
 	const FMMGameplayTags GameplayTags = FMMGameplayTags::Get();
-	
 	FGameplayEffectContextHandle EffectContextHandle = Props.SourceASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(Props.SourceAvatarActor);
 
@@ -213,51 +212,51 @@ void UMMAttributeSet::ApplyDebuff(FEffectProperties Props)
 	const float DebuffDuration = UMMAbilitySystemBlueprintLibrary::GetDebuffDuration(Props.EffectContextHandle);
 	const float DebuffDamage = UMMAbilitySystemBlueprintLibrary::GetDebuffDamage(Props.EffectContextHandle);
 	const float DebuffFrequency = UMMAbilitySystemBlueprintLibrary::GetDebuffFrequency(Props.EffectContextHandle);
-	const FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString());
-	UGameplayEffect* DebuffEffect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
-
-	DebuffEffect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-	DebuffEffect->Period = DebuffFrequency;
-	DebuffEffect->bExecutePeriodicEffectOnApplication = false;
-	DebuffEffect->DurationMagnitude = FScalableFloat(DebuffDuration);
-	DebuffEffect->StackingType = EGameplayEffectStackingType::AggregateBySource;
-	DebuffEffect->StackLimitCount = 1;
 	
-	//Add calculation type
+	const FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString());
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
+
+	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	Effect->Period = DebuffFrequency;
+	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
+	Effect->bExecutePeriodicEffectOnApplication = false;
+	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
+	Effect->StackLimitCount = 1;
+
+	/* -- Add calculation type. Remove this and add the Modifier part to be immune to exec_calc */
 	FGameplayEffectExecutionDefinition Execution;
 	Execution.CalculationClass = UExecCalc_Damage::StaticClass();
-	DebuffEffect->Executions.Add(Execution);
+	Effect->Executions.Add(Execution);
 
 	/** -- Start Add tag -- */
-	
 	const FGameplayTag DebuffType = GameplayTags.DamageTypesToDebuffs[DamageType];
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	TagContainer.Added.AddTag(DebuffType); 
-
-	// Create and add the component (a tag container with inheritable tags in this case) to the GE
-	UTargetTagsGameplayEffectComponent& TargetTagsComponent = DebuffEffect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 
-	TargetTagsComponent.SetAndApplyTargetTagChanges(TagContainer);
 	
+	// Create and add the component (a tag container with inheritable tags in this case) to the GE
+	UTargetTagsGameplayEffectComponent& TargetTagsComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 
+	TargetTagsComponent.SetAndApplyTargetTagChanges(TagContainer);
 	/** -- End Add tag -- */
 
-	const int NumModifiers = DebuffEffect->Modifiers.Num();
-	DebuffEffect->Modifiers.Add(FGameplayModifierInfo());
+	/** -- Uncomment this if you dont want the debuff to be affected by exec_calc  but remove the -- */
+	/*
+	const int32 NumModifiers = Effect->Modifiers.Num();
+	Effect->Modifiers.Add(FGameplayModifierInfo());
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[NumModifiers];
 	
-	FGameplayModifierInfo& ModifierInfo = DebuffEffect->Modifiers[NumModifiers];
 	ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
 	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
 	ModifierInfo.Attribute = GetIncomingDamageAttribute();
-
-	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(DebuffEffect, EffectContextHandle, Props.EffectContextHandle.GetAbilityLevel()))
-	{
-		MutableSpec->SetSetByCallerMagnitude(DamageType, DebuffDamage);
+	*/
+	
+	FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContextHandle, Props.EffectContextHandle.GetAbilityLevel());
+	MutableSpec->SetSetByCallerMagnitude(DamageType, DebuffDamage);
  
-		FMMGameplayEffectContext* MMContext = static_cast<FMMGameplayEffectContext*>(MutableSpec->GetContext().Get());
-		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
-		MMContext->SetDamageType(DebuffDamageType);
+	FMMGameplayEffectContext* MMContext = static_cast<FMMGameplayEffectContext*>(MutableSpec->GetContext().Get());
+	TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
+	MMContext->SetDamageType(DebuffDamageType);
  
-		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
-	}
+	Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
 }
 
 //Function kicks in after the GE has been executed
@@ -451,6 +450,5 @@ void UMMAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
 		Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
 		Props.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetAvatarActor);
-		//Props.TargetASC = Data.Target.AbilityActorInfo->AbilitySystemComponent.Get();
 	}
 }

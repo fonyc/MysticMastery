@@ -147,6 +147,9 @@ void AMMEnemy::InitializeAbilityActorInfo()
 	{
 		InitializeDefaultAttributes();
 	}
+	
+	//Broadcast the ASC to the components inside the enemy that need it (such as niagara component)
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void AMMEnemy::InitializeDefaultAttributes() const

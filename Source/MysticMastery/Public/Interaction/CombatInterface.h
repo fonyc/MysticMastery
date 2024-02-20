@@ -6,8 +6,13 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "CombatInterface.generated.h"
 
+class UAbilitySystemComponent;
 class UNiagaraSystem;
 class UAnimMontage;
+
+//Used for components inside a character that needs to register to the ASC on BeginPlay but ASC is not set yet
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegisteredSignature, UAbilitySystemComponent*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathSignature, AActor*, DeadActor);
 
 /** Struct in charge of bind a Montage with a certain socket */
 USTRUCT(BlueprintType)
@@ -81,4 +86,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ECharacterClass GetCharacterClass();
+
+	virtual FOnASCRegisteredSignature GetOnASCRegisteredDelegate() = 0;
+	virtual FOnDeathSignature& GetOnDeathDelegate() = 0;
 };

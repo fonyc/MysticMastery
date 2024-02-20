@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MysticMastery/MysticMastery.h"
 
@@ -16,6 +17,11 @@ AMMCharacterBase::AMMCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = FMMGameplayTags::Get().Debuff_Burn;
+	BurnDebuffComponent->Deactivate();
+	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	FaceMask = CreateDefaultSubobject<USkeletalMeshComponent>("FaceMask");
@@ -95,6 +101,7 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation()
 	
 	Dissolve();
 	bDead = true;
+	OnDeath.Broadcast(this);
 }
 
 TArray<FTaggedMontage> AMMCharacterBase::GetAttackMontages_Implementation()
@@ -120,6 +127,16 @@ void AMMCharacterBase::IncrementMinionCount_Implementation(const int32 DeltaAmou
 ECharacterClass AMMCharacterBase::GetCharacterClass_Implementation()
 {
 	return CharacterClass;
+}
+
+FOnASCRegisteredSignature AMMCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnAscRegistered;
+}
+
+FOnDeathSignature& AMMCharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
 }
 
 void AMMCharacterBase::BeginPlay()

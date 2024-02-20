@@ -8,6 +8,7 @@
 #include "Interaction/CombatInterface.h"
 #include "MMCharacterBase.generated.h"
 
+class UDebuffNiagaraComponent;
 class UGameplayAbility;
 class UGameplayEffect;
 class UAttributeSet;
@@ -49,7 +50,14 @@ public:
 	virtual void IncrementMinionCount_Implementation(const int32 DeltaAmount) override;
 
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	
+	virtual FOnASCRegisteredSignature GetOnASCRegisteredDelegate() override;
+
+	virtual FOnDeathSignature& GetOnDeathDelegate() override;
 	/** End Combat Interface */
+	
+	FOnASCRegisteredSignature OnAscRegistered;
+	FOnDeathSignature OnDeath;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -137,7 +145,11 @@ protected:
 
 	//Used for spawn animation on Begin play 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat")
-	bool bIsSummonedCreature = false; 
+	bool bIsSummonedCreature = false;
+
+	/** Debuff Effects  */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

@@ -182,7 +182,7 @@ void AMMCharacter::InitializeAbilityActorInfo()
 
 	AbilitySystemComponent = MMPlayerState->GetAbilitySystemComponent();
 	AttributeSet = MMPlayerState->GetAttributeSet();
-	
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 
 	//This is a perfect spot to fill the HUD data, cause we have all 4 variables needed (PS,PC,ASC,AC) and also access to the HUD. 
 	//Only in the server all PC are valid --> checking the PC cannot stop the execution (local player1 will stop its

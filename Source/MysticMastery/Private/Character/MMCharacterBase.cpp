@@ -82,7 +82,7 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	Weapon->AddImpulse(DeathImpulse * 0.5f, NAME_None, true);
+	Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true);
 
 	FaceMask->SetSimulatePhysics(true);
 	FaceMask->SetEnableGravity(true);

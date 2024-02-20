@@ -204,6 +204,15 @@ FGameplayTag UMMAbilitySystemBlueprintLibrary::GetDamageType(const FGameplayEffe
 	return FGameplayTag();
 }
 
+FVector UMMAbilitySystemBlueprintLibrary::GetDeathImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetDeathImpulse();
+	}
+	return FVector::ZeroVector;
+}
+
 void UMMAbilitySystemBlueprintLibrary::SetCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
 {
 	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -261,6 +270,14 @@ void UMMAbilitySystemBlueprintLibrary::SetDamageType(FGameplayEffectContextHandl
 	}
 }
 
+void UMMAbilitySystemBlueprintLibrary::SetDeathImpulse(FGameplayEffectContextHandle& EffectContextHandle, const FVector& InDeathImpulse)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetDeathImpulse(InDeathImpulse);
+	}
+}
+
 void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(
 	const UObject* WorldContextObject,
 	TArray<AActor*>& OutOverlappingActors,
@@ -300,6 +317,7 @@ FGameplayEffectContextHandle UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect
 	const AActor* SourceAvatarActor = DamageEffectParams.SourceASC->GetAvatarActor();
 	FGameplayEffectContextHandle EffectContextHandle = DamageEffectParams.SourceASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(SourceAvatarActor);
+	SetDeathImpulse(EffectContextHandle, DamageEffectParams.DeathImpulseVector);
 
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceASC->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
 	//Damage of the base ability

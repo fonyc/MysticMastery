@@ -31,7 +31,7 @@ public:
 
 	/** Combat Interface */
 	virtual int32 GetPlayerLevel_Implementation() const override;
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	/** End Combat Interface */
@@ -49,7 +49,7 @@ public:
 	bool bHitReacting = false;
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount);
 	
-	void MulticastHandleDeath_Implementation() override;
+	void MulticastHandleDeath_Implementation(const FVector& DeathImpulse) override;
 	/** End Hit React */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")

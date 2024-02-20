@@ -28,13 +28,13 @@ public:
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath();
+	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 	
 	/** Combat Interface */
 	
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	

@@ -74,7 +74,10 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		//Get the OtherACtor ASC and apply the GE to it
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			//Now that we finally know who is the enemy, dont forget to add the target to the DamageEffectParams
+			//Now that we finally know who is the enemy, dont forget to add the target and death impulse direction to the DamageEffectParams
+			const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
+			DamageEffectParams.DeathImpulseVector = DeathImpulse;
+			
 			DamageEffectParams.TargetASC = TargetASC;
 			UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect(DamageEffectParams);
 		}

@@ -66,11 +66,15 @@ bool FMMGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
 		{
 			RepBits |= 1 << 13;
 		}
+		if (!DeathImpulseDirection.IsZero())
+		{
+			RepBits |= 1 << 14;
+		}
 	}
 	
 #pragma endregion
 	
-	Ar.SerializeBits(&RepBits, 13);
+	Ar.SerializeBits(&RepBits, 14);
 
 	if (RepBits & (1 << 0))
 	{
@@ -159,6 +163,11 @@ bool FMMGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
 			}
 		}
 		DamageType->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	
+	if (RepBits & (1<<14))
+	{
+		DeathImpulseDirection.NetSerialize(Ar, Map, bOutSuccess);
 	}
 	
 	if (Ar.IsLoading())

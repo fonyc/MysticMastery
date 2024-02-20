@@ -56,13 +56,13 @@ UAnimMontage* AMMCharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;
 }
 
-void AMMCharacterBase::Die()
+void AMMCharacterBase::Die(const FVector& DeathImpulse)
 {
 	//Drop weapon, automatically replicated
 	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 
 	//Ragdoll enemy on client and server and activate weapon physics 
-	MulticastHandleDeath();
+	MulticastHandleDeath(DeathImpulse);
 }
 
 bool AMMCharacterBase::IsDead_Implementation() const
@@ -75,22 +75,24 @@ AActor* AMMCharacterBase::GetAvatar_Implementation()
 	return this;
 }
 
-void AMMCharacterBase::MulticastHandleDeath_Implementation()
+void AMMCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 	
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	Weapon->AddImpulse(DeathImpulse * 0.5f, NAME_None, true);
 
 	FaceMask->SetSimulatePhysics(true);
 	FaceMask->SetEnableGravity(true);
-	FaceMask->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	FaceMask->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetSimulatePhysics(false);

@@ -39,6 +39,8 @@ void UDebuffNiagaraComponent::BeginPlay()
 
 void UDebuffNiagaraComponent::DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
+	const bool bOwnerValid = IsValid(GetOwner());
+	if (!bOwnerValid) return;
 	if (NewCount > 0 )
 	{
 		Activate();

@@ -70,6 +70,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
 	static FGameplayTag GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
+	static FVector GetDeathImpulse(const FGameplayEffectContextHandle& EffectContextHandle);
 	
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
 	static void SetCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit);
@@ -91,6 +94,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
 	static void SetDamageType(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InDamageType);
+
+	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|GameplayEffects")
+	static void SetDeathImpulse(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const FVector& InDeathImpulse);
 
 	UFUNCTION(BlueprintCallable, Category="MMAbilitySistemBlueprintLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereCenter);

@@ -133,12 +133,13 @@ void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
 	{
 		const float NewHealth = GetHealth() - LocalIncomingDamage;
 		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-		if (const bool bIsFatalDamage = NewHealth <= 0.f)
+		const bool bIsFatalDamage = NewHealth <= 0.f;
+		
+		if (bIsFatalDamage)
 		{
 			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
 			{
-				CombatInterface->Die();
+				CombatInterface->Die(UMMAbilitySystemBlueprintLibrary::GetDeathImpulse(Props.EffectContextHandle));
 			}
 			SendXPEvent(Props);
 		}
@@ -156,7 +157,7 @@ void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
 		const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);
 		ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 
-		if (UMMAbilitySystemBlueprintLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+		if (UMMAbilitySystemBlueprintLibrary::IsSuccessfulDebuff(Props.EffectContextHandle) && !bIsFatalDamage)
 		{
 			//Apply the the debuff
 			ApplyDebuff(Props);

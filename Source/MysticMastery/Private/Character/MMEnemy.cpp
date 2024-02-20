@@ -74,11 +74,12 @@ int32 AMMEnemy::GetPlayerLevel_Implementation() const
 	return Level;
 }
 
-void AMMEnemy::Die()
+void AMMEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(LifeSpan);
 	if(MMAIController) MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
-	Super::Die();
+	
+	Super::Die(DeathImpulse);
 }
 
 AActor* AMMEnemy::GetCombatTarget_Implementation() const
@@ -167,9 +168,9 @@ void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCo
 	}
 }
 
-void AMMEnemy::MulticastHandleDeath_Implementation()
+void AMMEnemy::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
-	Super::MulticastHandleDeath_Implementation();
+	Super::MulticastHandleDeath_Implementation(DeathImpulse);
 	
 	FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules::KeepWorldTransform;
 	HealthBar->DetachFromComponent(DetachmentTransformRules);

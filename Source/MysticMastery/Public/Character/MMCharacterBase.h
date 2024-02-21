@@ -54,6 +54,9 @@ public:
 	virtual FOnASCRegisteredSignature GetOnASCRegisteredDelegate() override;
 
 	virtual FOnDeathSignature& GetOnDeathDelegate() override;
+
+	virtual void KnockBack(const FVector& ForceImpulse) override;
+	
 	/** End Combat Interface */
 	
 	FOnASCRegisteredSignature OnAscRegistered;

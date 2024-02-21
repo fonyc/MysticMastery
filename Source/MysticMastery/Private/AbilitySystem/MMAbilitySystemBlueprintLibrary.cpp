@@ -213,6 +213,15 @@ FVector UMMAbilitySystemBlueprintLibrary::GetDeathImpulse(const FGameplayEffectC
 	return FVector::ZeroVector;
 }
 
+FVector UMMAbilitySystemBlueprintLibrary::GetKnockBackForce(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetKnockBackForce();
+	}
+	return FVector::ZeroVector;
+}
+
 void UMMAbilitySystemBlueprintLibrary::SetCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
 {
 	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -278,6 +287,14 @@ void UMMAbilitySystemBlueprintLibrary::SetDeathImpulse(FGameplayEffectContextHan
 	}
 }
 
+void UMMAbilitySystemBlueprintLibrary::SetKnockBackForce(FGameplayEffectContextHandle& EffectContextHandle, const FVector& InKnockBackForce)
+{
+	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		MMEffectContext->SetKnockBackForce(InKnockBackForce);
+	}
+}
+
 void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(
 	const UObject* WorldContextObject,
 	TArray<AActor*>& OutOverlappingActors,
@@ -317,7 +334,9 @@ FGameplayEffectContextHandle UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect
 	const AActor* SourceAvatarActor = DamageEffectParams.SourceASC->GetAvatarActor();
 	FGameplayEffectContextHandle EffectContextHandle = DamageEffectParams.SourceASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(SourceAvatarActor);
+	
 	SetDeathImpulse(EffectContextHandle, DamageEffectParams.DeathImpulseVector);
+	SetKnockBackForce(EffectContextHandle, DamageEffectParams.KnockBackForceVector);
 
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceASC->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
 	//Damage of the base ability

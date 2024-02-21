@@ -52,6 +52,15 @@ struct FDamageEffectParams
 
 	UPROPERTY()
 	FVector DeathImpulseVector = FVector::ZeroVector;
+	
+	UPROPERTY()
+	float KnockBackChance = 0.f;
+	
+	UPROPERTY()
+	float KnockBackForceMagnitude = 0.f;
+	
+	UPROPERTY()
+	FVector KnockBackForceVector = FVector::ZeroVector;
 };
 
 USTRUCT(BlueprintType)
@@ -67,6 +76,8 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const {return DeathImpulseDirection; } 
+	FVector GetKnockBackForce() const {return KnockBackForceVector; } 
+	float GetKnockBackChance() const { return KnockBackChance; }
 
 	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(const bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
@@ -76,6 +87,8 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	void SetDebuffDuration(const float NewDuration) { DebuffDuration = NewDuration; }
 	void SetDamageType(const TSharedPtr<FGameplayTag>& InDamageType) { DamageType = InDamageType; }
 	void SetDeathImpulse(const FVector& InImpulse) { DeathImpulseDirection = InImpulse; }
+	void SetKnockBackForce(const FVector& InKnockBackForce) { KnockBackForceVector = InKnockBackForce; }
+	void SetKnockBackChance(const float InKnockBackChance) { KnockBackChance = InKnockBackChance; }
 
 	/** Creates a copy of this context, used to duplicate for later modifications */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -99,6 +112,7 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess) override;
 
 protected:
+	
 	UPROPERTY()
 	bool bIsCriticalHit = false;
 
@@ -121,6 +135,12 @@ protected:
 
 	UPROPERTY()
 	FVector DeathImpulseDirection = FVector::ZeroVector;
+
+	UPROPERTY()
+	float KnockBackChance = 0.f;
+	
+	UPROPERTY()
+	FVector KnockBackForceVector = FVector::ZeroVector;
 	
 };
 

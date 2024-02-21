@@ -66,6 +66,8 @@ public:
 	
 	virtual void Die(const FVector& DeathImpulse) = 0;
 
+	virtual void KnockBack(const FVector& ForceImpulse) = 0;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	AActor* GetAvatar();
 	

@@ -135,23 +135,28 @@ void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
 		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 		const bool bIsFatalDamage = NewHealth <= 0.f;
 		
-		if (bIsFatalDamage)
+		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
 		{
-			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor))
+			if (bIsFatalDamage)
 			{
 				CombatInterface->Die(UMMAbilitySystemBlueprintLibrary::GetDeathImpulse(Props.EffectContextHandle));
+				SendXPEvent(Props);
 			}
-			SendXPEvent(Props);
-		}
-		else
-		{
-			//Ability just caused damage
-			//Activate an Ability by using a tag related to it
-			FGameplayTagContainer TagContainer;
-			TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
-			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-		}
+			else //The ability didnt kill the target
+			{	
+				//Activate an Ability by using a tag related to it
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FMMGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 
+				const FVector KnockBackForce = UMMAbilitySystemBlueprintLibrary::GetKnockBackForce(Props.EffectContextHandle);
+				if (!KnockBackForce.IsNearlyZero(1.f))
+				{
+					CombatInterface->KnockBack(KnockBackForce);
+				}
+			}
+		}
+		
 		//Call the text damage on top of the character
 		const bool bBlocked = UMMAbilitySystemBlueprintLibrary::IsBlockedHit(Props.EffectContextHandle);
 		const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);

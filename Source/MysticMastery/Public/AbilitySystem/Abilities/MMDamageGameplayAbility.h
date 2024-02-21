@@ -27,24 +27,30 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|MainSource")
 	FGameplayTag DamageType;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|MainSource")
 	FScalableFloat Damage;
 
-	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|Debuff")
 	FScalableFloat DebuffChance;
 
-	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|Debuff")
 	FScalableFloat DebuffDamage;
 
-	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|Debuff")
 	float DebuffFrequency = 1.f;
 
-	UPROPERTY(EditDefaultsOnly, Category="Debuff")
+	UPROPERTY(EditDefaultsOnly, Category="Damage|Debuff")
 	float DebuffDuration = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	float DeathImpulseMagnitude = 50.f;
+	UPROPERTY(EditDefaultsOnly, Category="Damage|DeathImpulse")
+	float DeathImpulseMagnitude = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage|KnockBack")
+	FScalableFloat KnockBackForceMagnitude = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage|KnockBack")
+	FScalableFloat KnockBackChance = 0.f;
 };

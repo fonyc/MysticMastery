@@ -77,6 +77,17 @@ void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 			//Now that we finally know who is the enemy, dont forget to add the target and death impulse direction to the DamageEffectParams
 			const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
 			DamageEffectParams.DeathImpulseVector = DeathImpulse;
+
+			//If there is a successful KnockBack, then calculate its direction and set it 
+			if (FMath::RandRange(1,100) < DamageEffectParams.KnockBackChance)
+			{
+				//Get an angle of 45degrees on Y axis so the target flies away
+				FRotator Rotation = GetActorRotation();
+				Rotation.Pitch = 45.f;
+				
+				const FVector KnockBackForce = Rotation.Vector() * DamageEffectParams.KnockBackForceMagnitude;
+				DamageEffectParams.KnockBackForceVector = KnockBackForce;
+			}
 			
 			DamageEffectParams.TargetASC = TargetASC;
 			UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect(DamageEffectParams);

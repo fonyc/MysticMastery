@@ -24,6 +24,7 @@ AMMCharacterBase::AMMCharacterBase()
 	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	
 	FaceMask = CreateDefaultSubobject<USkeletalMeshComponent>("FaceMask");
 	FaceMask->SetupAttachment(GetMesh(), FName("FaceMask"));
 	
@@ -84,9 +85,10 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true);
 
-	FaceMask->SetSimulatePhysics(true);
-	FaceMask->SetEnableGravity(true);
-	FaceMask->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	/* Uncomment this to make the mask to have physics on death */
+	//FaceMask->SetSimulatePhysics(true);
+	//FaceMask->SetEnableGravity(true);
+	//FaceMask->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
@@ -139,6 +141,12 @@ FOnASCRegisteredSignature AMMCharacterBase::GetOnASCRegisteredDelegate()
 FOnDeathSignature& AMMCharacterBase::GetOnDeathDelegate()
 {
 	return OnDeath;
+}
+
+void AMMCharacterBase::KnockBack(const FVector& ForceImpulse)
+{
+	GetCharacterMovement()->StopMovementImmediately();
+	LaunchCharacter(ForceImpulse, true, true);
 }
 
 void AMMCharacterBase::BeginPlay()

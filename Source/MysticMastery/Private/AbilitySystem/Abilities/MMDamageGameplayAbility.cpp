@@ -30,5 +30,8 @@ FDamageEffectParams UMMDamageGameplayAbility::MakeDamageEffectParamsFromClassDef
 	Params.DebuffDuration = DebuffDuration;
 	Params.DebuffFrequency = DebuffFrequency;
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
+	Params.KnockBackForceMagnitude = KnockBackForceMagnitude.GetValueAtLevel(GetAbilityLevel());
+	Params.KnockBackChance = KnockBackChance.GetValueAtLevel(GetAbilityLevel());
+	
 	return Params;
 }

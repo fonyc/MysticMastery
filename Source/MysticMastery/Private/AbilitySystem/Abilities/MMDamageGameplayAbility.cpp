@@ -32,6 +32,15 @@ FDamageEffectParams UMMDamageGameplayAbility::MakeDamageEffectParamsFromClassDef
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
 	Params.KnockBackForceMagnitude = KnockBackForceMagnitude.GetValueAtLevel(GetAbilityLevel());
 	Params.KnockBackChance = KnockBackChance.GetValueAtLevel(GetAbilityLevel());
+
+	if (IsValid(TargetActor))
+	{
+		FRotator Rotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
+		Rotation.Pitch = 45.f;
+		const FVector ToTarget = Rotation.Vector();
+		Params.DeathImpulseVector = DeathImpulseMagnitude * ToTarget;
+		Params.KnockBackForceVector = KnockBackForceMagnitude.GetValueAtLevel(GetAbilityLevel()) * ToTarget;
+	}
 	
 	return Params;
 }

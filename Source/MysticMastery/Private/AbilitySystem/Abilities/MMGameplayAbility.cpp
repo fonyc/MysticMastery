@@ -47,4 +47,3 @@ float UMMGameplayAbility::GetCooldown(float InLevel)
 	return OutCooldown;
 }
 
-

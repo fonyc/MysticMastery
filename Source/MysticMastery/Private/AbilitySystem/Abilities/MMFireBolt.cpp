@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/MMFireBolt.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 FString UMMFireBolt::GetDescription(int32 Level)
 {
@@ -64,4 +65,58 @@ FString UMMFireBolt::GetNextLevelDescription(int32 Level)
 	"<Damage>%d</><Default> fire damage  with a </><Damage>%.1f%%</><Default> chance to deal </><Damage>%.1f</><Default> burn damage for 5 seconds.</>\n\n"),
 	
 	Level, ManaCost, Cooldown, FMath::Min(Level, ProjectileNumber), ScaledDamage, BurnChance, BurnDamage * 5.f);
+}
+
+void UMMFireBolt::SpawnMultipleProjectiles(const FVector& ProjectileTarget, const FGameplayTag& SocketTag, bool bOverridePitch, float PitchOverride, AActor* HomingTarget)
+{
+	//Spawn projectile as replicated Actor -> Only if we are in the server
+	if (const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); !bIsServer) return;
+
+	FTransform SpawnTransform;
+
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
+	{
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
+		SpawnTransform.SetLocation(SocketLocation);
+
+		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();
+		
+		if (bOverridePitch)
+		{
+			Rotation.Pitch = PitchOverride;
+		}
+
+		const FVector Forward = Rotation.Vector();
+		const FVector LeftSpread = Forward.RotateAngleAxis(-ProjectileSpread / 2.f, FVector::UpVector);
+		const FVector RightSpread = Forward.RotateAngleAxis(ProjectileSpread / 2.f, FVector::UpVector);
+
+		//ProjectileNumber = FMath::Min(MaxNumProjectiles, GetAbilityLevel());
+		if (ProjectileNumber > 1) //Multiple Spawn
+		{
+			const float DeltaSpread = ProjectileSpread / (ProjectileNumber - 1);
+			for (int32 x = 0; x < ProjectileNumber; x++)
+			{
+				const FVector Direction = LeftSpread.RotateAngleAxis(DeltaSpread * x, FVector::UpVector);
+				UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(),
+					SocketLocation,
+					SocketLocation + Direction * 100.f,
+					5.f,
+					FLinearColor::Green,
+					120.f,
+					5.f);
+
+			}
+		}
+		else //Single spawn
+		{
+			UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(),
+				SocketLocation,
+				SocketLocation + Forward * 100.f,
+				5.f,
+				FLinearColor::Green,
+				120.f,
+				5.f);
+		}
+		//SpawnTransform.SetRotation(Rotation.Quaternion());
+	}
 }

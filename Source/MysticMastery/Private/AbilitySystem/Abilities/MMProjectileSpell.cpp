@@ -17,7 +17,7 @@ void UMMProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget, const FGameplayTag& SocketTag)
+void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget, const FGameplayTag& SocketTag, bool bOverridePitch, float PitchOverride)
 {
 	//Spawn projectile as replicated Actor -> Only if we are in the server
 	if (const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); !bIsServer) return;
@@ -30,7 +30,12 @@ void UMMProjectileSpell::SpawnProjectile(const FVector& ProjectileTarget, const 
 		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();
-		//Rotation.Pitch = 0.f;
+		
+		if (bOverridePitch)
+		{
+			Rotation.Pitch = PitchOverride;
+		}
+		
 		SpawnTransform.SetRotation(Rotation.Quaternion());
 	}
 

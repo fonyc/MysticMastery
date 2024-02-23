@@ -20,6 +20,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn = true))
 	FDamageEffectParams DamageEffectParams;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
+
+	UPROPERTY()
+	TObjectPtr<USceneComponent> HomingSceneReference;
+
 protected:
 	virtual void BeginPlay() override;
 	

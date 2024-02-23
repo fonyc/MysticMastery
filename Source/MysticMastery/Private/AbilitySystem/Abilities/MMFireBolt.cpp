@@ -5,7 +5,7 @@
 
 #include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
 #include "Actors/MMProjectile.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 FString UMMFireBolt::GetDescription(int32 Level)
 {
@@ -85,7 +85,6 @@ void UMMFireBolt::SpawnMultipleProjectiles(const FVector& ProjectileTarget, cons
 		
 		const FVector Forward = Rotation.Vector();
 		const int32 ProjectilesToSpawn = FMath::Min(ProjectileNumber, GetAbilityLevel());
-		
 		TArray<FRotator> Rotations = UMMAbilitySystemBlueprintLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, ProjectilesToSpawn);
 
 		for (const FRotator& ProjectileRotation : Rotations)
@@ -103,7 +102,22 @@ void UMMFireBolt::SpawnMultipleProjectiles(const FVector& ProjectileTarget, cons
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 			Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
-	
+
+			//We are not clicking a wall / floor
+			if (HomingTarget && HomingTarget->Implements<UCombatInterface>())
+			{
+				Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+			}
+			else
+			{
+				Projectile->HomingSceneReference = NewObject<USceneComponent>(USceneComponent::StaticClass());
+				Projectile->HomingSceneReference->SetWorldLocation(ProjectileTarget);
+				Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingSceneReference;
+			}
+
+			Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(MinHomingAcceleration, MaxHomingAcceleration);
+			Projectile->ProjectileMovement->bIsHomingProjectile = bIsHomingProjectile;
+			
 			Projectile->FinishSpawning(SpawnTransform);
 			/** -- End Spawn Projectile */
 		}

@@ -2,6 +2,9 @@
 
 
 #include "AbilitySystem/Abilities/MMFireBolt.h"
+
+#include "AbilitySystem/MMAbilitySystemBlueprintLibrary.h"
+#include "Actors/MMProjectile.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 FString UMMFireBolt::GetDescription(int32 Level)
@@ -71,52 +74,38 @@ void UMMFireBolt::SpawnMultipleProjectiles(const FVector& ProjectileTarget, cons
 {
 	//Spawn projectile as replicated Actor -> Only if we are in the server
 	if (const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); !bIsServer) return;
-
-	FTransform SpawnTransform;
-
+	
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
-		SpawnTransform.SetLocation(SocketLocation);
 
 		FRotator Rotation = (ProjectileTarget - SocketLocation).Rotation();
 		
-		if (bOverridePitch)
-		{
-			Rotation.Pitch = PitchOverride;
-		}
-
+		if (bOverridePitch) Rotation.Pitch = PitchOverride;
+		
 		const FVector Forward = Rotation.Vector();
-		const FVector LeftSpread = Forward.RotateAngleAxis(-ProjectileSpread / 2.f, FVector::UpVector);
-		const FVector RightSpread = Forward.RotateAngleAxis(ProjectileSpread / 2.f, FVector::UpVector);
+		const int32 ProjectilesToSpawn = FMath::Min(ProjectileNumber, GetAbilityLevel());
+		
+		TArray<FRotator> Rotations = UMMAbilitySystemBlueprintLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, ProjectilesToSpawn);
 
-		//ProjectileNumber = FMath::Min(MaxNumProjectiles, GetAbilityLevel());
-		if (ProjectileNumber > 1) //Multiple Spawn
+		for (const FRotator& ProjectileRotation : Rotations)
 		{
-			const float DeltaSpread = ProjectileSpread / (ProjectileNumber - 1);
-			for (int32 x = 0; x < ProjectileNumber; x++)
-			{
-				const FVector Direction = LeftSpread.RotateAngleAxis(DeltaSpread * x, FVector::UpVector);
-				UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(),
-					SocketLocation,
-					SocketLocation + Direction * 100.f,
-					5.f,
-					FLinearColor::Green,
-					120.f,
-					5.f);
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(SocketLocation);
+			SpawnTransform.SetRotation(ProjectileRotation.Quaternion());
+			
+			/** -- Start Spawn Projectile */
+			AMMProjectile* Projectile = GetWorld()->SpawnActorDeferred<AMMProjectile>(
+				ProjectileClass,
+				SpawnTransform,
+			GetOwningActorFromActorInfo(),
+			Cast<APawn>(GetAvatarActorFromActorInfo()),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-			}
+			Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+	
+			Projectile->FinishSpawning(SpawnTransform);
+			/** -- End Spawn Projectile */
 		}
-		else //Single spawn
-		{
-			UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(),
-				SocketLocation,
-				SocketLocation + Forward * 100.f,
-				5.f,
-				FLinearColor::Green,
-				120.f,
-				5.f);
-		}
-		//SpawnTransform.SetRotation(Rotation.Quaternion());
 	}
 }

@@ -8,6 +8,7 @@
 #include "MMGameplayTags.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
@@ -135,7 +136,6 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
 			{
 				Spline->ClearSplinePoints();
-				int32 index = 0;
 				
 				for (const FVector& PointLocation : NavPath->PathPoints)
 				{
@@ -148,6 +148,7 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 		}
 		TimeFollowingCursor = 0.f;
 		bTargeting = false;

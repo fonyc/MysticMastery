@@ -85,7 +85,7 @@ void UMMFireBolt::SpawnMultipleProjectiles(const FVector& ProjectileTarget, cons
 		
 		const FVector Forward = Rotation.Vector();
 		const int32 ProjectilesToSpawn = FMath::Min(ProjectileNumber, GetAbilityLevel());
-		TArray<FRotator> Rotations = UMMAbilitySystemBlueprintLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, ProjectilesToSpawn);
+		TArray<FRotator> Rotations = UMMAbilitySystemBlueprintLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, SpreadPerProjectile * ProjectilesToSpawn, ProjectilesToSpawn);
 
 		for (const FRotator& ProjectileRotation : Rotations)
 		{

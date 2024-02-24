@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MMPlayerController.generated.h"
 
+class UNiagaraSystem;
 class UDamageTextComponent;
 struct FGameplayTag;
 struct FInputActionValue;
@@ -93,6 +94,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
 
 	//Damage Text
 	UPROPERTY(EditDefaultsOnly)

@@ -25,5 +25,6 @@ public:
 
 protected:
 	float GetManaCost(float InLevel = 1.f);
+	UFUNCTION(BlueprintCallable)
 	float GetCooldown(float InLevel = 1.f);
 };

@@ -115,6 +115,11 @@ void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 		bTargeting = CurrentActorUnderCursor ? true : false;
 		bAutoRunning = false;
 	}
+	
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag);
+	}
 }
 
 void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)

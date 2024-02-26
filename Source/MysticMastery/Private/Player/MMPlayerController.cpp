@@ -78,6 +78,12 @@ void AMMPlayerController::SetupInputComponent()
 
 void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 {
+	//The Input is currently blocked by some circumstance (a held ability for example)
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_InputPressed))
+	{
+		return;
+	}
+	
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
 
 	//Based in our controller, FW direction is the (0, Controller.Yaw, 0) value  
@@ -95,6 +101,17 @@ void AMMPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AMMPlayerController::CursorTrace()
 {
+	//The Input is currently blocked by some circumstance (a held ability for example)
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_CursorTrace))
+	{
+		//Clean the HighLight from cursor trace and ignore the input
+		if (LastActorUnderCursor) LastActorUnderCursor->UnHighlightActor();
+		if (CurrentActorUnderCursor) CurrentActorUnderCursor->UnHighlightActor();
+		LastActorUnderCursor = nullptr;
+		CurrentActorUnderCursor = nullptr;
+		return;
+	}
+	
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
@@ -110,6 +127,12 @@ void AMMPlayerController::CursorTrace()
 
 void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	//The Input is currently blocked by some circumstance (a held ability for example)
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_InputPressed))
+	{
+		return;
+	}
+	
 	if (InputTag.MatchesTag(FMMGameplayTags::Get().InputTag_LMB))
 	{
 		bTargeting = CurrentActorUnderCursor ? true : false;
@@ -124,6 +147,12 @@ void AMMPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	//The Input is currently blocked by some circumstance (a held ability for example)
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_InputReleased))
+	{
+		return;
+	}
+	
 	//We are pressing RMB
 	if (!InputTag.MatchesTagExact(FMMGameplayTags::Get().InputTag_LMB))
 	{
@@ -153,7 +182,11 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+			//The Input is currently blocked by some circumstance so dont play the click niagara in that case
+			if (GetAbilitySystemComponent() && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_CursorTrace))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+			}
 		}
 		TimeFollowingCursor = 0.f;
 		bTargeting = false;
@@ -162,6 +195,12 @@ void AMMPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AMMPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	//The Input is currently blocked by some circumstance (a held ability for example)
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FMMGameplayTags::Get().Player_Block_InputHeld))
+	{
+		return;
+	}
+	
 	//We are pressing RMB
 	if (!InputTag.MatchesTagExact(FMMGameplayTags::Get().InputTag_LMB))
 	{

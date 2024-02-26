@@ -10,6 +10,18 @@ FMMGameplayTags FMMGameplayTags::GameplayTags;
 
 void FMMGameplayTags::InitializeNativeGameplayTags()
 {
+	//Block Input Tags
+	GameplayTags.Player_Block_CursorTrace = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.CursorTrace"), FString("Input Tag to Block Cursor Trace"));
+
+	GameplayTags.Player_Block_InputHeld = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputHeld"), FString("Input Tag to Block Input Held"));
+
+	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputPressed"), FString("Input Tag to Block Input Pressed"));
+
+	GameplayTags.Player_Block_InputReleased = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputReleased"), FString("Input Tag to Block Input Released"));
 
 	//InputTags
 	GameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(

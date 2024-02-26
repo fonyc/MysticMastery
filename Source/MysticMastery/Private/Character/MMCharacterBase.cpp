@@ -149,6 +149,11 @@ void AMMCharacterBase::KnockBack(const FVector& ForceImpulse)
 	LaunchCharacter(ForceImpulse, true, true);
 }
 
+USkeletalMeshComponent* AMMCharacterBase::GetWeapon_Implementation()
+{
+	return Weapon;
+}
+
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

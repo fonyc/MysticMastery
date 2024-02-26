@@ -79,6 +79,7 @@ public:
 
 	void ClearAbilitiesFromSlot(const FGameplayTag& SlotTag); 
 	static bool AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag SlotTag);
+	
 protected:
 	/*
 	 * Called on server whenever a GE is applied to self. This includes instant and duration based GEs

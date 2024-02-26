@@ -13,6 +13,7 @@ UCLASS()
 class MYSTICMASTERY_API UMMBeamSpell : public UMMDamageGameplayAbility
 {
 	GENERATED_BODY()
+	
 public:
 	
 	UFUNCTION(BlueprintCallable)
@@ -20,6 +21,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StoreOwnerPlayerControllerAndCharacter();
+
+	UFUNCTION(BlueprintCallable)
+	void TraceFirstTarget(const FVector BeamTargetLocation);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetRadiusFromCurveTable() { return NextTargetRadius.GetValueAtLevel(GetAbilityLevel()); }
 	
 protected:
 	
@@ -34,4 +41,14 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Beam")
 	TObjectPtr<ACharacter> OwnerCharacter;
+
+	UPROPERTY(EditDefaultsOnly)
+	FScalableFloat NextTargetRadius;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxNumShockTargets = 5;
+
+	//When a beam hit an actor, store nearby possible new targets
+	UFUNCTION(BlueprintCallable)
+	void StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets);
 };

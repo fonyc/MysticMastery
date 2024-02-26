@@ -8,6 +8,7 @@
 #include "Interaction/CombatInterface.h"
 #include "UI/WidgetController/MMWidgetController.h"
 #include "Kismet/GameplayStatics.h"
+#include "MysticMastery/MMLogChannels.h"
 #include "Player/MMPlayerState.h"
 #include "UI/HUD/MMHUD.h"
 
@@ -318,6 +319,26 @@ void UMMAbilitySystemBlueprintLibrary::GetLivePlayersWithinRadius(
 				OutOverlappingActors.AddUnique(OverlappedActor);
 			}
 		}
+	}
+}
+
+void UMMAbilitySystemBlueprintLibrary::GetClosestTargets(int32 NumTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin)
+{
+	if (Actors.IsEmpty()) return;
+
+	TArray<AActor*> SortedActors = Actors;
+	SortedActors.Sort([Origin](const AActor& A, const AActor& B)
+	{
+		const double DistanceA = (A.GetActorLocation() - Origin).Length();
+		
+		const double DistanceB = (B.GetActorLocation() - Origin).Length();
+		
+		return DistanceA < DistanceB;
+	});
+
+	for (int x = 0; x < FMath::Min(NumTargets, SortedActors.Num()); x++)
+	{
+		OutClosestTargets.AddUnique(SortedActors[x]);
 	}
 }
 

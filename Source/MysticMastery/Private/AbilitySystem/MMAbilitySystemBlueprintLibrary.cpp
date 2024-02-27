@@ -330,7 +330,6 @@ void UMMAbilitySystemBlueprintLibrary::GetClosestTargets(int32 NumTargets, const
 	SortedActors.Sort([Origin](const AActor& A, const AActor& B)
 	{
 		const double DistanceA = (A.GetActorLocation() - Origin).Length();
-		
 		const double DistanceB = (B.GetActorLocation() - Origin).Length();
 		
 		return DistanceA < DistanceB;

@@ -58,6 +58,14 @@ void UMMBeamSpell::TraceFirstTarget(const FVector BeamTargetLocation)
 			}
 		}
 	}
+	//Bind the actor mouse target to know when this actor died 
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(MouseHitActor))
+	{
+		if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UMMBeamSpell::PrimaryTargetDied))
+		{
+			CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UMMBeamSpell::PrimaryTargetDied);
+		}
+	}
 }
 
 void UMMBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
@@ -74,8 +82,20 @@ void UMMBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
 		NextTargetRadius.GetValueAtLevel(GetAbilityLevel()),
 		MouseHitActor->GetActorLocation());
 
-	int32 NumAdditionalTargets = 5;
-	//int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, GetAbilityLevel() - 1);
+	//const int32 NumAdditionalTargets = 5;
+	const int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, GetAbilityLevel() - 1);
 	
 	UMMAbilitySystemBlueprintLibrary::GetClosestTargets(NumAdditionalTargets, OverlappingActors, OutAdditionalTargets, MouseHitActor->GetActorLocation());
+
+	//Bind additional targets to the on death delegate
+	for (AActor* Target : OutAdditionalTargets)
+	{
+		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Target))
+		{
+			if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UMMBeamSpell::AdditionalTargetDied))
+			{
+				CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UMMBeamSpell::AdditionalTargetDied);
+			}
+		}
+	}
 }

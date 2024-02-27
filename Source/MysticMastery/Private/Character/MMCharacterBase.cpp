@@ -105,7 +105,7 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	
 	Dissolve();
 	bDead = true;
-	OnDeath.Broadcast(this);
+	OnDeathDelegate.Broadcast(this);
 }
 
 TArray<FTaggedMontage> AMMCharacterBase::GetAttackMontages_Implementation()
@@ -140,7 +140,7 @@ FOnASCRegisteredSignature AMMCharacterBase::GetOnASCRegisteredDelegate()
 
 FOnDeathSignature& AMMCharacterBase::GetOnDeathDelegate()
 {
-	return OnDeath;
+	return OnDeathDelegate;
 }
 
 void AMMCharacterBase::KnockBack(const FVector& ForceImpulse)

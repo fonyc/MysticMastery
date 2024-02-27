@@ -22,6 +22,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetDamageFromCurveTable() { return Damage.GetValueAtLevel(GetAbilityLevel()); }
 	
 protected:
 	

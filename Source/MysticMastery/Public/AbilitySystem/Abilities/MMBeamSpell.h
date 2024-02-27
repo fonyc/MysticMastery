@@ -15,6 +15,12 @@ class MYSTICMASTERY_API UMMBeamSpell : public UMMDamageGameplayAbility
 	GENERATED_BODY()
 	
 public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PrimaryTargetDied(AActor* DeadActor);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void AdditionalTargetDied(AActor* DeadActor);
 	
 	UFUNCTION(BlueprintCallable)
 	void StoreMouseDataInfo(const FHitResult& HitResult);

@@ -62,7 +62,7 @@ public:
 	/** End Combat Interface */
 	
 	FOnASCRegisteredSignature OnAscRegistered;
-	FOnDeathSignature OnDeath;
+	FOnDeathSignature OnDeathDelegate;
 	
 protected:
 	virtual void BeginPlay() override;

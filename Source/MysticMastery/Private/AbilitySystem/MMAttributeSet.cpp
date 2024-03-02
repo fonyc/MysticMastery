@@ -188,11 +188,18 @@ void UMMAttributeSet::HandleIncomingXP(FEffectProperties Props)
 		//Player Leveled up 1+ times
 		if (TimesLeveledUp > 0)
 		{
-			const int32 AttributePointsAwarded = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-			const int32 SpellPointsAwarded = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+			int32 AttributePointsAwarded = 0;
+			int32 SpellPointsAwarded = 0;
 
 			//Add Level, Spell Points and Attribute Points to spend
 			IPlayerInterface::Execute_AddPlayerLevel(Props.SourceCharacter, TimesLeveledUp);
+
+			for(int32 x = 0; x < TimesLeveledUp;x++)
+			{
+				AttributePointsAwarded += IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel + x);
+				SpellPointsAwarded += IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel + x);
+			}
+			
 			IPlayerInterface::Execute_AddAttributePoints(Props.SourceCharacter, AttributePointsAwarded);
 			IPlayerInterface::Execute_AddSpellPoints(Props.SourceCharacter, SpellPointsAwarded);
 

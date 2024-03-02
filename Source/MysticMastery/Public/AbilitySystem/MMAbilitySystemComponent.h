@@ -13,6 +13,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAbilitiesGiven);
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/, int32 /*AbilityLevel*/);
 DECLARE_MULTICAST_DELEGATE_FourParams(FAbilityEquippedSignature,const FGameplayTag& /* Ability Tag*/, const FGameplayTag& /* Status Tag*/, const FGameplayTag& /*SlotTag*/, const FGameplayTag&/*PrevSlot*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDeactivatePassiveAbilitySignature, const FGameplayTag& /* Ability Tag */);
 
 /**
  * 
@@ -36,6 +37,7 @@ public:
 	FAbilityStatusChanged OnAbilitiesStatusChanged;
 
 	FAbilityEquippedSignature AbilityEquippedDelegate;
+	FDeactivatePassiveAbilitySignature DeactivatePassiveAbilityDelegate;
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
@@ -51,8 +53,14 @@ public:
 	static FGameplayTag GetInputTagBySpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityStatusBySpec(const FGameplayAbilitySpec& AbilitySpec);
 
-	FGameplayTag GetInputTagByAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetSlotByAbilityTag(const FGameplayTag& AbilityTag);
 	FGameplayTag GetStatusByAbilityTag(const FGameplayTag& AbilityTag);
+	bool SlotIsEmpty(const FGameplayTag& SlotTag);
+	static bool AbilityHasSlot(const FGameplayAbilitySpec& Spec, const FGameplayTag& SlotTag);
+	static bool AbilityHasAnySlot(const FGameplayAbilitySpec& Spec);
+	FGameplayAbilitySpec* GetSpecBySlot(const FGameplayTag& SlotTag);
+	bool IsPassiveAbility(const FGameplayAbilitySpec& Spec) const;
+	static void AssignSlotToAbility(FGameplayAbilitySpec& Spec, const FGameplayTag& SlotTag);
 	
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
 	
@@ -75,7 +83,7 @@ public:
 
 	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextDescription);
 
-	void ClearSlot(FGameplayAbilitySpec* Spec);
+	static void ClearSlot(FGameplayAbilitySpec* Spec);
 
 	void ClearAbilitiesFromSlot(const FGameplayTag& SlotTag); 
 	static bool AbilityHasSlot(FGameplayAbilitySpec* Spec, const FGameplayTag SlotTag);

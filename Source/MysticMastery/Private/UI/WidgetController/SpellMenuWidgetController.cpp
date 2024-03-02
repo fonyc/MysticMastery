@@ -137,7 +137,7 @@ void USpellMenuWidgetController::EquipButtonPressed()
 
 	if (SelectedStatus.MatchesTagExact(FMMGameplayTags::Get().Abilities_Status_Equipped))
 	{
-		SelectedSlot = GetMMAbilitySystemComponent()->GetInputTagByAbilityTag(SelectedAbility.Ability);
+		SelectedSlot = GetMMAbilitySystemComponent()->GetSlotByAbilityTag(SelectedAbility.Ability);
 	}
 }
 

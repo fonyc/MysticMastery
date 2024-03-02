@@ -24,11 +24,25 @@ class MYSTICMASTERY_API AMMCharacterBase : public ACharacter, public IAbilitySys
 public:
 	AMMCharacterBase();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
+
+	UPROPERTY(ReplicatedUsing=OnRep_Stunned, BlueprintReadOnly)
+	bool bIsStunned = false;
+
+	UPROPERTY(ReplicatedUsing=OnRep_Burned, BlueprintReadOnly)
+	bool bIsBurned = false;
+
+	UFUNCTION()
+	virtual void OnRep_Stunned();
+
+	UFUNCTION()
+	virtual void OnRep_Burned();
 	
 	/** Combat Interface */
 	
@@ -51,7 +65,7 @@ public:
 
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	
-	virtual FOnASCRegisteredSignature GetOnASCRegisteredDelegate() override;
+	virtual FOnASCRegisteredSignature& GetOnASCRegisteredDelegate() override;
 
 	virtual FOnDeathSignature& GetOnDeathDelegate() override;
 
@@ -68,6 +82,11 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool bDead = false;
+	
+	virtual void StunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")
+	float BaseWalkSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
@@ -155,6 +174,9 @@ protected:
 	/** Debuff Effects  */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent;
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

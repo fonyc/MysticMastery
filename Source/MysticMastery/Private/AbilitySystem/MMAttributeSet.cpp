@@ -229,15 +229,26 @@ void UMMAttributeSet::ApplyDebuff(FEffectProperties Props)
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
 	Effect->StackLimitCount = 1;
 
+	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
+
 	/* -- Add calculation type. Remove this and add the Modifier part to be immune to exec_calc */
 	FGameplayEffectExecutionDefinition Execution;
 	Execution.CalculationClass = UExecCalc_Damage::StaticClass();
 	Effect->Executions.Add(Execution);
 
 	/** -- Start Add tag -- */
-	const FGameplayTag DebuffType = GameplayTags.DamageTypesToDebuffs[DamageType];
+	const FGameplayTag DebuffType = DebuffTag;
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
-	TagContainer.Added.AddTag(DebuffType); 
+	TagContainer.Added.AddTag(DebuffType);
+
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun))
+	{
+		//Block all inputs when stunned
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld);
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputPressed);
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputReleased);
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_CursorTrace);
+	}
 	
 	// Create and add the component (a tag container with inheritable tags in this case) to the GE
 	UTargetTagsGameplayEffectComponent& TargetTagsComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 

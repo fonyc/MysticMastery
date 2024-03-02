@@ -30,6 +30,8 @@ AMMEnemy::AMMEnemy()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	BaseWalkSpeed = 250.f;
 	
 	//Healthbar component
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
@@ -143,6 +145,7 @@ void AMMEnemy::InitializeAbilityActorInfo()
 
 	//Warn the delegate we just set the ability actor info
 	Cast<UMMAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	AbilitySystemComponent->RegisterGameplayTagEvent(FMMGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AMMEnemy::StunnedTagChanged);
 
 	if(HasAuthority())
 	{
@@ -156,6 +159,16 @@ void AMMEnemy::InitializeAbilityActorInfo()
 void AMMEnemy::InitializeDefaultAttributes() const
 {
 	UMMAbilitySystemBlueprintLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void AMMEnemy::StunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::StunnedTagChanged(CallbackTag, NewCount);
+
+	if(MMAIController && MMAIController->GetBlackboardComponent())
+	{
+		MMAIController->GetBlackboardComponent()->SetValueAsBool(FName("Stunned"), bIsStunned);
+	}
 }
 
 void AMMEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewTagCount)

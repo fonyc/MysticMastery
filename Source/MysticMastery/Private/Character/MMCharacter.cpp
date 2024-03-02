@@ -2,9 +2,11 @@
 
 #include "Character/MMCharacter.h"
 #include "AbilitySystemComponent.h"
+#include "MMGameplayTags.h"
 #include "NiagaraComponent.h"
 #include "AbilitySystem/MMAbilitySystemComponent.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -168,6 +170,42 @@ void AMMCharacter::OnRep_PlayerState()
 	InitializeAbilityActorInfo();
 }
 
+void AMMCharacter::OnRep_Stunned()
+{
+	if (UMMAbilitySystemComponent* ASC = Cast<UMMAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(FMMGameplayTags::Get().Player_Block_CursorTrace);
+		BlockedTags.AddTag(FMMGameplayTags::Get().Player_Block_InputPressed);
+		BlockedTags.AddTag(FMMGameplayTags::Get().Player_Block_InputHeld);
+		BlockedTags.AddTag(FMMGameplayTags::Get().Player_Block_InputReleased);
+
+		if (bIsStunned)
+		{
+			ASC->AddLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Activate();
+		}
+		else
+		{
+			ASC->RemoveLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Deactivate();
+		}
+	}
+}
+
+void AMMCharacter::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		BurnDebuffComponent->Deactivate();
+		
+	}
+}
+
 void AMMCharacter::InitializeAbilityActorInfo()
 {
 	Super::InitializeAbilityActorInfo();
@@ -183,6 +221,9 @@ void AMMCharacter::InitializeAbilityActorInfo()
 	AbilitySystemComponent = MMPlayerState->GetAbilitySystemComponent();
 	AttributeSet = MMPlayerState->GetAttributeSet();
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
+
+	//Subscribe in the ASC to know when the stun tag is added to the character
+	AbilitySystemComponent->RegisterGameplayTagEvent(FMMGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AMMCharacter::StunnedTagChanged);
 
 	//This is a perfect spot to fill the HUD data, cause we have all 4 variables needed (PS,PC,ASC,AC) and also access to the HUD. 
 	//Only in the server all PC are valid --> checking the PC cannot stop the execution (local player1 will stop its

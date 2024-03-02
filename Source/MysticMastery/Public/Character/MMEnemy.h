@@ -53,9 +53,6 @@ public:
 	/** End Hit React */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")
-	float BaseWalkSpeed = 250.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Combat")
 	float LifeSpan = 5.f;
 
 	UPROPERTY(BlueprintReadWrite, Category= "Combat")
@@ -71,7 +68,8 @@ protected:
 	virtual void InitializeAbilityActorInfo() override;
 	virtual void InitializeDefaultAttributes() const override;
 
-
+	virtual void StunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
 

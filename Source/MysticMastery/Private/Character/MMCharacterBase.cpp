@@ -11,6 +11,7 @@
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MysticMastery/MysticMastery.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AMMCharacterBase::AMMCharacterBase()
@@ -21,6 +22,11 @@ AMMCharacterBase::AMMCharacterBase()
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = FMMGameplayTags::Get().Debuff_Burn;
 	BurnDebuffComponent->Deactivate();
+
+	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
+	StunDebuffComponent->SetupAttachment(GetRootComponent());
+	StunDebuffComponent->DebuffTag = FMMGameplayTags::Get().Debuff_Stun;
+	StunDebuffComponent->Deactivate();
 	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
@@ -45,6 +51,24 @@ AMMCharacterBase::AMMCharacterBase()
 	//Collision response to projectiles
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
+}
+
+void AMMCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AMMCharacterBase, bIsStunned);
+	DOREPLIFETIME(AMMCharacterBase, bIsBurned);
+}
+
+void AMMCharacterBase::OnRep_Stunned()
+{
+	
+}
+
+void AMMCharacterBase::OnRep_Burned()
+{
+	
 }
 
 UAbilitySystemComponent* AMMCharacterBase::GetAbilitySystemComponent() const
@@ -105,6 +129,9 @@ void AMMCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	
 	Dissolve();
 	bDead = true;
+	BurnDebuffComponent->Deactivate();
+	StunDebuffComponent->Deactivate();
+	
 	OnDeathDelegate.Broadcast(this);
 }
 
@@ -133,7 +160,7 @@ ECharacterClass AMMCharacterBase::GetCharacterClass_Implementation()
 	return CharacterClass;
 }
 
-FOnASCRegisteredSignature AMMCharacterBase::GetOnASCRegisteredDelegate()
+FOnASCRegisteredSignature& AMMCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnAscRegistered;
 }
@@ -157,6 +184,13 @@ USkeletalMeshComponent* AMMCharacterBase::GetWeapon_Implementation()
 void AMMCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AMMCharacterBase::StunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	//Immovilize the character
+	bIsStunned = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
 }
 
 /**

@@ -34,8 +34,9 @@ void AMMProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AMMProjectile::OnSphereOverlap);
-	
 	SetLifeSpan(LifeSpan);
+	SetReplicateMovement(true);
+	
 	UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent(), NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
 
 	//Ignore Instigator of the projectile
@@ -62,6 +63,8 @@ void AMMProjectile::Destroyed()
 
 void AMMProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (DamageEffectParams.SourceASC == nullptr) return;
+	
 	AActor* SourceAvatarActor = DamageEffectParams.SourceASC->GetAvatarActor();
 	//Check data is not null and the effect caused do not hit himself
 	if (SourceAvatarActor == OtherActor) return;

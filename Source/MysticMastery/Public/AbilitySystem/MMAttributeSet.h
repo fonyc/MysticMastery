@@ -91,9 +91,17 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor, Category= "Primary Attributes")
 	FGameplayAttributeData Vigor;
 
+
 #pragma endregion
-	
+
 #pragma region SECONDARY ATTRIBUTES
+	
+#pragma region SPECIAL ATTRIBUTES
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LifeSteal, Category= "Special Attributes")
+	FGameplayAttributeData LifeSteal;
+	
+#pragma endregion 
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armor, Category= "Secondary Attributes")
 	FGameplayAttributeData Armor;
@@ -170,6 +178,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Intelligence);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Resilience);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Vigor);
+
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, LifeSteal);
 	
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Mana);
@@ -196,6 +206,9 @@ public:
 #pragma endregion
 	
 #pragma region ONREP METHOD DECLARATIONS
+
+	UFUNCTION()
+	void OnRep_LifeSteal(const FGameplayAttributeData& OldLifeSteal) const;
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
@@ -263,7 +276,8 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	static void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit);
 	void SendXPEvent(const FEffectProperties& Props);
-	void HandleIncomingDamage(FEffectProperties Props);
+	void HealDamageInstigator(const FEffectProperties& Props, const float LifeToRecover);
+	void HandleIncomingDamage(const FEffectProperties& Props);
 	void HandleIncomingXP(FEffectProperties Props);
 	void ApplyDebuff(FEffectProperties Props);
 	bool bRestoreHealth = false;

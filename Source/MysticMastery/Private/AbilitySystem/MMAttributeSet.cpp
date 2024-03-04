@@ -32,6 +32,9 @@ UMMAttributeSet::UMMAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
+
+	/* -- Special Attributes -- */
+	TagsToAttributes.Add(GameplayTags.Attributes_Special_LifeSteal, GetMaxManaAttribute);
 	
 	/* -- Secondary Attributes (Resistances) -- */
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Fire, GetFireResistanceAttribute);
@@ -62,6 +65,9 @@ void UMMAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, CriticalHitResistance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
+
+	/* -- Special -- */
+	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, LifeSteal, COND_None, REPNOTIFY_Always);
 
 	/* -- Resistances -- */
 	DOREPLIFETIME_CONDITION_NOTIFY(UMMAttributeSet, FireResistance, COND_None, REPNOTIFY_Always);
@@ -124,7 +130,32 @@ void UMMAttributeSet::SendXPEvent(const FEffectProperties& Props)
 	}
 }
 
-void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
+void UMMAttributeSet::HealDamageInstigator(const FEffectProperties& Props, const float LifeToRecover)
+{
+	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
+	FGameplayEffectContextHandle EffectContext = Props.SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(Props.SourceAvatarActor);
+
+	const FString HealName = FString::Printf(TEXT("DynamicHeal"));
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(HealName));
+
+	Effect->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	const int32 Index = Effect->Modifiers.Num();
+	Effect->Modifiers.Add(FGameplayModifierInfo());
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
+
+	ModifierInfo.ModifierMagnitude = FScalableFloat(LifeToRecover);
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+	ModifierInfo.Attribute = GetHealthAttribute();
+
+	if (const FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContext, 1.f))
+	{
+		Props.SourceASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
+	}
+}
+
+void UMMAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 {
 	const float LocalIncomingDamage = GetIncomingDamage();
 	SetIncomingDamage(0.f);
@@ -156,7 +187,14 @@ void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
 				}
 			}
 		}
-		
+
+		//Life steal
+		if (const float SourceLifeSteal = Props.SourceASC->GetNumericAttribute(GetLifeStealAttribute()); SourceLifeSteal > 0.f)
+		{
+			const float LifeToRecover = LocalIncomingDamage * SourceLifeSteal * 0.01f;
+			HealDamageInstigator(Props, LifeToRecover);
+		}
+				
 		//Call the text damage on top of the character
 		const bool bBlocked = UMMAbilitySystemBlueprintLibrary::IsBlockedHit(Props.EffectContextHandle);
 		const bool bCriticalHit = UMMAbilitySystemBlueprintLibrary::IsCriticalHit(Props.EffectContextHandle);
@@ -167,7 +205,6 @@ void UMMAttributeSet::HandleIncomingDamage(FEffectProperties Props)
 			//Apply the the debuff
 			ApplyDebuff(Props);
 		}
-			
 	}
 }
 
@@ -332,6 +369,11 @@ void UMMAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 }
 
 #pragma region ONREP METHODS
+
+void UMMAttributeSet::OnRep_LifeSteal(const FGameplayAttributeData& OldLifeSteal) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, LifeSteal, OldLifeSteal);
+}
 
 void UMMAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {

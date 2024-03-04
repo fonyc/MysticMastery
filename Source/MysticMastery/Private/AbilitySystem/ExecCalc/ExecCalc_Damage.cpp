@@ -91,7 +91,6 @@ void UExecCalc_Damage::ApplyDebuffIfAble(const FGameplayEffectCustomExecutionPar
 			//Roll the dice to see if there is debuff application
 			if (FMath::RandRange(1,100) < EffectiveDebuffChance)
 			{
-				UE_LOG(MMLog, Log, TEXT("EXEC_CALC: Debuff roll: %f success!"), EffectiveDebuffChance);
 				FGameplayEffectContextHandle ContextHandle = Spec.GetContext();
 
 				UMMAbilitySystemBlueprintLibrary::SetIsSuccessfulDebuff(ContextHandle, true);

@@ -34,7 +34,8 @@ UMMAttributeSet::UMMAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
 
 	/* -- Special Attributes -- */
-	TagsToAttributes.Add(GameplayTags.Attributes_Special_LifeSteal, GetMaxManaAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Special_LifeSteal, GetLifeStealAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Special_ManaSteal, GetManaStealAttribute);
 	
 	/* -- Secondary Attributes (Resistances) -- */
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Fire, GetFireResistanceAttribute);
@@ -130,14 +131,13 @@ void UMMAttributeSet::SendXPEvent(const FEffectProperties& Props)
 	}
 }
 
-void UMMAttributeSet::HealDamageInstigator(const FEffectProperties& Props, const float LifeToRecover)
+void UMMAttributeSet::AddAttributeToInstigator(const FEffectProperties& Props, const float AddToAttribute, const FGameplayAttribute& AttributeToModify)
 {
-	const FMMGameplayTags& GameplayTags = FMMGameplayTags::Get();
 	FGameplayEffectContextHandle EffectContext = Props.SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(Props.SourceAvatarActor);
 
-	const FString HealName = FString::Printf(TEXT("DynamicHeal"));
-	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(HealName));
+	const FString AbilityName = FString::Printf(TEXT("DynamicInstantAbility"));
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(AbilityName));
 
 	Effect->DurationPolicy = EGameplayEffectDurationType::Instant;
 
@@ -145,9 +145,9 @@ void UMMAttributeSet::HealDamageInstigator(const FEffectProperties& Props, const
 	Effect->Modifiers.Add(FGameplayModifierInfo());
 	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
 
-	ModifierInfo.ModifierMagnitude = FScalableFloat(LifeToRecover);
+	ModifierInfo.ModifierMagnitude = FScalableFloat(AddToAttribute);
 	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
-	ModifierInfo.Attribute = GetHealthAttribute();
+	ModifierInfo.Attribute = AttributeToModify;
 
 	if (const FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContext, 1.f))
 	{
@@ -192,7 +192,14 @@ void UMMAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 		if (const float SourceLifeSteal = Props.SourceASC->GetNumericAttribute(GetLifeStealAttribute()); SourceLifeSteal > 0.f)
 		{
 			const float LifeToRecover = LocalIncomingDamage * SourceLifeSteal * 0.01f;
-			HealDamageInstigator(Props, LifeToRecover);
+			AddAttributeToInstigator(Props, LifeToRecover, GetHealthAttribute());
+		}
+
+		//Mana steal
+		if (const float SourceManaSteal = Props.SourceASC->GetNumericAttribute(GetManaStealAttribute()); SourceManaSteal > 0.f)
+		{
+			const float ManaToRecover = LocalIncomingDamage * SourceManaSteal * 0.01f;
+			AddAttributeToInstigator(Props, ManaToRecover, GetManaAttribute());
 		}
 				
 		//Call the text damage on top of the character
@@ -373,6 +380,11 @@ void UMMAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 void UMMAttributeSet::OnRep_LifeSteal(const FGameplayAttributeData& OldLifeSteal) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, LifeSteal, OldLifeSteal);
+}
+
+void UMMAttributeSet::OnRep_ManaSteal(const FGameplayAttributeData& OldManaSteal) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMAttributeSet, ManaSteal, OldManaSteal);
 }
 
 void UMMAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const

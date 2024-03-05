@@ -96,13 +96,6 @@ public:
 
 #pragma region SECONDARY ATTRIBUTES
 	
-#pragma region SPECIAL ATTRIBUTES
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LifeSteal, Category= "Special Attributes")
-	FGameplayAttributeData LifeSteal;
-	
-#pragma endregion 
-	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armor, Category= "Secondary Attributes")
 	FGameplayAttributeData Armor;
 
@@ -150,6 +143,16 @@ public:
 	FGameplayAttributeData PhysicalResistance;
 	
 #pragma  endregion
+
+#pragma region SPECIAL ATTRIBUTES
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LifeSteal, Category= "Special Attributes")
+	FGameplayAttributeData LifeSteal;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaSteal, Category= "Special Attributes")
+	FGameplayAttributeData ManaSteal;
+	
+#pragma endregion 
 	
 #pragma region VITAL ATTRIBUTES
 	
@@ -180,6 +183,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Vigor);
 
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, LifeSteal);
+	ATTRIBUTE_ACCESSORS(UMMAttributeSet, ManaSteal);
 	
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UMMAttributeSet, Mana);
@@ -209,6 +213,9 @@ public:
 
 	UFUNCTION()
 	void OnRep_LifeSteal(const FGameplayAttributeData& OldLifeSteal) const;
+
+	UFUNCTION()
+	void OnRep_ManaSteal(const FGameplayAttributeData& OldManaSteal) const;
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
@@ -276,7 +283,7 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	static void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit);
 	void SendXPEvent(const FEffectProperties& Props);
-	void HealDamageInstigator(const FEffectProperties& Props, const float LifeToRecover);
+	void AddAttributeToInstigator(const FEffectProperties& Props, const float AddToAttribute,  const FGameplayAttribute& AttributeToModify);
 	void HandleIncomingDamage(const FEffectProperties& Props);
 	void HandleIncomingXP(FEffectProperties Props);
 	void ApplyDebuff(FEffectProperties Props);

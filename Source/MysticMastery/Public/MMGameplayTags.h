@@ -37,6 +37,7 @@ public:
 
 	//Special Attributes
 	FGameplayTag Attributes_Special_LifeSteal;
+	FGameplayTag Attributes_Special_ManaSteal;
 
 	FGameplayTag Attributes_Resistance_Fire;
 	FGameplayTag Attributes_Resistance_Lightning;

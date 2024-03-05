@@ -97,8 +97,11 @@ void FMMGameplayTags::InitializeNativeGameplayTags()
 
 	//Attributes.Special
 
-	GameplayTags.Attributes_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	GameplayTags.Attributes_Special_LifeSteal = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Special.LifeSteal"), FString("Percentage of life recovered when dealing damage"));
+
+	GameplayTags.Attributes_Special_ManaSteal = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Special.ManaSteal"), FString("Percentage of mana recovered when dealing damage"));
 
 	//Attributes Resistances
 	

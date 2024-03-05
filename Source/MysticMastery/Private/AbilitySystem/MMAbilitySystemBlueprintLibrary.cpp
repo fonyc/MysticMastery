@@ -223,6 +223,15 @@ FVector UMMAbilitySystemBlueprintLibrary::GetKnockBackForce(const FGameplayEffec
 	return FVector::ZeroVector;
 }
 
+float UMMAbilitySystemBlueprintLibrary::GetKnockBackChance(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FMMGameplayEffectContext* MMEffectContext = static_cast<const FMMGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return MMEffectContext->GetKnockBackChance();
+	}
+	return 0.f;
+}
+
 void UMMAbilitySystemBlueprintLibrary::SetCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
 {
 	if (FMMGameplayEffectContext* MMEffectContext = static_cast<FMMGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -360,7 +369,9 @@ FGameplayEffectContextHandle UMMAbilitySystemBlueprintLibrary::ApplyDamageEffect
 	EffectContextHandle.AddSourceObject(SourceAvatarActor);
 	
 	SetDeathImpulse(EffectContextHandle, DamageEffectParams.DeathImpulseVector);
-	SetKnockBackForce(EffectContextHandle, DamageEffectParams.KnockBackForceVector);
+	const bool bIsKnockBackHit = FMath::RandRange(1.f,100.f) < DamageEffectParams.KnockBackChance;
+	const FVector FinalKnockBackForce = bIsKnockBackHit ? DamageEffectParams.KnockBackForceVector : FVector::ZeroVector;
+	SetKnockBackForce(EffectContextHandle, FinalKnockBackForce);
 
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceASC->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
 	//Damage of the base ability

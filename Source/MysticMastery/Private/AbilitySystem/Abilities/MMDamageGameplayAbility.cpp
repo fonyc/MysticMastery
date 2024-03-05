@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/MMDamageGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "MysticMastery/MMLogChannels.h"
 
 void UMMDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
@@ -32,7 +33,7 @@ FDamageEffectParams UMMDamageGameplayAbility::MakeDamageEffectParamsFromClassDef
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
 	Params.KnockBackForceMagnitude = KnockBackForceMagnitude.GetValueAtLevel(GetAbilityLevel());
 	Params.KnockBackChance = KnockBackChance.GetValueAtLevel(GetAbilityLevel());
-
+	
 	if (IsValid(TargetActor))
 	{
 		FRotator Rotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();

@@ -67,7 +67,7 @@ USTRUCT(BlueprintType)
 struct FMMGameplayEffectContext : public FGameplayEffectContext
 {
 	GENERATED_BODY()
-
+	
 	bool IsCriticalHit() const { return bIsCriticalHit; }
 	bool IsBlockedHit() const { return bIsBlockedHit; }
 	bool IsSuccessfulDebuff() const { return bIsSuccessfulDebuff; }
@@ -75,8 +75,8 @@ struct FMMGameplayEffectContext : public FGameplayEffectContext
 	float GetDebuffFrequency() const { return DebuffFrequency; }
 	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
-	FVector GetDeathImpulse() const {return DeathImpulseDirection; } 
-	FVector GetKnockBackForce() const {return KnockBackForceVector; } 
+	FVector GetDeathImpulse() const { return DeathImpulseDirection; } 
+	FVector GetKnockBackForce() const { return KnockBackForceVector; } 
 	float GetKnockBackChance() const { return KnockBackChance; }
 
 	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
